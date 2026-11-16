@@ -345,8 +345,8 @@ A: {
     { from: { mod: ["kp", "C2"] }, to: { uno: "D3" }, color: "blue",   step: 7, note: "" },
     { from: { mod: ["kp", "C3"] }, to: { uno: "D2" }, color: "purple", step: 7, note: "" },
     { from: { mod: ["kp", "C4"] }, to: { uno: "A0" }, color: "gray",   step: 7, note: "키패드 8번 핀" },
-    { from: { mod: ["lkA", "B D4"] }, to: { uno: "A2" },     color: "yellow", step: 8, note: "A2(TX) → 보드 B D4" },
-    { from: { mod: ["lkA", "B D5"] }, to: { uno: "A1" },     color: "green",  step: 8, note: "A1(RX) ← 보드 B D5" },
+    { from: { mod: ["lkA", "B D4"] }, to: { uno: "A2" },     color: "cyan", step: 8, note: "A2(TX) → 보드 B D4" },
+    { from: { mod: ["lkA", "B D5"] }, to: { uno: "A1" },     color: "pink",  step: 8, note: "A1(RX) ← 보드 B D5" },
     { from: { mod: ["lkA", "GND"] },  to: { uno: "GND_B2" }, color: "black",  step: 8, note: "공통 GND <span class='tag c'>필수</span>" },
   ],
   steps: [
@@ -382,7 +382,7 @@ B: {
     { id: "RG", type: "res", ohm: 220,  a: { bb: [22, "g"] }, b: { bb: [25, "g"] }, step: 2 },
     { id: "LG", type: "led", color: "green",  a: { bb: [25, "j"] }, k: { rail: ["B-", 26] }, step: 2 },
     { id: "SW", type: "button", col: 27, step: 3 },
-    { id: "C1", type: "cap", p: { rail: ["B+", 4] }, n: { rail: ["B-", 4] }, step: 5 },
+    { id: "C1", type: "cap", p: { rail: ["B+", 4] }, n: { rail: ["B-", 6] }, step: 5 },
   ],
   wires: [
     { from: { uno: "5V" },     to: { rail: ["T+", 2] },  color: "red",   step: 1, note: "위쪽 + 레일 = 아두이노 5V" },
@@ -395,20 +395,20 @@ B: {
     { from: { bb: [29, "j"] }, to: { rail: ["B-", 29] }, color: "black", step: 3, note: "버튼 오른쪽 아래 다리 칸 → GND (대각선)" },
     { from: { mod: ["sr", "VCC"] },  to: { rail: ["T+", 11] }, color: "red",    step: 4, note: "" },
     { from: { mod: ["sr", "Trig"] }, to: { uno: "D6" },        color: "blue",   step: 4, note: "" },
-    { from: { mod: ["sr", "Echo"] }, to: { uno: "D7" },        color: "green",  step: 4, note: "" },
+    { from: { mod: ["sr", "Echo"] }, to: { uno: "D7" },        color: "brown",  step: 4, note: "" },
     { from: { mod: ["sr", "GND"] },  to: { rail: ["T-", 12] }, color: "black",  step: 4, note: "" },
     { from: { mod: ["ps", "+5V"] },  to: { rail: ["B+", 30] }, color: "red",    step: 5, note: "외부 5V → 아래쪽 + 레일" },
     { from: { mod: ["ps", "GND"] },  to: { rail: ["B-", 30] }, color: "black",  step: 5, note: "외부 GND → 아래쪽 − 레일" },
-    { from: { mod: ["sv", "V+"] },   to: { rail: ["B+", 6] },  color: "red",    step: 5, note: "서보 빨강 <span class='tag c'>외부 5V만</span>" },
-    { from: { mod: ["sv", "GND"] },  to: { rail: ["B-", 6] },  color: "brown",  step: 5, note: "서보 갈색" },
+    { from: { mod: ["sv", "V+"] },   to: { rail: ["B+", 9] },  color: "red",    step: 5, note: "서보 빨강 <span class='tag c'>외부 5V만</span>" },
+    { from: { mod: ["sv", "GND"] },  to: { rail: ["B-", 9] },  color: "brown",  step: 5, note: "서보 갈색" },
     { from: { mod: ["sv", "SIG"] },  to: { uno: "A0" },        color: "orange", step: 5, note: "서보 주황(신호)" },
     { from: { uno: "D1" },  to: { bb: [2, "e"] },              color: "white",  step: 6, note: "D1(TX) → 분압 P칸" },
     { from: { mod: ["bt", "RXD"] },  to: { bb: [8, "d"] },     color: "white",  step: 6, note: "분압 N칸 → HC-06 RXD" },
     { from: { mod: ["bt", "TXD"] },  to: { uno: "D0" },        color: "gray",   step: 6, note: "<span class='tag c'>업로드 전 뽑기</span>" },
     { from: { mod: ["bt", "GND"] },  to: { rail: ["T-", 14] }, color: "black",  step: 6, note: "" },
     { from: { mod: ["bt", "VCC"] },  to: { rail: ["T+", 15] }, color: "red",    step: 6, note: "HC-06 VCC는 5V" },
-    { from: { mod: ["lkB", "A A2"] }, to: { uno: "D4" },       color: "yellow", step: 7, note: "D4(RX) ← 보드 A A2" },
-    { from: { mod: ["lkB", "A A1"] }, to: { uno: "D5" },       color: "green",  step: 7, note: "D5(TX) → 보드 A A1" },
+    { from: { mod: ["lkB", "A A2"] }, to: { uno: "D4" },       color: "cyan", step: 7, note: "D4(RX) ← 보드 A A2" },
+    { from: { mod: ["lkB", "A A1"] }, to: { uno: "D5" },       color: "pink",  step: 7, note: "D5(TX) → 보드 A A1" },
     { from: { mod: ["lkB", "GND"] },  to: { rail: ["T-", 2] }, color: "black",  step: 7, note: "공통 GND (위쪽 − 레일) <span class='tag c'>필수</span>" },
   ],
   steps: [
@@ -416,7 +416,7 @@ B: {
     { t: "LED 3개", d: ["저항: 10g→13g(1kΩ), 16g→19g(220Ω), 22g→25g(220Ω)", "LED 긴 다리(+)는 13j, 19j, 25j / 짧은 다리(−)는 아래쪽 − 레일", "D12 → 10f(빨강), D11 → 16f(노랑), D10 → 22f(초록)"] },
     { t: "실내 버튼", d: ["버튼을 가운데 홈에 걸쳐서 꽂기 (다리 4개: 27e, 29e, 27f, 29f)", "D2 → 27a (왼쪽 위 다리와 같은 세로줄)", "29j → 아래쪽 − 레일 (오른쪽 아래 다리 = 대각선)", "→ board_B_door 업로드 후 버튼 테스트 (HC-06는 아직 꽂지 마)"] },
     { t: "HC-SR04", d: ["VCC → 위쪽 + 레일(5V), GND → 위쪽 − 레일", "Trig → D6, Echo → D7"] },
-    { t: "서보 + 외부전원", d: ["470µF: 띠(−) 다리를 아래 − 레일 4번, 긴 다리(+)를 아래 + 레일 4번에", "외부 5V + → 아래 + 레일, 외부 GND → 아래 − 레일", "서보 빨강 → 아래 + 레일, 갈색 → 아래 − 레일, 주황 → A0", "<b>위 + 레일과 아래 + 레일을 잇지 마</b>"] },
+    { t: "서보 + 외부전원", d: ["470µF: 긴 다리(+)는 아래 + 레일 4번, 띠(−) 다리는 아래 − 레일 6번에", "외부 5V + → 아래 + 레일, 외부 GND → 아래 − 레일", "서보 빨강 → 아래 + 레일, 갈색 → 아래 − 레일, 주황 → A0", "<b>위 + 레일과 아래 + 레일을 잇지 마</b>"] },
     { t: "HC-06 + 분압", d: ["220Ω: 2c→5c, 220Ω: 5b→8b, 1kΩ: 8a → 위쪽 − 레일 (세워서 꽂기)", "D1 → 2e, HC-06 RXD ← 8d", "HC-06 TXD → D0 (업로드할 땐 뽑기)", "VCC → 위쪽 + 레일(5V), GND → 위쪽 − 레일"] },
     { t: "보드 A 링크 (마지막)", d: ["D4 ← 보드 A A2, D5 → 보드 A A1", "보드 A GND ↔ 보드 B 위쪽 − 레일"] },
   ],
@@ -426,7 +426,7 @@ B: {
 
 <script id="route-cache">
 /* 미리 계산한 배선 (scene-data 가 바뀌면 서명이 달라져서 자동으로 다시 계산함) */
-const ROUTE_CACHE = {"A":{"sig":"c9e53e38","routes":[[[41,154],[41,163],[84,163],[84,114],[96,114]],[[34,116],[34,107],[97,107],[97,116],[98,116]],[[42,116],[42,109],[86,109],[86,129],[94,129],[94,128]],[[36,116],[36,111],[88,111],[88,127],[112,127],[112,128]],[[40,116],[40,105],[127,105],[127,127],[130,127],[130,128]],[[130,77],[130,110],[111,110],[111,122],[109,122],[109,125],[106,125],[106,126]],[[132,77],[132,99],[149,99],[149,129],[125,129],[125,126],[124,126]],[[134,77],[134,106],[147,106],[147,125],[142,125],[142,126]],[[136,77],[136,101],[38,101],[38,116]],[[140,77],[140,108],[132,108],[132,112],[119,112],[119,116],[116,116]],[[142,77],[142,112],[139,112],[139,115],[131,115],[131,114],[128,114]],[[144,77],[144,110],[136,110],[136,114]],[[123,175],[70,175],[70,165],[45,165],[45,154]],[[123,177],[70,177],[70,190],[38,190],[38,159],[43,159],[43,154]],[[123,179],[66,179],[66,159],[61,159],[61,154]],[[123,181],[68,181],[68,161],[63,161],[63,154]],[[47,84],[47,103],[46,103],[46,116]],[[49,84],[49,116]],[[51,84],[51,116]],[[53,84],[53,116]],[[55,84],[55,116]],[[57,84],[57,116]],[[59,84],[59,116]],[[61,84],[61,103],[72,103],[72,167],[53,167],[53,154]],[[61,177],[61,161],[57,161],[57,154]],[[55,177],[55,154]],[[47,177],[47,154]]]},"B":{"sig":"1ed665c0","routes":[[[43,146],[43,151],[86,151],[86,106],[96,106]],[[34,108],[34,94],[97,94],[97,108],[98,108]],[[45,146],[45,153],[96,153],[96,140]],[[38,108],[38,90],[113,90],[113,126],[112,126]],[[40,108],[40,92],[119,92],[119,121],[124,121],[124,126]],[[42,108],[42,102],[135,102],[135,126],[136,126]],[[59,108],[59,96],[145,96],[145,112],[146,112]],[[150,134],[150,140]],[[48,61],[48,84],[117,84],[117,106],[114,106]],[[50,61],[50,88],[51,88],[51,108]],[[52,61],[52,86],[48,86],[48,88],[49,88],[49,108]],[[54,61],[54,86],[115,86],[115,108],[116,108]],[[175,138],[152,138]],[[175,140],[152,140]],[[119,178],[106,178],[106,138],[104,138]],[[119,176],[104,176],[104,140]],[[119,180],[53,180],[53,146]],[[61,108],[61,100],[88,100],[88,119],[96,119],[96,120]],[[132,64],[132,100],[131,100],[131,117],[108,117],[108,118]],[[130,64],[130,88],[63,88],[63,108]],[[128,64],[128,107],[121,107],[121,108],[120,108]],[[126,64],[126,100],[122,100],[122,106]],[[20,92],[20,96],[55,96],[55,108]],[[16,92],[16,100],[53,100],[53,108]],[[8,92],[8,98],[95,98],[95,108],[96,108]]]}};
+const ROUTE_CACHE = {"A":{"sig":"c9e53e38","routes":[[[41,154],[41,165],[84,165],[84,112],[96,112],[96,114]],[[34,116],[34,109],[98,109],[98,116]],[[42,116],[42,107],[88,107],[88,130],[94,130],[94,128]],[[36,116],[36,105],[86,105],[86,132],[112,132],[112,128]],[[40,116],[40,103],[82,103],[82,144],[129,144],[129,128],[130,128]],[[130,77],[130,102],[111,102],[111,118],[110,118],[110,130],[107,130],[107,126],[106,126]],[[132,77],[132,106],[126,106],[126,118],[127,118],[127,130],[125,130],[125,126],[124,126]],[[134,77],[134,106],[147,106],[147,130],[143,130],[143,126],[142,126]],[[136,77],[136,100],[38,100],[38,116]],[[140,77],[140,104],[117,104],[117,116],[116,116]],[[142,77],[142,108],[128,108],[128,114]],[[144,77],[144,110],[136,110],[136,114]],[[123,175],[70,175],[70,190],[38,190],[38,159],[45,159],[45,154]],[[123,177],[72,177],[72,192],[36,192],[36,161],[43,161],[43,154]],[[123,179],[66,179],[66,159],[61,159],[61,154]],[[123,181],[68,181],[68,161],[63,161],[63,154]],[[47,84],[47,111],[46,111],[46,116]],[[49,84],[49,116]],[[51,84],[51,116]],[[53,84],[53,116]],[[55,84],[55,116]],[[57,84],[57,116]],[[59,84],[59,116]],[[61,84],[61,112],[70,112],[70,163],[53,163],[53,154]],[[61,177],[61,159],[57,159],[57,154]],[[55,177],[55,154]],[[47,177],[47,154]]]},"B":{"sig":"e7b0d850","routes":[[[43,146],[43,153],[92,153],[92,104],[96,104],[96,106]],[[34,108],[34,91],[98,91],[98,108]],[[45,146],[45,151],[96,151],[96,140]],[[38,108],[38,97],[118,97],[118,110],[113,110],[113,126],[112,126]],[[40,108],[40,101],[88,101],[88,124],[124,124],[124,126]],[[42,108],[42,85],[135,85],[135,126],[136,126]],[[59,108],[59,93],[145,93],[145,112],[146,112]],[[150,134],[150,140]],[[48,61],[48,89],[114,89],[114,106]],[[50,61],[50,95],[51,95],[51,108]],[[52,61],[52,87],[46,87],[46,95],[49,95],[49,108]],[[54,61],[54,87],[116,87],[116,108]],[[175,138],[157,138],[157,136],[152,136],[152,138]],[[175,140],[157,140],[157,142],[152,142],[152,140]],[[119,178],[107,178],[107,136],[110,136],[110,138]],[[119,176],[110,176],[110,140]],[[119,180],[53,180],[53,146]],[[61,108],[61,103],[86,103],[86,122],[96,122],[96,120]],[[132,64],[132,101],[129,101],[129,122],[109,122],[109,118],[108,118]],[[130,64],[130,95],[63,95],[63,108]],[[128,64],[128,100],[120,100],[120,108]],[[126,64],[126,102],[122,102],[122,106]],[[20,92],[20,96],[37,96],[37,93],[55,93],[55,108]],[[16,92],[16,103],[53,103],[53,108]],[[8,92],[8,99],[94,99],[94,110],[96,110],[96,108]]]}};
 </script>
 <script>
 (function(){
@@ -436,8 +436,8 @@ function el(tag,attrs,parent,text){const e=document.createElementNS(NS,tag);for(
 
 /* 공통 치수: 4px = 1mm, 2.54mm 피치 = 10.16px */
 const MM=4, P=2.54*MM, INCH=25.4*MM;
-const WIRE={red:"#d93025",black:"#2a2a2a",orange:"#f08a00",yellow:"#f2c200",green:"#1f9d55",blue:"#2f6fe0",purple:"#8b4fd6",white:"#f4f4f4",gray:"#9aa3a6",brown:"#8a4b20"};
-const WNAME={red:"빨강",black:"검정",orange:"주황",yellow:"노랑",green:"초록",blue:"파랑",purple:"보라",white:"흰색",gray:"회색",brown:"갈색"};
+const WIRE={red:"#d93025",black:"#2a2a2a",orange:"#f08a00",yellow:"#f2c200",green:"#1f9d55",blue:"#2f6fe0",purple:"#8b4fd6",white:"#f4f4f4",gray:"#9aa3a6",brown:"#8a4b20",pink:"#e8579a",cyan:"#1bb3c9"};
+const WNAME={red:"빨강",black:"검정",orange:"주황",yellow:"노랑",green:"초록",blue:"파랑",purple:"보라",white:"흰색",gray:"회색",brown:"갈색",pink:"분홍",cyan:"하늘"};
 
 /* 아두이노 우노 R3 (USB 왼쪽), 헤더 핀 좌표는 인치(보드 왼쪽 아래 기준) */
 const UNO_TOP={SCL:.84,SDA:.94,AREF:1.04,GND_T:1.14,D13:1.24,D12:1.34,D11:1.44,D10:1.54,D9:1.64,D8:1.74,D7:1.9,D6:2.0,D5:2.1,D4:2.2,D3:2.3,D2:2.4,D1:2.5,D0:2.6};
@@ -586,7 +586,7 @@ const MODS={
     draw(g,m){
       const [x1,y1,x2,y2]=MODBOX.link(m);
       el("rect",{x:x1,y:y1,width:x2-x1,height:y2-y1,rx:4,fill:"none",stroke:"#ffffff","stroke-dasharray":"4 4"},g);
-      m.pins.forEach((n,i)=>{const p=MODS.link.pinPos(m,i);el("circle",{cx:p.x,cy:p.y,r:3,fill:"#fff"},g);const prev=i?MODS.link.pinPos(m,i-1).x:-1e9, alt=(p.x-prev<3*P&&i%2)?10:0;el("text",{x:p.x,y:m.down?p.y-8-alt:p.y+14+alt,"font-size":7.5,"text-anchor":"middle",fill:"#fff"},g,n);});
+      m.pins.forEach((n,i)=>{const p=MODS.link.pinPos(m,i);el("circle",{cx:p.x,cy:p.y,r:3,fill:"#fff"},g);const prev=i?MODS.link.pinPos(m,i-1).x:-1e9, alt=(p.x-prev<3*P)?10:0;el("text",{x:p.x,y:m.down?p.y-8-alt:p.y+14+alt,"font-size":7.5,"text-anchor":"middle",fill:"#fff"},g,n.replace(/^[AB] /,""));});
     }},
 };
 function modPinPos(m,name){
@@ -621,14 +621,17 @@ function drawLED(g,a,k,color){
   el("circle",{cx:k.x,cy:k.y,r:2.2,fill:"#8d9396"},g);
   el("text",{x:a.x-4,y:a.y+3,"font-size":9,"text-anchor":"end",fill:"#1d1f22","font-weight":700},g,"+");
 }
+// 470µF: 몸통은 + 레일 위쪽, + 다리는 바로 아래 + 레일 구멍으로, − 다리는 구멍 사이 틈으로 내려가 − 레일 구멍으로
 function drawCap(g,p,n){
-  el("line",{x1:p.x,y1:p.y,x2:p.x-6,y2:p.y-20,stroke:"#b9bec2","stroke-width":1.6},g);
-  el("line",{x1:n.x,y1:n.y,x2:n.x+6,y2:n.y-30,stroke:"#b9bec2","stroke-width":1.6},g);
-  const cx=p.x,cy=p.y-36;
-  el("circle",{cx,cy,r:17,fill:"#1f3f8f",stroke:"#0f2350"},g);
-  el("path",{d:`M${cx} ${cy-17} A17 17 0 0 1 ${cx} ${cy+17} L${cx+8} ${cy+15} A17 17 0 0 0 ${cx+8} ${cy-15}Z`,fill:"#c9d3ea",opacity:.85},g);
-  el("text",{x:cx+10,y:cy+4,"font-size":10,"text-anchor":"middle",fill:"#0f2350","font-weight":700},g,"−");
-  el("text",{x:cx-5,y:cy+3,"font-size":7,"text-anchor":"middle",fill:"#e8eef9"},g,"470µ");
+  const cx=(p.x+n.x)/2, cy=p.y-30, gapX=n.x-P/2;
+  el("polyline",{points:`${cx-6},${cy+12} ${p.x},${p.y-6} ${p.x},${p.y}`,fill:"none",stroke:"#b9bec2","stroke-width":1.8},g);
+  el("polyline",{points:`${cx+6},${cy+12} ${gapX},${p.y-6} ${gapX},${n.y-4} ${n.x},${n.y}`,fill:"none",stroke:"#b9bec2","stroke-width":1.8},g);
+  el("circle",{cx,cy,r:15,fill:"#1f3f8f",stroke:"#0f2350"},g);
+  el("path",{d:`M${cx} ${cy-15} A15 15 0 0 1 ${cx} ${cy+15} L${cx+7} ${cy+13} A15 15 0 0 0 ${cx+7} ${cy-13}Z`,fill:"#c9d3ea",opacity:.9},g);
+  el("text",{x:cx+9,y:cy+4,"font-size":11,"text-anchor":"middle",fill:"#0f2350","font-weight":700},g,"−");
+  el("text",{x:cx-6,y:cy+3,"font-size":7,"text-anchor":"middle",fill:"#e8eef9"},g,"470µ");
+  el("text",{x:p.x-6,y:p.y-4,"font-size":10,"text-anchor":"end",fill:"#d93025","font-weight":700},g,"+");
+  el("circle",{cx:p.x,cy:p.y,r:2.4,fill:"#8d9396"},g); el("circle",{cx:n.x,cy:n.y,r:2.4,fill:"#8d9396"},g);
 }
 function drawButton(g,pts){
   const xs=pts.map(p=>p.x),ys=pts.map(p=>p.y),x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
@@ -674,7 +677,7 @@ class Heap{constructor(){this.k=[];this.v=[];}
 
 function routeScene(S,gr,order,ripRounds){
   const {NX,NY,N}=gr, id=(i,j)=>j*NX+i, inb=(i,j)=>i>=0&&j>=0&&i<NX&&j<NY;
-  const block=new Uint8Array(N), owner=new Int16Array(N).fill(-1), hOcc=new Uint8Array(N), vOcc=new Uint8Array(N), cost=new Float32Array(N);
+  const block=new Uint8Array(N), owner=new Int16Array(N).fill(-1), hOcc=new Uint8Array(N), vOcc=new Uint8Array(N), cost=new Float32Array(N), hCost=new Float32Array(N), keep=new Int16Array(N).fill(-1);
   const rectCells=(b,pad,fn)=>{for(let j=gr.cy(b[1])-pad;j<=gr.cy(b[3])+pad;j++)for(let i=gr.cx(b[0])-pad;i<=gr.cx(b[2])+pad;i++)if(inb(i,j))fn(id(i,j));};
   rectCells(unoBox(S.uno),1,c=>block[c]=1);
   S.mods.forEach(m=>rectCells(MODBOX[m.type](m),1,c=>block[c]=1));
@@ -682,11 +685,15 @@ function routeScene(S,gr,order,ripRounds){
   const b=S.bb; rectCells([b.x-2.2*P,b.y-1.6*P,b.x+31.2*P,b.y+18.6*P],0,c=>cost[c]+=0.3);
   for(let c=1;c<=30;c++)for(const r of ROWS){const h=bbHole(b,c,r);cost[id(gr.cx(h.x),gr.cy(h.y))]+=6;}
   ["T+","T-","B+","B-"].forEach(n=>RAIL_COLS.forEach(c=>{const h=railHole(b,n,c);cost[id(gr.cx(h.x),gr.cy(h.y))]+=6;}));
+  // 브레드보드 구멍 줄(a~e, f~j, 레일) 안에서는 가로로 달리지 못하게: 가로 이동은 가운데 홈·레일 바깥에서만
+  const bandY=(y1,y2)=>rectCells([b.x-2.2*P,y1,b.x+31.2*P,y2],0,c=>hCost[c]+=80);
+  bandY(railY(b,"T+")-P*0.5,railY(b,"T-")+P*0.5); bandY(bbHole(b,1,"a").y-P*0.5,bbHole(b,1,"e").y+P*0.5);
+  bandY(bbHole(b,1,"f").y-P*0.5,bbHole(b,1,"j").y+P*0.5); bandY(railY(b,"B+")-P*0.5,railY(b,"B-")+P*0.5);
   const blockSeg=(p1,p2,pad)=>rectCells([Math.min(p1.x,p2.x),Math.min(p1.y,p2.y),Math.max(p1.x,p2.x),Math.max(p1.y,p2.y)],pad,c=>block[c]=1);
   S.parts.forEach(pt=>{
     if(pt.type==="res"){const a=refPos(S,pt.a),q=refPos(S,pt.b);blockSeg(a,q,1);}
     if(pt.type==="led"){const a=refPos(S,pt.a),k=refPos(S,pt.k),bd=ledBody(a);blockSeg({x:Math.min(a.x,k.x),y:bd.y-8},{x:Math.max(a.x,k.x)+4,y:k.y},0);}
-    if(pt.type==="cap"){const p=refPos(S,pt.p),n=refPos(S,pt.n);blockSeg({x:p.x-18,y:p.y-54},{x:n.x+8,y:n.y},0);}
+    if(pt.type==="cap"){const p=refPos(S,pt.p),n=refPos(S,pt.n);blockSeg({x:p.x-14,y:p.y-48},{x:n.x+4,y:n.y},0);}
     if(pt.type==="button"){const h=buttonHoles(S,pt.col);blockSeg(h[0],h[3],1);}
   });
   // 끝점과 스텁(핀에서 몸체 밖으로 곧게 나가는 부분)
@@ -702,6 +709,9 @@ function routeScene(S,gr,order,ripRounds){
     return {p,cell:[i,j],stub,dir,need:(dir+2)%4};
   }));
   ends.forEach((e2,wi)=>e2.forEach(e=>e.stub.forEach(([i,j])=>{owner[id(i,j)]=wi;})));
+  // 브레드보드 끝점 주변 1칸(5px)은 그 선만 지나갈 수 있음 → 다른 선이 남의 끝점에 붙어 지나가지 않게
+  ends.forEach((e2,wi)=>e2.forEach(e=>{ if(e.need>=0) return; const [i0,j0]=e.cell;
+    for(let dj=-1;dj<=1;dj++)for(let di=-1;di<=1;di++){const i=i0+di,j=j0+dj;if(inb(i,j))keep[id(i,j)]=keep[id(i,j)]===-1||keep[id(i,j)]===wi?wi:-2;}}));
 
   // 같은 방향 선은 바로 옆 칸까지 막아서 간격 확보 (개수로 세서 다시 지울 수 있게)
   const mark=(cells,delta)=>{for(let k=1;k<cells.length;k++){const [i0,j0]=cells[k-1],[i1,j1]=cells[k];
@@ -722,8 +732,9 @@ function routeScene(S,gr,order,ripRounds){
         if(nd===((d+2)&3))continue;
         const ni=ci+DX[nd],nj=cj+DY[nd]; if(!inb(ni,nj))continue;
         const n=id(ni,nj);
-        if(n!==goal){ if(block[n])continue; if(owner[n]>=0&&owner[n]!==wi)continue; }
+        if(n!==goal){ if(block[n])continue; if(owner[n]>=0&&owner[n]!==wi)continue; if(keep[n]!==-1&&keep[n]!==wi)continue; }
         let k=1+cost[n];
+        if((nd===0||nd===2)&&n!==goal) k+=hCost[n];
         if(nd!==d){ if(c!==sc&&(hOcc[c]||vOcc[c])) k+=OVER; k+=BEND; }
         const horiz=nd===0||nd===2;
         if(horiz?hOcc[n]:vOcc[n]) k+=OVER;           // 같은 방향 선과 겹침: 거의 금지
@@ -801,7 +812,10 @@ function drawOrthoWire(g,pts,color){
   el("path",{d,stroke:"#ffffff","stroke-opacity":.9,"stroke-width":7,fill:"none","stroke-linejoin":"miter","stroke-linecap":"square"},g);
   if(light) el("path",{d,stroke:"#333333","stroke-width":5.4,fill:"none","stroke-linejoin":"miter","stroke-linecap":"square"},g);
   el("path",{d,class:"wcore",stroke:c,"stroke-width":4,fill:"none","stroke-linejoin":"miter","stroke-linecap":"square"},g);
-  // 끝점: 밝은 색 선은 진한 테두리를 한 겹 더 (크림색 브레드보드 위에서도 보이게)
+}
+// 끝점: 밝은 색 선은 진한 테두리를 한 겹 더 (크림색 브레드보드 위에서도 보이게). 모든 선 위에 그림
+function drawEnds(g,pts,color){
+  const c=WIRE[color], light=color==="white"||color==="yellow"||color==="gray";
   [pts[0],pts[pts.length-1]].forEach(p=>{
     if(light) el("circle",{cx:p.x,cy:p.y,r:5.4,fill:"none",stroke:"#222222","stroke-width":1.2},g);
     el("circle",{cx:p.x,cy:p.y,r:light?4.2:3.6,fill:"#1b1b1b",stroke:c,"stroke-width":light?2:1.6},g);
@@ -812,7 +826,7 @@ function placeTags(S,routes,view){
   const segs=[];
   routes.forEach((pts,wi)=>{for(let k=1;k<pts.length;k++)segs.push({wi,a:pts[k-1],b:pts[k],h:Math.abs(pts[k].y-pts[k-1].y)<0.01});});
   const endsAll=routes.flatMap(pts=>[pts[0],pts[pts.length-1]]);
-  const placed=[];
+  const placed=[], bb=S.bb, bbr=[bb.x-2.2*P,bb.y-1.6*P,bb.x+31.2*P,bb.y+18.6*P];
   const hitsSeg=(r,sg)=>{const x1=Math.min(sg.a.x,sg.b.x)-2,x2=Math.max(sg.a.x,sg.b.x)+2,y1=Math.min(sg.a.y,sg.b.y)-2,y2=Math.max(sg.a.y,sg.b.y)+2;
     return !(x2<r.x1||x1>r.x2||y2<r.y1||y1>r.y2);};
   const shortLabel=w=>{const r=w.to.uno?w.to:w.from.uno?w.from:null;return r?(LBL[r.uno]||r.uno):(w.from.mod?w.from.mod[1]:"GND");};
@@ -830,6 +844,7 @@ function placeTags(S,routes,view){
         if(sg.L<len*0.7) continue;
         if(r.x1<view[0]+2||r.x2>view[0]+view[2]-2||r.y1<view[1]+2||r.y2>view[1]+view[3]-2) continue;
         // mode 0: 다른 선이 전혀 안 지나감 / mode 1: 수직으로 지나가는 건 허용 (같은 방향으로 나란히 겹치는 건 안 됨)
+        if(!(r.x2<bbr[0]||r.x1>bbr[2]||r.y2<bbr[1]||r.y1>bbr[3])) continue;
         if(segs.some(o=>o.wi!==wi&&hitsSeg(r,o)&&(mode===0||o.h===sg.h))) continue;
         if(placed.some(o=>!(o.x2<r.x1||o.x1>r.x2||o.y2<r.y1||o.y1>r.y2))) continue;
         if(endsAll.some(p=>p.x>r.x1-3&&p.x<r.x2+3&&p.y>r.y1-3&&p.y<r.y2+3)) continue;
@@ -854,7 +869,7 @@ function drawTag(g,t,color){
 // 분압 확대도용: 직각 선을 직접 그림
 function drawWire(g,a,b,color){
   const mid={x:a.x,y:b.y+(a.y>b.y?40:-40)};
-  drawOrthoWire(g,[a,{x:a.x,y:mid.y},{x:b.x,y:mid.y},b],color);
+  drawOrthoWire(g,[a,{x:a.x,y:mid.y},{x:b.x,y:mid.y},b],color); drawEnds(g,[a,b],color);
 }
 
 /* 장면 */
@@ -897,7 +912,7 @@ function buildBench(key){
     if(pt.type==="res"){const a=refPos(S,pt.a),b=refPos(S,pt.b);
       el("line",{x1:a.x,y1:a.y,x2:b.x,y2:b.y,class:"glow",stroke:"#7cf7ff","stroke-width":12,"stroke-linecap":"round"},g);drawResistor(g,a,b,pt.ohm);}
     if(pt.type==="led"){const a=refPos(S,pt.a),k=refPos(S,pt.k),b=ledBody(a);el("circle",{cx:b.x,cy:b.y,r:13,class:"glow",fill:"#7cf7ff"},g);drawLED(g,a,k,pt.color);}
-    if(pt.type==="cap"){const p=refPos(S,pt.p),n=refPos(S,pt.n);el("circle",{cx:p.x,cy:p.y-36,r:22,class:"glow",fill:"#7cf7ff"},g);drawCap(g,p,n);}
+    if(pt.type==="cap"){const p=refPos(S,pt.p),n=refPos(S,pt.n);el("circle",{cx:(p.x+n.x)/2,cy:p.y-30,r:20,class:"glow",fill:"#7cf7ff"},g);drawCap(g,p,n);}
     if(pt.type==="button"){const h=buttonHoles(S,pt.col);el("rect",{x:h[0].x-9,y:h[0].y-9,width:h[1].x-h[0].x+18,height:h[2].y-h[0].y+18,class:"glow",fill:"#7cf7ff",rx:4},g);drawButton(g,h);}
     items.push(g);
   });
@@ -912,6 +927,7 @@ function buildBench(key){
     el("title",{},g,`${refText(S,w.from)} → ${refText(S,w.to)}`);
     items.push(g);
   });
+  S.wires.forEach((w,i)=>{ const g=el("g",{class:"el wire","data-step":w.step,"data-k":i},svg); drawEnds(g,routes[i],w.color); items.push(g); });
   // 이름표는 모든 선을 그린 뒤 맨 위에 (다른 선에 가려지지 않게). 단계 표시·선택도 그 선과 같이 움직임
   placeTags(S,routes,S.view).forEach((t,i)=>{ if(!t) return; const w=S.wires[i];
     const g=el("g",{class:"el wire","data-step":w.step,"data-k":i},svg); drawTag(g,t,w.color); items.push(g); });
@@ -988,8 +1004,8 @@ function buildDivider(){
   drawResistor(svg,{x:hx(7),y:ry("a")},{x:hx(8),y:ry("T-")},1000,2.2);
   // 칸 이름표(P칸·Q칸·N칸)를 가리지 않게: 구멍에서 칸 사이 틈으로 내려간 뒤 판 아래로 빠짐
   const yOut=ry("e")+80;
-  drawOrthoWire(svg,[{x:hx(1)-60,y:yOut+30},{x:hx(1)-60,y:yOut},{x:hx(1)+p/2,y:yOut},{x:hx(1)+p/2,y:ry("e")+p/2},{x:hx(1),y:ry("e")+p/2},{x:hx(1),y:ry("e")}],"yellow");
-  drawOrthoWire(svg,[{x:hx(9)+80,y:yOut+30},{x:hx(9)+80,y:ry("d")},{x:hx(7),y:ry("d")}],"yellow");
+  drawOrthoWire(svg,[{x:hx(1)-60,y:yOut+30},{x:hx(1)-60,y:yOut},{x:hx(1)+p/2,y:yOut},{x:hx(1)+p/2,y:ry("e")+p/2},{x:hx(1),y:ry("e")+p/2},{x:hx(1),y:ry("e")}],"yellow"); drawEnds(svg,[{x:hx(1)-60,y:yOut+30},{x:hx(1),y:ry("e")}],"yellow");
+  drawOrthoWire(svg,[{x:hx(9)+80,y:yOut+30},{x:hx(9)+80,y:ry("d")},{x:hx(7),y:ry("d")}],"yellow"); drawEnds(svg,[{x:hx(9)+80,y:yOut+30},{x:hx(7),y:ry("d")}],"yellow"); 
   el("text",{x:hx(1)-40,y:yOut+48,"font-size":12,"text-anchor":"middle",fill:"#fff"},svg,"← 우노 D10 (5V)");
   el("text",{x:hx(9)+80,y:yOut+48,"font-size":12,"text-anchor":"middle",fill:"#fff"},svg,"RC522 SDA로 (3.47V)");
   el("text",{x:(hx(1)+hx(4))/2,y:ry("c")+26,"font-size":12,"text-anchor":"middle",fill:"#1d1f22"},svg,"220Ω");
