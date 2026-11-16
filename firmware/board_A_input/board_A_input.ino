@@ -37,6 +37,13 @@ const uint8_t PIN_LINK_RX  = A1;
 const uint8_t PIN_LINK_TX  = A2;
 const uint8_t LCD_ADDR     = 0x27;   // 안 되면 0x3F 로 바꿔보기
 
+// ---------------- 테스트 모드 ----------------
+// 1 이면 보드 B 없이 보드 A 만 테스트 가능 :
+//  - 보드 B 로 보내는 메시지를 시리얼 모니터에 "[A->B] OPEN:KEY" 처럼 출력
+//  - 시리얼 모니터에서 "ST:OPEN:BT" 같은 줄을 보내면 보드 B 가 보낸 것처럼 처리
+// 보드 B 와 연결해서 최종 시연할 땐 0 으로 바꿔도 되고, 1 로 둬도 동작엔 문제 없음
+#define TEST_MODE 1
+
 // ---------------- 설정값 ----------------
 const char PASSWORD[]   = "1234";        // 키패드 비밀번호
 const uint8_t MAX_INPUT = 8;             // 최대 입력 자릿수
@@ -75,6 +82,9 @@ unsigned long lockoutUntil = 0;   // 0 이 아니면 그 시각까지 입력 차
 unsigned long msgUntil = 0;       // 0 이 아니면 그 시각에 기본 화면으로 복귀
 const char *doorState = "LOCKED";
 
+// 한 줄 수신 버퍼 (구조체는 함수보다 위에 있어야 Arduino IDE 자동 원형 생성에서 오류가 안 남)
+struct LineBuf { char buf[20]; uint8_t len; };
+
 // ================================================================
 //  LCD 표시
 // ================================================================
@@ -103,17 +113,26 @@ void showMsg(const __FlashStringHelper *l1, const char *l2) {
 // ================================================================
 //  인증 결과 처리
 // ================================================================
+// 보드 B 로 한 줄 전송 ("OPEN:KEY" 등). 테스트 모드면 시리얼 모니터에도 출력
+void sendLink(const __FlashStringHelper *head, const char *method) {
+  link.print(head);
+  link.println(method);
+#if TEST_MODE
+  Serial.print(F("[A->B] "));
+  Serial.print(head);
+  Serial.println(method);
+#endif
+}
+
 void grant(const char *method) {          // method : "KEY" / "RFID"
   failCount = 0;
-  link.print(F("OPEN:"));
-  link.println(method);                   // 보드 B 에 열림 명령
+  sendLink(F("OPEN:"), method);           // 보드 B 에 열림 명령
   showMsg(F("ACCESS GRANTED"), method);
 }
 
 void deny(const char *method) {
   failCount++;
-  link.print(F("FAIL:"));
-  link.println(method);                   // 보드 B 는 빨강 LED 깜빡임
+  sendLink(F("FAIL:"), method);           // 보드 B 는 빨강 LED 깜빡임
   if (failCount >= MAX_FAIL) {
     lockoutUntil = millis() + LOCKOUT_MS;
     failCount = 0;
@@ -197,38 +216,54 @@ void handleRfid() {
 // ================================================================
 //  보드 B 에서 오는 상태 메시지 ("ST:OPEN:BT" 등)
 // ================================================================
-void handleLink() {
-  static char buf[20];
-  static uint8_t len = 0;
-  while (link.available()) {
-    char c = link.read();
-    if (c == '\r') continue;
-    if (c != '\n') {
-      if (len < sizeof(buf) - 1) buf[len++] = c;
+void handleStatus(const char *buf) {
+  if (strncmp(buf, "ST:", 3) != 0) return;
+  const char *st = buf + 3;
+
+  if (strncmp(st, "OPEN", 4) == 0) {
+    doorState = "OPEN";
+    const char *by = (st[4] == ':') ? st + 5 : "";
+    if      (strcmp(by, "BT")  == 0) showMsg(F("OPEN by PHONE"), "Bluetooth+1m");
+    else if (strcmp(by, "BTN") == 0) showMsg(F("OPEN from"), "INSIDE button");
+    else if (msgUntil == 0)          showIdle();  // KEY/RFID 는 이미 GRANTED 표시 중
+  } else if (strcmp(st, "LOCK") == 0) {
+    doorState = "LOCKED";
+    if (msgUntil == 0) showIdle();
+  } else if (strcmp(st, "ARM") == 0) {
+    showMsg(F("PHONE VERIFIED"), "Come within 1m");
+  } else if (strcmp(st, "ARMEND") == 0) {
+    showMsg(F("PHONE TIMEOUT"), "Send PW again");
+  } else if (strcmp(st, "BTFAIL") == 0) {
+    showMsg(F("PHONE PW WRONG"), "");
+  }
+}
+
+// 스트림에서 한 줄('\n' 또는 '\r' 로 끝)이 완성되면 handleStatus 로 넘김
+// 링크용 / 시리얼 모니터용 버퍼를 따로 둬서 서로 섞이지 않게 함
+void pollLines(Stream &s, LineBuf &lb) {
+  while (s.available()) {
+    char c = s.read();
+    if (c == '\r' || c == '\n') {
+      if (lb.len == 0) continue;          // 빈 줄 무시 (CR+LF 대응)
+      lb.buf[lb.len] = '\0';
+      lb.len = 0;
+      handleStatus(lb.buf);
       continue;
     }
-    buf[len] = '\0';
-    len = 0;
-    if (strncmp(buf, "ST:", 3) != 0) continue;
-    const char *st = buf + 3;
-
-    if (strncmp(st, "OPEN", 4) == 0) {
-      doorState = "OPEN";
-      const char *by = (st[4] == ':') ? st + 5 : "";
-      if      (strcmp(by, "BT")  == 0) showMsg(F("OPEN by PHONE"), "Bluetooth+1m");
-      else if (strcmp(by, "BTN") == 0) showMsg(F("OPEN from"), "INSIDE button");
-      else if (msgUntil == 0)          showIdle();  // KEY/RFID 는 이미 GRANTED 표시 중
-    } else if (strcmp(st, "LOCK") == 0) {
-      doorState = "LOCKED";
-      if (msgUntil == 0) showIdle();
-    } else if (strcmp(st, "ARM") == 0) {
-      showMsg(F("PHONE VERIFIED"), "Come within 1m");
-    } else if (strcmp(st, "ARMEND") == 0) {
-      showMsg(F("PHONE TIMEOUT"), "Send PW again");
-    } else if (strcmp(st, "BTFAIL") == 0) {
-      showMsg(F("PHONE PW WRONG"), "");
-    }
+    if (lb.len < sizeof(lb.buf) - 1) lb.buf[lb.len++] = c;
   }
+}
+
+LineBuf linkLine = {"", 0};
+#if TEST_MODE
+LineBuf monLine  = {"", 0};               // 시리얼 모니터 입력 (보드 B 흉내)
+#endif
+
+void handleLink() {
+  pollLines(link, linkLine);
+#if TEST_MODE
+  pollLines(Serial, monLine);
+#endif
 }
 
 // ================================================================
@@ -242,6 +277,9 @@ void setup() {
   SPI.begin();
   rfid.PCD_Init();
   Serial.println(F("DoorLock A ready."));
+#if TEST_MODE
+  Serial.println(F("[TEST] type ST:OPEN:BT / ST:LOCK / ST:ARM / ST:ARMEND / ST:BTFAIL / ST:OPEN:BTN"));
+#endif
 
   showMsg(F("SMART DOORLOCK"), "Starting...");
 }
