@@ -41,6 +41,8 @@ const uint8_t LCD_ADDR     = 0x27;   // 안 되면 0x3F 로 바꿔보기
 // 1 이면 보드 B 없이 보드 A 만 테스트 가능 :
 //  - 보드 B 로 보내는 메시지를 시리얼 모니터에 "[A->B] OPEN:KEY" 처럼 출력
 //  - 시리얼 모니터에서 "ST:OPEN:BT" 같은 줄을 보내면 보드 B 가 보낸 것처럼 처리
+//  - 시리얼 모니터 설정: 속도 9600, 오른쪽 아래 줄 끝 "New Line"(또는 "Both NL & CR") 권장
+//    ("No line ending" 이어도 입력 후 0.2초 지나면 한 줄로 처리함)
 // 보드 B 와 연결해서 최종 시연할 땐 0 으로 바꿔도 되고, 1 로 둬도 동작엔 문제 없음
 #define TEST_MODE 1
 
@@ -83,7 +85,7 @@ unsigned long msgUntil = 0;       // 0 이 아니면 그 시각에 기본 화면
 const char *doorState = "LOCKED";
 
 // 한 줄 수신 버퍼 (구조체는 함수보다 위에 있어야 Arduino IDE 자동 원형 생성에서 오류가 안 남)
-struct LineBuf { char buf[20]; uint8_t len; };
+struct LineBuf { char buf[20]; uint8_t len; unsigned long lastRx; };
 
 // ================================================================
 //  LCD 표시
@@ -217,7 +219,13 @@ void handleRfid() {
 //  보드 B 에서 오는 상태 메시지 ("ST:OPEN:BT" 등)
 // ================================================================
 void handleStatus(const char *buf) {
-  if (strncmp(buf, "ST:", 3) != 0) return;
+  if (strncmp(buf, "ST:", 3) != 0) {
+#if TEST_MODE
+    Serial.print(F("[TEST] ignored (must start with ST:): "));
+    Serial.println(buf);
+#endif
+    return;
+  }
   const char *st = buf + 3;
 
   if (strncmp(st, "OPEN", 4) == 0) {
@@ -236,33 +244,51 @@ void handleStatus(const char *buf) {
   } else if (strcmp(st, "BTFAIL") == 0) {
     showMsg(F("PHONE PW WRONG"), "");
   }
+#if TEST_MODE
+  else {
+    Serial.print(F("[TEST] unknown status: "));
+    Serial.println(buf);
+  }
+#endif
 }
 
 // 스트림에서 한 줄('\n' 또는 '\r' 로 끝)이 완성되면 handleStatus 로 넘김
 // 링크용 / 시리얼 모니터용 버퍼를 따로 둬서 서로 섞이지 않게 함
-void pollLines(Stream &s, LineBuf &lb) {
+// 완성된 한 줄을 처리. echo=true 면 받은 줄을 시리얼 모니터에 다시 보여줌 (테스트용)
+void finishLine(LineBuf &lb, bool echo) {
+  lb.buf[lb.len] = '\0';
+  lb.len = 0;
+  if (echo) {
+    Serial.print(F("[B->A] "));
+    Serial.println(lb.buf);
+  }
+  handleStatus(lb.buf);
+}
+
+void pollLines(Stream &s, LineBuf &lb, bool echo) {
   while (s.available()) {
     char c = s.read();
+    lb.lastRx = millis();
     if (c == '\r' || c == '\n') {
       if (lb.len == 0) continue;          // 빈 줄 무시 (CR+LF 대응)
-      lb.buf[lb.len] = '\0';
-      lb.len = 0;
-      handleStatus(lb.buf);
+      finishLine(lb, echo);
       continue;
     }
     if (lb.len < sizeof(lb.buf) - 1) lb.buf[lb.len++] = c;
   }
 }
 
-LineBuf linkLine = {"", 0};
+LineBuf linkLine = {"", 0, 0};
 #if TEST_MODE
-LineBuf monLine  = {"", 0};               // 시리얼 모니터 입력 (보드 B 흉내)
+LineBuf monLine  = {"", 0, 0};            // 시리얼 모니터 입력 (보드 B 흉내)
 #endif
 
 void handleLink() {
-  pollLines(link, linkLine);
+  pollLines(link, linkLine, false);
 #if TEST_MODE
-  pollLines(Serial, monLine);
+  pollLines(Serial, monLine, true);
+  // 시리얼 모니터가 "No line ending" 이어도 0.2초 동안 입력이 없으면 한 줄로 처리
+  if (monLine.len > 0 && millis() - monLine.lastRx > 200) finishLine(monLine, true);
 #endif
 }
 
@@ -278,6 +304,7 @@ void setup() {
   rfid.PCD_Init();
   Serial.println(F("DoorLock A ready."));
 #if TEST_MODE
+  Serial.println(F("[TEST] Serial Monitor: 9600 baud, line ending = New Line"));
   Serial.println(F("[TEST] type ST:OPEN:BT / ST:LOCK / ST:ARM / ST:ARMEND / ST:BTFAIL / ST:OPEN:BTN"));
 #endif
 
@@ -287,9 +314,15 @@ void setup() {
 void loop() {
   handleLink();
 
-  // 안내 메시지 시간이 끝나면 기본 화면으로
-  if (msgUntil != 0 && (long)(millis() - msgUntil) >= 0 && !isLockedOut()) {
-    showIdle();
+  // 안내 메시지 시간이 끝나면: 입력 차단 중이면 차단 화면 복구, 아니면 기본 화면
+  // (차단 중에 보드 B 상태 메시지가 와서 차단 화면을 덮어썼을 때를 대비)
+  if (msgUntil != 0 && (long)(millis() - msgUntil) >= 0) {
+    if (isLockedOut()) {
+      showMsg(F("TOO MANY FAILS"), "Wait 30 sec");
+      msgUntil = lockoutUntil;            // 차단이 끝날 때까지 유지
+    } else {
+      showIdle();
+    }
   }
 
   if (isLockedOut()) {

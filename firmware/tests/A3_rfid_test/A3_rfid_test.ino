@@ -3,9 +3,11 @@
  * 연결 : SDA(SS)=D10, SCK=D13, MOSI=D11, MISO=D12, RST=D9  (SS·SCK·MOSI·RST 는 1k+2k 분압)
  *        VCC = 3.3V (5V 절대 금지), GND
  *
- * 1) 시작하면 RC522 칩 버전(VersionReg)을 읽어서 배선 상태를 판정함
- *    0x91 / 0x92 / 0x88 / 0x12 / 0xB2 등 → SPI 통신 OK (정품/호환칩)
- *    0x00 또는 0xFF                      → 통신 안 됨 (배선·분압·전원 확인)
+ * 1) 시작하면 SPI 통신을 3단계로 판정함
+ *    (a) 칩 버전(VersionReg)을 10번 읽어서 값이 매번 같은지   → 다르면 접촉 불량
+ *    (b) 레지스터에 0x55, 0xAA 를 써 보고 그대로 읽히는지     → 안 되면 MISO/MOSI 문제
+ *    (c) 버전 값이 알려진 값인지 (0x91/0x92 정품, 0x88/0x12/0xB2 호환칩) → 모르는 값이면 경고만
+ *    0x00 또는 0xFF → 통신 안 됨 (배선·분압·전원 확인)
  * 2) 카드/태그를 대면 UID 를 출력 → board_A_input.ino 의 ALLOWED_UID 에 적기
  *
  * 문제 해결 (0x00 / 0xFF 가 나올 때)
@@ -25,11 +27,33 @@ void setup() {
   rfid.PCD_Init();
   delay(50);
 
+  // (a) 버전 10번 읽기 : 값이 흔들리면 접촉 불량
   byte v = rfid.PCD_ReadRegister(MFRC522::VersionReg);
+  bool stable = true;
+  for (byte i = 0; i < 10; i++) {
+    if (rfid.PCD_ReadRegister(MFRC522::VersionReg) != v) stable = false;
+    delay(2);
+  }
   Serial.print(F("RC522 version: 0x"));
   Serial.println(v, HEX);
+
+  // (b) 쓰고 다시 읽기 : MISO 가 빠져 있으면 두 패턴을 다 맞출 수 없음
+  rfid.PCD_WriteRegister(MFRC522::TReloadRegL, 0x55);
+  bool rw = (rfid.PCD_ReadRegister(MFRC522::TReloadRegL) == 0x55);
+  rfid.PCD_WriteRegister(MFRC522::TReloadRegL, 0xAA);
+  rw = rw && (rfid.PCD_ReadRegister(MFRC522::TReloadRegL) == 0xAA);
+  rfid.PCD_Init();                           // 바꾼 레지스터 원래대로 되돌리기
+
+  bool known = (v == 0x91 || v == 0x92 || v == 0x88 || v == 0x12 || v == 0xB2);
+
   if (v == 0x00 || v == 0xFF) {
-    Serial.println(F("FAIL: no response. Check wiring (3.3V, GND, D10~D13, D9, dividers)."));
+    Serial.println(F("FAIL: no response. Check 3.3V, GND, D10~D13, D9, dividers."));
+  } else if (!stable) {
+    Serial.println(F("FAIL: unstable reads. Reseat divider resistors and MISO(D12) wire."));
+  } else if (!rw) {
+    Serial.println(F("FAIL: write/read-back failed. Check MOSI(D11), MISO(D12), SCK(D13)."));
+  } else if (!known) {
+    Serial.println(F("WARN: SPI OK but unknown chip version. Try a card anyway."));
   } else {
     Serial.println(F("OK: RC522 responds. Tap a card."));
   }
