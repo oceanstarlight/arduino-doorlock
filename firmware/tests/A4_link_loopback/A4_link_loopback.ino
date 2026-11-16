@@ -13,7 +13,7 @@
  *   실제 메시지 형식은 board_A_input 의 TEST_MODE 로 확인.
  *
  * 기대 결과 : 1초마다 "PASS" 출력
- * "FAIL (low=0 ...)" → 점퍼가 안 꽂혔거나 다른 핀에 꽂힘
+ * "FAIL (low=0 ...)" → 저항(또는 점퍼)이 안 꽂혔거나 다른 핀에 꽂힘
  *   (A1 은 내부 풀업이 켜져 있어서 선이 빠지면 항상 HIGH 로 읽힘 → low 판정에서 실패)
  */
 
@@ -25,7 +25,7 @@ void setup() {
   pinMode(PIN_TX, OUTPUT);
   pinMode(PIN_RX, INPUT_PULLUP);   // 선이 빠지면 HIGH 로 떠서 FAIL 을 확실히 잡음
   digitalWrite(PIN_TX, HIGH);      // UART 대기 상태는 HIGH
-  Serial.println(F("Link pin loopback: connect A2 -> A1 with a jumper."));
+  Serial.println(F("Link pin loopback: connect A2 -> A1 via 1k resistor (or jumper). Unplug board B link."));
 }
 
 void loop() {
@@ -44,7 +44,7 @@ void loop() {
     Serial.print(lowOk);
     Serial.print(F(", high="));
     Serial.print(highOk);
-    Serial.println(F(") check jumper A2 -> A1"));
+    Serial.println(F(") check 1k resistor/jumper A2 -> A1"));
   }
   delay(1000);
 }

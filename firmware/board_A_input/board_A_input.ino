@@ -150,7 +150,8 @@ bool isLockedOut() {
   if (lockoutUntil == 0) return false;
   if ((long)(millis() - lockoutUntil) >= 0) {   // 오버플로에 안전한 비교
     lockoutUntil = 0;
-    showIdle();
+    // 차단 중에 온 보드 B 메시지가 아직 표시 중이면, 그 메시지 시간이 끝날 때 기본 화면으로 감
+    if (msgUntil == 0 || (long)(millis() - msgUntil) >= 0) showIdle();
     return false;
   }
   return true;
@@ -320,7 +321,7 @@ void loop() {
     if (isLockedOut()) {
       showMsg(F("TOO MANY FAILS"), "Wait 30 sec");
       msgUntil = lockoutUntil;            // 차단이 끝날 때까지 유지
-    } else {
+    } else if (msgUntil != 0) {           // isLockedOut() 이 방금 기본 화면을 그렸으면 생략 (깜빡임 방지)
       showIdle();
     }
   }
