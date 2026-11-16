@@ -28,7 +28,7 @@
 
 // ---------------- 핀 배치 ----------------
 // D0 (RX) <- HC-06 TXD         (하드웨어 시리얼 = 블루투스)
-// D1 (TX) -> 220Ω+220Ω -> HC-06 RXD, RXD -> 1kΩ -> GND (분압, HC-06 RX는 3.3V 레벨!)
+// D1 (TX) -> 1kΩ -> HC-06 RXD, RXD -> 2kΩ -> GND (분압, HC-06 RX는 3.3V 레벨!)
 const uint8_t PIN_BUTTON  = 2;   // 실내 열림 버튼 (INT0)
 const uint8_t PIN_LINK_RX = 4;   // <- 보드 A 의 A2 (TX)
 const uint8_t PIN_LINK_TX = 5;   // -> 보드 A 의 A1 (RX)
@@ -38,7 +38,7 @@ const uint8_t PIN_SERVO   = A0;  // SG90 신호선(주황). Servo 는 아날로�
 const uint8_t PIN_LED_G   = 10;  // 초록 : 문 열림
 const uint8_t PIN_LED_Y   = 11;  // 노랑 : 블루투스 인증됨, 접근 대기 중 (깜빡임)
 const uint8_t PIN_LED_R   = 12;  // 빨강 : 잠김(켜짐) / 인증 실패(빠른 깜빡임)
-// LED 저항 : 노랑·초록 220Ω, 빨강 1kΩ (저항 개수 맞추려고. 빨강이 조금 어두워도 정상)
+// LED 저항 : 3개 모두 220Ω
 
 // ---------------- 설정값 ----------------
 const char     BT_PASSWORD[]  = "BT1234"; // 폰에서 보낼 인증 코드
