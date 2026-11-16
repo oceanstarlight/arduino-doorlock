@@ -2,10 +2,9 @@
  * [보드 A 테스트 4] 링크 핀(A1/A2) 루프백 테스트 (시리얼 모니터 9600)
  * 보드 B 없이 링크용 핀 A2(TX) → A1(RX) 이 제대로 연결되는지 확인.
  *
- * 연결 : 보드 A 의 A2 와 A1 사이를 점퍼선으로 연결 (남는 저항이 있으면 220Ω/1kΩ 을 써도 됨)
- *        ※ 이 테스트 동안엔 보드 B 로 가는 링크선을 빼둘 것
- *        ※ 저항을 쓰는 이유: 실수로 보드 B 가 꽂혀 있으면 A2(LOW) 와 B 의 TX(HIGH) 가
- *          맞붙어 큰 전류가 흐를 수 있는데, 1kΩ 이 있으면 5mA 로 제한돼서 안전함
+ * 연결 : 보드 A 의 A2 와 A1 사이를 점퍼선 1개로 연결 (저항 없음)
+ *        ※ 반드시 보드 B 로 가는 링크선(A1, A2)을 뺀 상태에서만 연결할 것
+ *          꽂혀 있으면 A2(출력)와 보드 B 의 D5(TX 출력)가 점퍼로 직접 맞붙음
  *
  * 왜 핀 레벨로 확인하나?
  *   SoftwareSerial 은 송신하는 동안 인터럽트를 막기 때문에, 같은 보드에서 보낸 바이트를
@@ -13,7 +12,7 @@
  *   실제 메시지 형식은 board_A_input 의 TEST_MODE 로 확인.
  *
  * 기대 결과 : 1초마다 "PASS" 출력
- * "FAIL (low=0 ...)" → 저항(또는 점퍼)이 안 꽂혔거나 다른 핀에 꽂힘
+ * "FAIL (low=0 ...)" → 점퍼가 안 꽂혔거나 다른 핀에 꽂힘
  *   (A1 은 내부 풀업이 켜져 있어서 선이 빠지면 항상 HIGH 로 읽힘 → low 판정에서 실패)
  */
 
@@ -25,7 +24,7 @@ void setup() {
   pinMode(PIN_TX, OUTPUT);
   pinMode(PIN_RX, INPUT_PULLUP);   // 선이 빠지면 HIGH 로 떠서 FAIL 을 확실히 잡음
   digitalWrite(PIN_TX, HIGH);      // UART 대기 상태는 HIGH
-  Serial.println(F("Link pin loopback: connect A2 -> A1 via 1k resistor (or jumper). Unplug board B link."));
+  Serial.println(F("Link pin loopback: jumper A2 -> A1. UNPLUG board B link first!"));
 }
 
 void loop() {
@@ -44,7 +43,7 @@ void loop() {
     Serial.print(lowOk);
     Serial.print(F(", high="));
     Serial.print(highOk);
-    Serial.println(F(") check 1k resistor/jumper A2 -> A1"));
+    Serial.println(F(") check jumper A2 -> A1"));
   }
   delay(1000);
 }
