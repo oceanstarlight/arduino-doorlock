@@ -8,7 +8,7 @@ const {chromium}=require('playwright');const fs=require('fs');
    const out={};
    for(const k of ['A','B']){
      const I=window.__routeInfo[k];
-     const wires=[...document.querySelectorAll(`#bench${k} .wire`)].map(g=>{
+     const wires=[...document.querySelectorAll(`#bench${k} .wire`)].filter(g=>g.querySelector(".wcore")).map(g=>{
        const d=g.querySelector('.wcore').getAttribute('d');
        return d.slice(1).split(' L').map(t=>t.trim().split(/\s+/).map(Number));});
      let diag=0,overlap=[],minGap=1e9;
