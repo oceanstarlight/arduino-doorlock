@@ -1,6 +1,7 @@
 /*
  * [보드 A 테스트 3] RC522 RFID 단독 테스트 (시리얼 모니터 9600)
- * 연결 : SDA(SS)=D10, SCK=D13, MOSI=D11, MISO=D12, RST=D9  (SS·SCK·MOSI·RST 는 1k+2k 분압)
+ * 연결 : SDA(SS)=D10, SCK=D13, MOSI=D11, MISO=D12, RST=3.3V 에 직결
+ *        (SDA·SCK·MOSI 는 220Ω+220Ω(직렬) → [RC522 핀] → 1kΩ → GND 분압, 약 3.47V)
  *        VCC = 3.3V (5V 절대 금지), GND
  *
  * 1) 시작하면 SPI 통신을 3단계로 판정함
@@ -13,13 +14,14 @@
  * 문제 해결 (0x00 / 0xFF 가 나올 때)
  *  - VCC 가 3.3V 핀에 꽂혀 있는지, GND 연결됐는지
  *  - MISO(D12) 는 분압 없이 직결인지 (분압을 넣으면 신호가 약해져서 안 읽힘)
- *  - 분압 저항 방향: 아두이노 핀 → 1k → [RC522 핀] → 2k → GND
+ *  - 분압 저항 방향: 아두이노 핀 → 220Ω → 220Ω → [RC522 핀] → 1kΩ → GND
+ *  - RST 가 3.3V 레일에 꽂혀 있는지 (GND 나 빈 칸이면 칩이 리셋 상태로 멈춤)
  *  - SDA 를 I2C 의 SDA(A4) 에 꽂지 않았는지 (RC522 의 SDA 는 SS 신호 = D10)
  */
 #include <SPI.h>
 #include <MFRC522.h>
 
-MFRC522 rfid(10, 9);   // SS, RST
+MFRC522 rfid(10, MFRC522::UNUSED_PIN);   // SS, RST(3.3V 직결이라 사용 안 함)
 
 void setup() {
   Serial.begin(9600);
@@ -47,7 +49,7 @@ void setup() {
   bool known = (v == 0x91 || v == 0x92 || v == 0x88 || v == 0x12 || v == 0xB2);
 
   if (v == 0x00 || v == 0xFF) {
-    Serial.println(F("FAIL: no response. Check 3.3V, GND, D10~D13, D9, dividers."));
+    Serial.println(F("FAIL: no response. Check 3.3V, GND, RST->3.3V, D10~D13, dividers."));
   } else if (!stable) {
     Serial.println(F("FAIL: unstable reads. Reseat divider resistors and MISO(D12) wire."));
   } else if (!rw) {

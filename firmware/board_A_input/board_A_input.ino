@@ -28,11 +28,11 @@
 
 // ---------------- 핀 배치 ----------------
 // 키패드 : R1~R4 = D8, D7, D6, D5 / C1~C4 = D4, D3, D2, A0
-// RFID   : SDA(SS)=D10, SCK=D13, MOSI=D11, MISO=D12, RST=D9, 3.3V, GND
+// RFID   : SDA(SS)=D10, SCK=D13, MOSI=D11, MISO=D12, RST=3.3V 직결, 3.3V, GND
+//          (SDA·SCK·MOSI 는 220Ω+220Ω / 1kΩ 분압 → 약 3.47V)
 // LCD    : SDA=A4, SCL=A5, VCC=5V, GND
 // 링크   : A1(RX) <- 보드B D5 / A2(TX) -> 보드B D4
 const uint8_t PIN_RFID_SS  = 10;
-const uint8_t PIN_RFID_RST = 9;
 const uint8_t PIN_LINK_RX  = A1;
 const uint8_t PIN_LINK_TX  = A2;
 const uint8_t LCD_ADDR     = 0x27;   // 안 되면 0x3F 로 바꿔보기
@@ -72,7 +72,9 @@ byte rowPins[ROWS] = {8, 7, 6, 5};
 byte colPins[COLS] = {4, 3, 2, A0};
 
 Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
-MFRC522 rfid(PIN_RFID_SS, PIN_RFID_RST);
+// RST 핀을 3.3V 에 바로 연결했으므로 리셋 핀은 '사용 안 함'으로 지정 → 라이브러리가 소프트 리셋 사용
+// (MFRC522 라이브러리 1.4.x 이상 필요. UNUSED_PIN 에서 오류 나면 라이브러리 업데이트)
+MFRC522 rfid(PIN_RFID_SS, MFRC522::UNUSED_PIN);
 LiquidCrystal_I2C lcd(LCD_ADDR, 16, 2);
 SoftwareSerial link(PIN_LINK_RX, PIN_LINK_TX);
 
