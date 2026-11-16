@@ -35,7 +35,7 @@ flowchart LR
   RF[RC522 RFID] --> A
   A --> LCD[1602 LCD]
   A["보드 A<br/>입력부"] <-- "UART 9600<br/>(SoftwareSerial)" --> B["보드 B<br/>문 작동부"]
-  PH[휴대폰] -- 블루투스 --> BT[HC-06] --> B
+  PH[휴대폰] <-- 블루투스 --> BT[HC-06] <--> B
   US[HC-SR04] --> B
   BTN[실내 버튼] -- INT0 --> B
   B --> SV[SG90 서보]
@@ -63,9 +63,10 @@ flowchart LR
    - `*`를 누르면 전체 지우기, `A`~`D`는 무시된다.
 2. `#`을 누르면 보드 A가 비밀번호(기본 `1234`)와 비교한다.
 3. **맞으면** LCD에 `ACCESS GRANTED`가 뜨고, 보드 B로 `OPEN:KEY`를 보낸다.
-4. 보드 B가 서보를 90°로 돌려 문을 열고 초록 LED를 켠다. 그리고 보드 A로 `ST:OPEN:KEY`를 보낸다.
+4. 보드 B가 먼저 보드 A로 `ST:OPEN:KEY`를 보내고, 그다음 서보를 90°로 돌려 문을 연다. 초록 LED는 100ms 타이머 인터럽트가 켠다.
+   - 상태를 먼저 보내는 이유: SoftwareSerial로 보내는 동안 인터럽트가 잠깐 막혀서 서보 펄스가 흔들리기 때문이다.
 5. 5초 뒤 보드 B의 타이머 인터럽트가 자동 잠금 플래그를 세운다. 서보는 0°로 돌아가고, 보드 A로 `ST:LOCK`이 간다.
-6. **틀리면** `ACCESS DENIED (1/3)`가 뜨고, 보드 B는 빨강 LED를 2초 동안 빠르게 깜빡인다.
+6. **틀리면** LCD 1번째 줄에 `ACCESS DENIED`, 2번째 줄에 `KEY  (1/3)`가 뜨고, 보드 B는 빨강 LED를 2초 동안 빠르게 깜빡인다.
    - 3번 연속 틀리면 `TOO MANY FAILS / Wait 30 sec`가 뜨고 30초 동안 키패드와 RFID 입력이 차단된다.
 
 ### 2-2. RFID로 열기
@@ -89,9 +90,9 @@ sequenceDiagram
     B->>S: 거리 측정
   end
   Note over B: 100cm 이내가 3번 연속이면
-  B->>B: 서보 90° (열림)
   B->>A: ST:OPEN:BT → "OPEN by PHONE"
   B->>P: OPEN:BT
+  B->>B: 서보 90° (열림)
 ```
 1. 휴대폰의 **Serial Bluetooth Terminal** 앱으로 HC-06에 연결하고 `BT1234`를 보낸다.
 2. 보드 B가 인증에 성공하면 **ARM 상태**가 된다. 노랑 LED가 깜빡이고, 최대 30초 동안 접근을 기다린다.
@@ -121,7 +122,7 @@ sequenceDiagram
 LED 표시도 ISR에서 직접 처리한다. 서보 이동이나 시리얼 전송 같은 무거운 일은 ISR에서 하지 않는다. ISR은 `volatile` 플래그만 세우고, 실제 처리는 `loop()`가 한다.
 
 ### 2-6. 보드 간 통신 규약
-한 줄에 메시지 하나를 보내고, 줄 끝은 `\n`이다.
+한 줄에 메시지 하나를 보낸다. 보낼 때는 `println()`이라 줄 끝이 `\r\n`이고, 받는 쪽은 `\r`나 `\n` 중 하나만 와도 한 줄로 처리한다(빈 줄은 무시).
 
 | 방향 | 메시지 | 의미 |
 |---|---|---|
@@ -254,7 +255,7 @@ TX와 RX는 서로 **엇갈려** 연결한다. **두 보드의 5V끼리는 연�
 
 | 순서 | 연결할 것 | 업로드할 스케치 | 통과 기준 |
 |---|---|---|---|
-| ① | LCD | `tools/i2c_scanner` | `Found: 0x27`(또는 `0x3F`) 출력. 다른 값이면 스케치의 `LCD_ADDR`를 수정 |
+| ① | LCD | `tools/i2c_scanner` | `Found: 0x27`(또는 `0x3F`) 출력. 다른 값이면 `A1_lcd_test.ino`와 `board_A_input.ino`의 `LCD_ADDR`를 그 값으로 수정 |
 | ② | (그대로) | `tests/A1_lcd_test` | 백라이트가 **5초마다 깜빡임**. 글자가 안 보이면 LCD 뒷면 가변저항 조절 |
 | ③ | 키패드 | `tests/A2_keypad_test` | 16개 키가 표와 같은 글자로 출력됨. 다르면 스케치 주석의 표대로 핀 순서 수정 |
 | ④ | RC522 + 분압 저항 | `tests/A3_rfid_test` | `OK: RC522 responds` 출력. 카드를 대면 나오는 `{0x.., ...},`를 기록 |
