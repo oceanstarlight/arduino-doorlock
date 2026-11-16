@@ -1,0 +1,632 @@
+<title>도어락 배선 가이드</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* 레이아웃: 실험 노트 + 데이터시트. 왼쪽 정렬 단일 칼럼, 회로도는 칼럼보다 넓게 */
+:root{
+  --bg:#f5f7f6; --panel:#ffffff; --ink:#18201f; --muted:#5b6866; --line:#d6dedc;
+  --accent:#00878f; --accent-ink:#ffffff;
+  --danger:#c62f2f; --danger-bg:#fdecec; --warn:#a86b00; --warn-bg:#fff5dd; --ok:#1d7a3e; --ok-bg:#e6f5ea;
+  --uno:#0a6f78; --uno-edge:#07535a; --header:#1d2326; --chip:#262b2e; --silk:#e9f4f4;
+  --mod:#eef2f1; --mod-edge:#9fb0ad;
+  --w-5v:#e0352b; --w-33:#f08a00; --w-gnd:#2b3133;
+  --w1:#d3a400; --w2:#1f9d55; --w3:#2f6fe0; --w4:#8b4fd6; --w5:#0aa3b5; --w6:#e0497f; --w7:#7a8a00; --w8:#b86a2b;
+  --font-body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#101615; --panel:#172120; --ink:#e4ecea; --muted:#94a5a2; --line:#2a3836;
+  --accent:#2fc2c9; --accent-ink:#06191a;
+  --danger:#ff6b6b; --danger-bg:#3a1717; --warn:#f2b33d; --warn-bg:#352a10; --ok:#5fd38a; --ok-bg:#12301d;
+  --uno:#0b5f67; --uno-edge:#0d7a84; --header:#0b0e0f; --chip:#0e1213; --silk:#d7eeee;
+  --mod:#1e2b2a; --mod-edge:#4b605d;
+  --w-gnd:#b9c4c2; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#101615; --panel:#172120; --ink:#e4ecea; --muted:#94a5a2; --line:#2a3836;
+  --accent:#2fc2c9; --accent-ink:#06191a;
+  --danger:#ff6b6b; --danger-bg:#3a1717; --warn:#f2b33d; --warn-bg:#352a10; --ok:#5fd38a; --ok-bg:#12301d;
+  --uno:#0b5f67; --uno-edge:#0d7a84; --header:#0b0e0f; --chip:#0e1213; --silk:#d7eeee;
+  --mod:#1e2b2a; --mod-edge:#4b605d;
+  --w-gnd:#b9c4c2; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:15.5px;line-height:1.65;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 80px}
+.wrap{max-width:1060px;margin:0 auto;display:flex;flex-direction:column;gap:44px}
+h1,h2,h3{text-wrap:balance;line-height:1.25;margin:0}
+h1{font-size:clamp(26px,4.4vw,38px);font-weight:700;letter-spacing:-.01em}
+h2{font-size:22px;font-weight:700;display:flex;gap:10px;align-items:baseline}
+h2 .no{font-family:var(--font-mono);font-size:14px;color:var(--accent);font-weight:600}
+h3{font-size:16.5px;font-weight:700}
+p{margin:0;max-width:68ch}
+section{display:flex;flex-direction:column;gap:16px}
+.eyebrow{font-family:var(--font-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.lead{color:var(--muted);max-width:66ch}
+code,.mono{font-family:var(--font-mono);font-size:.9em}
+code{background:var(--mod);padding:1px 5px;border-radius:4px}
+nav.toc{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:14px}
+nav.toc a{color:var(--accent);text-decoration:none;border-bottom:1px solid transparent}
+nav.toc a:hover,nav.toc a:focus-visible{border-color:var(--accent)}
+a:focus-visible,button:focus-visible,input:focus-visible,tr:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.callout{border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+.callout.danger{background:var(--danger-bg);border:1px solid color-mix(in srgb,var(--danger) 40%,transparent)}
+.callout.warn{background:var(--warn-bg);border:1px solid color-mix(in srgb,var(--warn) 40%,transparent)}
+.callout.ok{background:var(--ok-bg);border:1px solid color-mix(in srgb,var(--ok) 40%,transparent)}
+.callout b.t{font-size:14px}
+.callout.danger b.t{color:var(--danger)} .callout.warn b.t{color:var(--warn)} .callout.ok b.t{color:var(--ok)}
+
+/* 체크리스트 */
+.checks{display:flex;flex-direction:column;gap:2px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:6px}
+.checks label{display:grid;grid-template-columns:22px 1fr auto;gap:10px;align-items:start;padding:9px 10px;border-radius:8px;cursor:pointer}
+.checks label:hover{background:var(--mod)}
+.checks input{width:18px;height:18px;margin-top:3px;accent-color:var(--accent)}
+.checks .lvl{font-family:var(--font-mono);font-size:11px;padding:2px 7px;border-radius:99px;white-space:nowrap;margin-top:3px}
+.lvl.c{background:var(--danger-bg);color:var(--danger)} .lvl.s{background:var(--warn-bg);color:var(--warn)}
+.checks label:has(input:checked) span.txt{color:var(--muted);text-decoration:line-through}
+.progress{font-family:var(--font-mono);font-size:13px;color:var(--muted)}
+
+/* 회로도 */
+.figure{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.figbar{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--line);font-size:13px;color:var(--muted)}
+.figscroll{overflow-x:auto}
+.figscroll svg{display:block;min-width:820px;width:100%;height:auto}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center}
+.legend i{display:inline-block;width:18px;height:4px;border-radius:2px;vertical-align:middle;margin-right:5px}
+.legend .dot{width:8px;height:8px;border-radius:50%;background:var(--ink);display:inline-block;margin-right:5px;vertical-align:middle}
+button.clear{font:inherit;font-size:13px;background:transparent;border:1px solid var(--line);color:var(--ink);border-radius:6px;padding:3px 10px;cursor:pointer}
+
+svg text{font-family:var(--font-mono)}
+.wire{cursor:pointer;transition:opacity .15s}
+.wire .halo{stroke:var(--panel);fill:none}
+.wire .core{fill:none}
+svg.focus .wire{opacity:.12} svg.focus .wire.on{opacity:1}
+svg.focus .wire.on .core{stroke-width:4.5}
+svg.focus .jdot{opacity:.15} svg.focus .jdot.on{opacity:1}
+
+/* 표 */
+.tablewrap{overflow-x:auto;background:var(--panel);border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:14px}
+th,td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;color:var(--muted);font-weight:500;letter-spacing:.04em;background:var(--mod)}
+tbody tr{cursor:pointer}
+tbody tr:hover,tbody tr.on{background:color-mix(in srgb,var(--accent) 12%,transparent)}
+td.pin{font-family:var(--font-mono);font-weight:600;white-space:nowrap}
+td.sw i{display:inline-block;width:26px;height:6px;border-radius:3px;vertical-align:middle;margin-right:6px}
+tr.grp td{background:var(--bg);font-weight:700;font-size:13px;cursor:default}
+td .tag{font-size:11.5px;font-family:var(--font-mono);padding:1px 6px;border-radius:4px;margin-left:4px}
+td .tag.c{background:var(--danger-bg);color:var(--danger)} td .tag.s{background:var(--warn-bg);color:var(--warn)}
+
+/* 단계 */
+ol.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px;counter-reset:s}
+ol.steps li{counter-increment:s;display:grid;grid-template-columns:34px 1fr;gap:12px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
+ol.steps li::before{content:counter(s);font-family:var(--font-mono);font-weight:600;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--accent-ink);font-size:14px}
+ol.steps li > div{display:flex;flex-direction:column;gap:6px;min-width:0}
+ol.steps .pass{font-size:13.5px;color:var(--ok)}
+ul.plain{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px}
+
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.led{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:14px}
+.kv dt{font-family:var(--font-mono);font-weight:600} .kv dd{margin:0;color:var(--muted)}
+pre{margin:0;background:var(--mod);border-radius:8px;padding:10px 12px;overflow-x:auto;font-family:var(--font-mono);font-size:13px;line-height:1.55}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+
+<header style="display:flex;flex-direction:column;gap:12px">
+  <div class="eyebrow">기말 과제 · ATmega328P × 2 · UART 링크</div>
+  <h1>스마트 도어락 배선 가이드</h1>
+  <p class="lead">보드 A는 키패드·RFID·LCD로 입력을 받고, 보드 B는 서보로 문을 움직여. 그림의 선이나 표의 행을 누르면 그 선만 강조돼. 선이 겹쳐 보이면 이렇게 하나씩 확인해.</p>
+  <nav class="toc" aria-label="목차">
+    <a href="#overview">구성</a><a href="#safety">안전 점검</a><a href="#boardA">보드 A</a><a href="#boardB">보드 B</a><a href="#link">보드 간 연결</a><a href="#build">조립 순서</a><a href="#use">사용법</a><a href="#upload">업로드</a>
+  </nav>
+</header>
+
+<section id="overview">
+  <h2><span class="no">00</span>전체 구성</h2>
+  <div class="figure"><div class="figscroll">
+  <svg viewBox="0 0 1000 300" role="img" aria-label="시스템 구성도">
+    <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="var(--muted)"/></marker></defs>
+    <g font-size="13">
+      <rect x="30" y="40" width="150" height="40" rx="8" fill="var(--mod)" stroke="var(--mod-edge)"/><text x="105" y="65" text-anchor="middle" fill="var(--ink)">4x4 키패드</text>
+      <rect x="30" y="100" width="150" height="40" rx="8" fill="var(--mod)" stroke="var(--mod-edge)"/><text x="105" y="125" text-anchor="middle" fill="var(--ink)">RC522 RFID</text>
+      <rect x="30" y="160" width="150" height="40" rx="8" fill="var(--mod)" stroke="var(--mod-edge)"/><text x="105" y="185" text-anchor="middle" fill="var(--ink)">1602 LCD (I2C)</text>
+      <rect x="250" y="60" width="200" height="140" rx="10" fill="var(--uno)" stroke="var(--uno-edge)" stroke-width="2"/>
+      <text x="350" y="112" text-anchor="middle" fill="var(--silk)" font-size="16" font-weight="600">보드 A · 입력부</text>
+      <text x="350" y="136" text-anchor="middle" fill="var(--silk)" font-size="12">비밀번호 · RFID 판정</text>
+      <text x="350" y="156" text-anchor="middle" fill="var(--silk)" font-size="12">LCD 표시</text>
+      <rect x="550" y="60" width="200" height="140" rx="10" fill="var(--uno)" stroke="var(--uno-edge)" stroke-width="2"/>
+      <text x="650" y="112" text-anchor="middle" fill="var(--silk)" font-size="16" font-weight="600">보드 B · 문 작동부</text>
+      <text x="650" y="136" text-anchor="middle" fill="var(--silk)" font-size="12">INT0 버튼 · MsTimer2</text>
+      <text x="650" y="156" text-anchor="middle" fill="var(--silk)" font-size="12">BT 인증 · 1m 판정</text>
+      <line x1="450" y1="105" x2="550" y2="105" stroke="var(--muted)" stroke-width="2" marker-end="url(#ar)"/>
+      <line x1="550" y1="150" x2="450" y2="150" stroke="var(--muted)" stroke-width="2" marker-end="url(#ar)"/>
+      <text x="500" y="95" text-anchor="middle" fill="var(--muted)" font-size="11">OPEN:KEY / FAIL</text>
+      <text x="500" y="170" text-anchor="middle" fill="var(--muted)" font-size="11">ST:OPEN:BT …</text>
+      <text x="500" y="128" text-anchor="middle" fill="var(--accent)" font-size="11">UART 9600</text>
+      <rect x="820" y="20" width="150" height="40" rx="8" fill="var(--mod)" stroke="var(--mod-edge)"/><text x="895" y="45" text-anchor="middle" fill="var(--ink)">HC-06 블루투스</text>
+      <rect x="820" y="72" width="150" height="40" rx="8" fill="var(--mod)" stroke="var(--mod-edge)"/><text x="895" y="97" text-anchor="middle" fill="var(--ink)">HC-SR04 초음파</text>
+      <rect x="820" y="124" width="150" height="40" rx="8" fill="var(--mod)" stroke="var(--mod-edge)"/><text x="895" y="149" text-anchor="middle" fill="var(--ink)">SG90 서보</text>
+      <rect x="820" y="176" width="150" height="40" rx="8" fill="var(--mod)" stroke="var(--mod-edge)"/><text x="895" y="201" text-anchor="middle" fill="var(--ink)">LED 3개</text>
+      <rect x="820" y="228" width="150" height="40" rx="8" fill="var(--mod)" stroke="var(--mod-edge)"/><text x="895" y="253" text-anchor="middle" fill="var(--ink)">실내 버튼</text>
+      <g stroke="var(--line)" stroke-width="2" fill="none">
+        <path d="M180 60H215V100H250"/><path d="M180 120H250"/><path d="M180 180H215V160H250"/>
+        <path d="M750 90H790V40H820"/><path d="M750 100H795V92H820"/><path d="M750 130H795V144H820"/><path d="M750 160H790V196H820"/><path d="M750 180H780V248H820"/>
+      </g>
+      <rect x="560" y="236" width="180" height="40" rx="8" fill="none" stroke="var(--w-5v)" stroke-dasharray="5 4"/>
+      <text x="650" y="261" text-anchor="middle" fill="var(--w-5v)" font-size="12">서보 전용 5V 외부전원</text>
+      <text x="40" y="250" fill="var(--muted)" font-size="12">휴대폰(Android) ⇄ HC-06 :</text>
+      <text x="40" y="270" fill="var(--muted)" font-size="12">비밀번호 전송 → 30초 안에 1m 이내 접근 → 열림</text>
+    </g>
+  </svg></div></div>
+  <div class="grid2">
+    <div class="card"><h3>기능 → 담당 보드</h3>
+      <dl class="kv">
+        <dt>키패드</dt><dd>A가 비밀번호 확인 후 B에 <code>OPEN:KEY</code> 전송</dd>
+        <dt>RFID</dt><dd>A가 UID 확인 후 <code>OPEN:RFID</code> 전송</dd>
+        <dt>BT+1m</dt><dd>B가 폰 비밀번호 확인 → 초음파 100cm 이내 3회 연속이면 열림</dd>
+        <dt>LCD</dt><dd>A. 입력값(*), 결과, B에서 온 문 상태 표시</dd>
+        <dt>LED</dt><dd>B. 초록=열림, 노랑 깜빡=폰 인증됨, 빨강=잠김/실패</dd>
+      </dl></div>
+    <div class="card"><h3>인터럽트 2종 (과제 조건)</h3>
+      <dl class="kv">
+        <dt>외부</dt><dd>보드 B <code>D2</code> = INT0, 실내 열림 버튼, <code>FALLING</code>. millis() 300ms로 채터링 차단</dd>
+        <dt>내부</dt><dd>보드 B <code>MsTimer2</code> 100ms 틱. 자동 잠금(5초), 폰 인증 만료(30초), LED 깜빡임 처리</dd>
+      </dl>
+      <p style="font-size:13.5px;color:var(--muted)">ISR 안에서는 플래그만 세우고, 서보·시리얼 같은 무거운 일은 loop()에서 해.</p></div>
+  </div>
+</section>
+
+<section id="safety">
+  <h2><span class="no">01</span>전원 넣기 전 안전 점검</h2>
+  <p class="lead">USB를 꽂기 전에 하나씩 체크해. 체크 상태는 이 브라우저에만 저장돼.</p>
+  <div class="callout danger"><b class="t">보드나 모듈이 망가질 수 있는 실수 3가지</b>
+    <ul class="plain">
+      <li><b>RC522 VCC를 5V에 꽂기.</b> 반드시 <code>3.3V</code> 핀에 꽂아.</li>
+      <li><b>서보 전원을 아두이노 5V에서 끌어오기.</b> 서보가 움직일 때 전류가 튀어서 보드가 리셋되거나 USB 포트가 위험해져. 외부 5V를 쓰고 GND만 공통으로 묶어.</li>
+      <li><b>두 보드의 5V 핀끼리 연결하기.</b> 각 보드는 자기 USB로 전원을 받고, 보드끼리는 GND와 신호선 2개만 연결해.</li>
+    </ul></div>
+  <div class="checks" id="checks"></div>
+  <div class="progress" id="progress"></div>
+</section>
+
+<section id="boardA">
+  <h2><span class="no">02</span>보드 A · 입력부</h2>
+  <p class="lead">키패드 8선, RC522 7선(분압 포함), LCD 4선, 보드 B 링크 3선. 점(●)이 찍힌 곳만 연결된 거고, 점 없이 겹친 선은 지나가는 거야.</p>
+  <div class="figure">
+    <div class="figbar"><div class="legend">
+      <span><i style="background:var(--w-5v)"></i>5V</span><span><i style="background:var(--w-33)"></i>3.3V</span><span><i style="background:var(--w-gnd)"></i>GND</span><span><i style="background:var(--w3)"></i>신호</span><span><span class="dot"></span>연결점</span></div>
+      <button class="clear" data-clear="A">강조 해제</button></div>
+    <div class="figscroll"><svg id="svgA" viewBox="0 0 1000 790" role="img" aria-label="보드 A 배선도"></svg></div>
+  </div>
+  <div class="callout warn"><b class="t">RC522 분압 (신호선 4개: SDA·SCK·MOSI·RST)</b>
+    <p>아두이노 핀 → <b>1kΩ</b> → RC522 핀, 그리고 RC522 핀 쪽 노드에서 <b>2kΩ</b> → GND. 5V × 2/3 ≈ 3.3V가 돼. 2kΩ이 없으면 2.2kΩ 하나, 또는 1kΩ 두 개를 직렬로 써도 돼. <b>MISO는 RC522가 내보내는 신호라 분압 없이 직결</b>해. IRQ는 연결 안 해.</p></div>
+  <div class="tablewrap"><table id="tableA"><thead><tr><th>모듈 핀</th><th>아두이노 A</th><th>선 색(추천)</th><th>메모</th></tr></thead><tbody></tbody></table></div>
+  <div class="callout warn"><b class="t">키패드 핀 순서 확인</b>
+    <p>대부분의 4x4 멤브레인 키패드는 앞면 기준 왼쪽부터 <code>R1 R2 R3 R4 C1 C2 C3 C4</code>야. 제품마다 다를 수 있으니, 업로드 후 키를 눌러 LCD에 <code>*</code>가 찍히는지 확인해. 숫자가 엉뚱하게 나오면 코드의 <code>rowPins</code>, <code>colPins</code> 순서만 바꾸면 돼. 키패드는 전원이 필요 없어서 순서가 틀려도 고장 나지 않아.</p></div>
+</section>
+
+<section id="boardB">
+  <h2><span class="no">03</span>보드 B · 문 작동부</h2>
+  <p class="lead">위쪽 가로줄 2개는 브레드보드 전원 레일이야. 위가 GND(−), 아래가 아두이노 5V(+). 서보는 이 레일이 아니라 아래쪽 외부전원에 연결해.</p>
+  <div class="figure">
+    <div class="figbar"><div class="legend">
+      <span><i style="background:var(--w-5v)"></i>5V</span><span><i style="background:var(--w-gnd)"></i>GND</span><span><i style="background:var(--w3)"></i>신호</span><span><span class="dot"></span>연결점</span></div>
+      <button class="clear" data-clear="B">강조 해제</button></div>
+    <div class="figscroll"><svg id="svgB" viewBox="0 0 1000 800" role="img" aria-label="보드 B 배선도"></svg></div>
+  </div>
+  <div class="grid2">
+    <div class="callout warn"><b class="t">HC-06 RXD는 3.3V 신호</b>
+      <p>보드 B <code>D1(TX)</code> → <b>1kΩ</b> → HC-06 <code>RXD</code>, RXD 쪽 노드에서 <b>2kΩ</b> → GND. HC-06 <code>TXD</code>(3.3V 출력)는 <code>D0</code>에 직결해도 돼. HC-06 <code>VCC</code>는 5V(모듈 안에 레귤레이터 있음). 핀 이름은 제품마다 순서가 다르니 <b>모듈 뒷면 글씨를 보고</b> 꽂아.</p></div>
+    <div class="callout warn"><b class="t">서보 전원</b>
+      <p>5V 1A 이상 어댑터나 브레드보드 전원모듈(점퍼를 <b>5V</b>로)을 써. 새 AA 건전지 4개는 약 6.4V라 SG90 정격(4.8~6V)을 살짝 넘어서 비추천이야. 전원 +/− 사이에 <b>470µF 전해 커패시터</b>를 꽂아(긴 다리 +, 띠 표시 쪽 −). 외부전원 GND는 반드시 아두이노 GND와 연결해. 이게 빠지면 서보가 신호를 못 알아들어.</p></div>
+  </div>
+  <div class="tablewrap"><table id="tableB"><thead><tr><th>모듈 핀</th><th>아두이노 B</th><th>선 색(추천)</th><th>메모</th></tr></thead><tbody></tbody></table></div>
+</section>
+
+<section id="link">
+  <h2><span class="no">04</span>보드 A ↔ 보드 B 연결</h2>
+  <p class="lead">UART는 TX와 RX를 서로 엇갈려서 연결해. GND를 꼭 같이 연결해야 신호 기준 전압이 맞아.</p>
+  <div class="figure"><div class="figscroll">
+  <svg viewBox="0 0 1000 250" role="img" aria-label="보드 간 UART 연결">
+    <rect x="40" y="40" width="300" height="170" rx="12" fill="var(--uno)" stroke="var(--uno-edge)" stroke-width="2"/>
+    <rect x="660" y="40" width="300" height="170" rx="12" fill="var(--uno)" stroke="var(--uno-edge)" stroke-width="2"/>
+    <text x="70" y="75" fill="var(--silk)" font-size="16" font-weight="600">보드 A</text>
+    <text x="930" y="75" fill="var(--silk)" font-size="16" font-weight="600" text-anchor="end">보드 B</text>
+    <g font-size="14" fill="var(--silk)">
+      <text x="320" y="106" text-anchor="end">A2 · TX (SoftwareSerial)</text>
+      <text x="320" y="146" text-anchor="end">A1 · RX (SoftwareSerial)</text>
+      <text x="320" y="186" text-anchor="end">GND</text>
+      <text x="680" y="106">D4 · RX (SoftwareSerial)</text>
+      <text x="680" y="146">D5 · TX (SoftwareSerial)</text>
+      <text x="680" y="186">GND</text>
+    </g>
+    <g fill="none" stroke-linecap="round">
+      <path d="M340 101 H660" stroke="var(--panel)" stroke-width="8"/><path d="M340 101 H660" stroke="var(--w1)" stroke-width="3.5"/>
+      <path d="M660 141 H340" stroke="var(--panel)" stroke-width="8"/><path d="M660 141 H340" stroke="var(--w2)" stroke-width="3.5"/>
+      <path d="M340 181 H660" stroke="var(--panel)" stroke-width="8"/><path d="M340 181 H660" stroke="var(--w-gnd)" stroke-width="3.5"/>
+    </g>
+    <g font-size="12" fill="var(--muted)" text-anchor="middle">
+      <text x="500" y="94">A → B : OPEN:KEY · OPEN:RFID · FAIL:KEY · FAIL:RFID</text>
+      <text x="500" y="134">B → A : ST:OPEN:BT · ST:LOCK · ST:ARM · ST:BTFAIL …</text>
+      <text x="500" y="174">공통 GND (필수)</text>
+    </g>
+    <text x="500" y="234" font-size="13" fill="var(--danger)" text-anchor="middle">5V끼리는 연결하지 마. 각 보드는 자기 USB로 전원을 받아.</text>
+  </svg></div></div>
+</section>
+
+<section id="build">
+  <h2><span class="no">05</span>조립 & 테스트 순서</h2>
+  <p class="lead">한 번에 다 꽂지 말고, 모듈 하나 연결 → 확인 → 다음 순서로 가. 문제가 생기면 방금 꽂은 모듈만 보면 돼.</p>
+  <ol class="steps">
+    <li><div><h3>라이브러리 설치</h3><p>Arduino IDE 라이브러리 매니저에서 <code>Keypad</code>(Mark Stanley), <code>MFRC522</code>, <code>LiquidCrystal I2C</code>(Frank de Brabander), <code>MsTimer2</code>를 설치해. <code>Servo</code>, <code>SoftwareSerial</code>은 기본 내장이야.</p></div></li>
+    <li><div><h3>보드 A: LCD만 연결 → I2C 주소 찾기</h3><p><code>firmware/tools/i2c_scanner</code> 업로드 후 시리얼 모니터(9600)에서 주소를 확인해. 보통 <code>0x27</code>이나 <code>0x3F</code>. 다르면 <code>LCD_ADDR</code>를 고쳐.</p><p class="pass">통과: 주소가 1개 출력됨. 글자가 안 보이면 LCD 뒷면 파란 가변저항을 드라이버로 돌려.</p></div></li>
+    <li><div><h3>보드 A: 키패드 추가</h3><p><code>board_A_input</code> 업로드. 숫자를 누를 때마다 LCD 2번째 줄에 <code>*</code>가 늘어나는지 확인. <code>1234#</code> → ACCESS GRANTED.</p><p class="pass">통과: <code>*</code>로 지워지고, 틀린 번호 3번이면 30초 차단.</p></div></li>
+    <li><div><h3>보드 A: RC522 추가 (분압 저항 포함)</h3><p>USB를 <b>뽑은 상태</b>에서 연결하고, VCC가 3.3V인지 한 번 더 확인해. 카드를 대면 시리얼 모니터에 <code>RFID UID: XX XX XX XX</code>가 떠. 이 값을 코드의 <code>ALLOWED_UID</code>에 적고 다시 업로드해.</p><p class="pass">통과: 등록 카드 → GRANTED, 미등록 카드 → DENIED + UID 표시.</p></div></li>
+    <li><div><h3>보드 B: LED + 버튼</h3><p><b>HC-06는 아직 꽂지 말고</b> <code>board_B_door</code> 업로드. 빨강 LED가 켜져 있어야 해. 버튼을 누르면 초록이 5초 켜졌다가 다시 빨강.</p><p class="pass">통과: 버튼을 한 번 누르면 한 번만 열림(채터링 없음).</p></div></li>
+    <li><div><h3>보드 B: 서보 + 외부전원</h3><p>외부전원 → 커패시터 → 서보 순서로 꽂고, 외부전원 GND를 아두이노 GND에 연결. 버튼으로 0° ↔ 90°가 움직이는지 봐. <b>걸쇠에 달기 전에</b> 각도를 확인하고 <code>LOCK_ANGLE</code>, <code>UNLOCK_ANGLE</code>을 조정해.</p><p class="pass">통과: 움직일 때 보드가 리셋되지 않음(LED가 꺼졌다 켜지지 않음).</p></div></li>
+    <li><div><h3>보드 B: HC-SR04</h3><p>VCC 5V, GND, Trig <code>D6</code>, Echo <code>D7</code>. 초음파는 폰 인증 후에만 측정하니까 다음 단계에서 같이 확인해.</p></div></li>
+    <li><div><h3>보드 B: HC-06 (분압 저항 포함)</h3><p>업로드가 끝난 <b>뒤에</b> HC-06를 꽂아. 폰에서 HC-06 페어링(PIN 기본값 <code>1234</code> 또는 <code>0000</code>) → <b>Serial Bluetooth Terminal</b> 앱에서 연결 → <code>BT1234</code> 전송.</p><p class="pass">통과: 폰에 <code>ARM</code> 표시 + 노랑 LED 깜빡 → 센서 앞 1m 안으로 손을 넣으면 열림.</p></div></li>
+    <li><div><h3>보드 A ↔ B 연결</h3><p>A2→D4, A1←D5, GND–GND. 키패드로 열면 B의 서보가 움직이고, 버튼으로 열면 A의 LCD에 <code>OPEN from INSIDE button</code>이 떠야 해.</p><p class="pass">통과: 4가지 방법(키패드·RFID·폰·버튼) 모두 열리고 5초 뒤 자동 잠김.</p></div></li>
+  </ol>
+</section>
+
+<section id="use">
+  <h2><span class="no">06</span>사용법 & 상태 표시</h2>
+  <div class="grid2">
+    <div class="card"><h3>LED 의미 (보드 B)</h3>
+      <dl class="kv">
+        <dt><span class="led" style="background:#e0352b"></span>빨강 켜짐</dt><dd>잠김</dd>
+        <dt><span class="led" style="background:#e0352b"></span>빨강 빠르게</dt><dd>인증 실패 (2초)</dd>
+        <dt><span class="led" style="background:#d3a400"></span>노랑 깜빡</dt><dd>폰 인증됨, 1m 접근 대기 (최대 30초)</dd>
+        <dt><span class="led" style="background:#1f9d55"></span>초록 켜짐</dt><dd>열림 (5초 뒤 자동 잠금)</dd>
+      </dl></div>
+    <div class="card"><h3>바꿀 수 있는 설정값</h3>
+      <dl class="kv">
+        <dt>PASSWORD</dt><dd>보드 A 키패드 비밀번호 (기본 1234)</dd>
+        <dt>ALLOWED_UID</dt><dd>보드 A 등록 카드 UID</dd>
+        <dt>BT_PASSWORD</dt><dd>보드 B 폰 인증 코드 (기본 BT1234)</dd>
+        <dt>NEAR_CM</dt><dd>보드 B 접근 거리 (기본 100cm)</dd>
+        <dt>OPEN_TICKS</dt><dd>열림 유지 시간 ×100ms (기본 50 = 5초)</dd>
+      </dl></div>
+    <div class="card"><h3>폰 앱 설정 (Serial Bluetooth Terminal)</h3>
+      <ul class="plain">
+        <li>Devices 탭 → HC-06 선택 → 연결</li>
+        <li>Settings → Send → Newline: <code>CR+LF</code> 또는 <code>LF</code></li>
+        <li><code>BT1234</code> 보내면 인증, <code>LOCK</code> 보내면 즉시 잠금</li>
+        <li>비밀번호 3번 틀리면 30초간 무시됨</li>
+      </ul></div>
+    <div class="card"><h3>1m 판정의 한계 (발표 때 설명용)</h3>
+      <p style="font-size:14px">HC-06은 신호 세기(RSSI)를 아두이노에 알려주지 않아. 그래서 블루투스로 <b>누구인지</b> 인증하고, 초음파로 <b>얼마나 가까운지</b>를 재는 2단계 방식을 썼어. 초음파는 폰이 아니라 앞에 있는 물체를 재기 때문에, 인증 후 30초 안에만 측정하고 3번 연속 100cm 이내일 때만 열어서 오작동을 줄였어.</p></div>
+  </div>
+</section>
+
+<section id="upload">
+  <h2><span class="no">07</span>업로드할 때 주의</h2>
+  <div class="callout danger"><b class="t">보드 B에 업로드하기 전: D0에 꽂힌 선(HC-06 TXD) 뽑기</b>
+    <p>D0·D1은 USB 업로드에도 쓰는 핀이야. HC-06이 D0을 잡고 있으면 <code>avrdude: stk500_recv(): programmer is not responding</code> 같은 오류가 나. 보드가 고장 나는 건 아니고, 선만 뽑고 다시 업로드하면 돼.</p></div>
+  <div class="callout ok"><b class="t">보드 A는 그냥 업로드해도 돼</b>
+    <p>보드 A는 링크에 SoftwareSerial(A1·A2)을 써서 D0·D1이 비어 있어. 시리얼 모니터로 RFID UID 확인도 가능해.</p></div>
+  <div class="card"><h3>파일 위치</h3>
+<pre>firmware/board_A_input/board_A_input.ino   → 보드 A
+firmware/board_B_door/board_B_door.ino     → 보드 B
+firmware/tools/i2c_scanner/i2c_scanner.ino → LCD 주소 찾기</pre></div>
+</section>
+</div>
+
+<script>
+(function(){
+"use strict";
+const NS="http://www.w3.org/2000/svg";
+function el(tag,attrs,parent,text){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(text!=null)e.textContent=text;if(parent)parent.appendChild(e);return e;}
+
+/* ---------- 아두이노 우노 R3 헤더 (USB가 왼쪽인 방향) ---------- */
+const UNO={x:220,y:330,w:560,h:230};
+const TOPY=345,BOTY=545;
+const TOP=[["SCL",330],["SDA",352],["AREF",374],["GND",396,"GND_T"],["D13",418],["D12",440],["D11",462],["D10",484],["D9",506],["D8",528],
+           ["D7",562],["D6",584],["D5",606],["D4",628],["D3",650],["D2",672],["D1",694],["D0",716]];
+const BOT=[["NC",372],["IOREF",394],["RESET",416],["3.3V",438,"3V3"],["5V",460],["GND",482,"GND_B1"],["GND",504,"GND_B2"],["VIN",526],
+           ["A0",570],["A1",592],["A2",614],["A3",636],["A4",658],["A5",680]];
+const unoPins={};
+TOP.forEach(p=>unoPins[p[2]||p[0]]={x:p[1],y:TOPY,dir:-1,label:p[0]});
+BOT.forEach(p=>unoPins[p[2]||p[0]]={x:p[1],y:BOTY,dir:1,label:p[0]});
+
+function drawUno(svg,used,name){
+  const g=el("g",{},svg);
+  el("rect",{x:UNO.x,y:UNO.y,width:UNO.w,height:UNO.h,rx:14,fill:"var(--uno)",stroke:"var(--uno-edge)","stroke-width":2},g);
+  el("rect",{x:UNO.x-26,y:UNO.y+30,width:66,height:58,rx:4,fill:"#b9c2c6",stroke:"#7f8a8e"},g);       // USB-B
+  el("text",{x:UNO.x+7,y:UNO.y+64,"font-size":11,fill:"#3a4448","text-anchor":"middle"},g,"USB");
+  el("rect",{x:UNO.x-14,y:UNO.y+150,width:54,height:50,rx:4,fill:"#2a2f31"},g);                      // DC 잭
+  el("text",{x:UNO.x+13,y:UNO.y+180,"font-size":10,fill:"#9aa4a7","text-anchor":"middle"},g,"DC");
+  // DIP ATmega328P (직사각형 칩)
+  el("rect",{x:470,y:452,width:250,height:44,rx:3,fill:"var(--chip)"},g);
+  el("circle",{cx:480,cy:474,r:4,fill:"#3c4346"},g);
+  for(let i=0;i<14;i++){el("rect",{x:478+i*17,y:446,width:7,height:6,fill:"#c9ced0"},g);el("rect",{x:478+i*17,y:496,width:7,height:6,fill:"#c9ced0"},g);}
+  el("text",{x:595,y:479,"font-size":12,fill:"#cfd6d8","text-anchor":"middle"},g,"ATmega328P");
+  el("text",{x:300,y:445,"font-size":22,"font-weight":600,fill:"var(--silk)"},g,name);
+  el("text",{x:300,y:468,"font-size":12,fill:"var(--silk)",opacity:.8},g,"Arduino UNO R3");
+  // 헤더 소켓
+  [[320,526],[552,726]].forEach(r=>el("rect",{x:r[0],y:TOPY-9,width:r[1]-r[0],height:18,rx:2,fill:"var(--header)"},g));
+  [[362,536],[560,690]].forEach(r=>el("rect",{x:r[0],y:BOTY-9,width:r[1]-r[0],height:18,rx:2,fill:"var(--header)"},g));
+  Object.entries(unoPins).forEach(([k,p])=>{
+    const u=used.has(k);
+    el("rect",{x:p.x-4,y:p.y-4,width:8,height:8,fill:u?"#f4f7f7":"#556066",rx:1},g);
+    const ty=p.dir<0?p.y+22:p.y-15;
+    const t=el("text",{x:p.x,y:ty,"font-size":9.5,fill:"var(--silk)","text-anchor":"end",transform:`rotate(-90 ${p.x+3} ${ty})`,opacity:u?1:.55,"font-weight":u?600:400},g,p.label);
+    if(p.dir>0) t.setAttribute("text-anchor","start");
+  });
+}
+
+/* ---------- 모듈 그리기 ---------- */
+function drawModule(svg,m){
+  const g=el("g",{},svg);
+  el("rect",{x:m.x,y:m.y,width:m.w,height:m.h,rx:8,fill:m.fill||"var(--mod)",stroke:m.stroke||"var(--mod-edge)","stroke-width":1.5,"stroke-dasharray":m.dash||""},g);
+  el("text",{x:m.x+10,y:m.side==="bottom"?m.y+18:m.y+m.h-8,"font-size":12.5,"font-weight":600,fill:"var(--ink)"},g,m.name);
+  if(m.sub) el("text",{x:m.x+10,y:m.side==="bottom"?m.y+33:m.y+m.h-23,"font-size":10.5,fill:"var(--muted)"},g,m.sub);
+  if(m.art) m.art(g,m);
+  m.pins.forEach(([n,x])=>{
+    const y=m.side==="bottom"?m.y+m.h:m.y;
+    el("rect",{x:x-4,y:y-4,width:8,height:8,fill:"#c9a227",stroke:"#8a6d10",rx:1},g);
+    const ty=m.side==="bottom"?y-10:y+18;
+    el("text",{x:x,y:ty,"font-size":10,"text-anchor":"middle",fill:"var(--ink)","font-weight":600},g,n);
+  });
+}
+function modPin(m,name){
+  const p=m.pins.find(q=>q[0]===name); if(!p) throw new Error(m.id+":"+name);
+  return {x:p[1],y:m.side==="bottom"?m.y+m.h:m.y};
+}
+
+/* ---------- 둥근 모서리 경로 ---------- */
+function rpath(pts,r){
+  let d=`M${pts[0][0]} ${pts[0][1]}`;
+  for(let i=1;i<pts.length-1;i++){
+    const [x0,y0]=pts[i-1],[x1,y1]=pts[i],[x2,y2]=pts[i+1];
+    const l1=Math.hypot(x1-x0,y1-y0),l2=Math.hypot(x2-x1,y2-y1);
+    const rr=Math.min(r,l1/2,l2/2);
+    if(rr<0.5){d+=` L${x1} ${y1}`;continue;}
+    const ax=x1-(x1-x0)/l1*rr,ay=y1-(y1-y0)/l1*rr,bx=x1+(x2-x1)/l2*rr,by=y1+(y2-y1)/l2*rr;
+    d+=` L${ax} ${ay} Q${x1} ${y1} ${bx} ${by}`;
+  }
+  const L=pts[pts.length-1]; d+=` L${L[0]} ${L[1]}`; return d;
+}
+
+/* ---------- 보드 렌더링 ---------- */
+function build(key,cfg){
+  const svg=document.getElementById("svg"+key);
+  const mods={}; cfg.modules.forEach(m=>mods[m.id]=m);
+  const used=new Set(cfg.wires.filter(w=>w.b[0]==="uno").map(w=>w.b[1]));
+  drawUno(svg,used,cfg.title);
+  (cfg.rails||[]).forEach(r=>{
+    el("line",{x1:r.x1,y1:r.y,x2:r.x2,y2:r.y,stroke:r.color,"stroke-width":5,"stroke-linecap":"round",opacity:.9},svg);
+    el("text",{x:r.lx,y:r.ly,"font-size":10,fill:r.color,"font-weight":600},svg,r.label);
+  });
+  cfg.modules.forEach(m=>drawModule(svg,m));
+  const pt=e=>{
+    if(e[0]==="uno"){const p=unoPins[e[1]];return {x:p.x,y:p.y};}
+    if(e[0]==="pt") return {x:e[1],y:e[2]};
+    return modPin(mods[e[0]],e[1]);
+  };
+  const wg=el("g",{},svg);
+  cfg.wires.forEach((w,i)=>{
+    const A=pt(w.a),B=pt(w.b),r=w.r;
+    let pts=[[A.x,A.y]];
+    if(r.length===1) pts.push([A.x,r[0]],[B.x,r[0]]);
+    else if(r.length===3) pts.push([A.x,r[0]],[r[1],r[0]],[r[1],r[2]],[B.x,r[2]]);
+    pts.push([B.x,B.y]);
+    pts=pts.filter((p,j)=>j===0||p[0]!==pts[j-1][0]||p[1]!==pts[j-1][1]);
+    const g=el("g",{class:"wire","data-i":i,tabindex:-1},wg);
+    const d=rpath(pts,7);
+    el("path",{d,class:"halo","stroke-width":8,"stroke-linecap":"round","stroke-linejoin":"round"},g);
+    el("path",{d,class:"core",stroke:w.c,"stroke-width":3.2,"stroke-linecap":"round","stroke-linejoin":"round"},g);
+    el("title",{},g,`${w.mod} ${w.pin} → ${w.to}`);
+    const dots=(w.dots||[]).slice(); if(w.b[0]==="pt"&&w.b[3]) dots.push([B.x,B.y]);
+    dots.forEach(dp=>el("circle",{cx:dp[0],cy:dp[1],r:4.5,fill:"var(--ink)",class:"jdot","data-i":i},svg));
+    w._g=g;
+  });
+  if(cfg.after) cfg.after(svg);
+
+  // 표
+  const tb=document.querySelector("#table"+key+" tbody"); let last=null;
+  cfg.wires.forEach((w,i)=>{
+    if(w.hideRow) return;
+    if(w.mod!==last){const tr=document.createElement("tr");tr.className="grp";tr.innerHTML=`<td colspan="4">${w.mod}</td>`;tb.appendChild(tr);last=w.mod;}
+    const tr=document.createElement("tr"); tr.dataset.i=i; tr.tabIndex=0;
+    tr.innerHTML=`<td class="pin">${w.pin}</td><td class="pin">${w.to}</td><td class="sw"><i style="background:${w.c}"></i>${w.cn}</td><td>${w.note||""}</td>`;
+    tb.appendChild(tr);
+  });
+
+  // 강조
+  let cur=null;
+  function focus(i){
+    cur=(cur===i)?null:i;
+    svg.classList.toggle("focus",cur!==null);
+    svg.querySelectorAll(".wire").forEach(g=>g.classList.toggle("on",+g.dataset.i===cur));
+    svg.querySelectorAll(".jdot").forEach(c=>c.classList.toggle("on",+c.dataset.i===cur));
+    tb.querySelectorAll("tr[data-i]").forEach(tr=>tr.classList.toggle("on",+tr.dataset.i===cur));
+  }
+  svg.addEventListener("click",e=>{const g=e.target.closest(".wire");if(g)focus(+g.dataset.i);});
+  tb.addEventListener("click",e=>{const tr=e.target.closest("tr[data-i]");if(tr){focus(+tr.dataset.i);svg.closest(".figure").scrollIntoView({behavior:"smooth",block:"nearest"});}});
+  tb.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){const tr=e.target.closest("tr[data-i]");if(tr){e.preventDefault();focus(+tr.dataset.i);}}});
+  document.querySelector(`[data-clear="${key}"]`).addEventListener("click",()=>{cur=null;focus(-1);cur=null;svg.classList.remove("focus");tb.querySelectorAll("tr.on").forEach(t=>t.classList.remove("on"));});
+}
+
+/* ---------- 그림 조각 ---------- */
+function resistorV(g,x,y,h,label,side){ // 세로 저항
+  el("rect",{x:x-5,y:y,width:10,height:h,rx:2,fill:"#e8d9b5",stroke:"#8a6d10","stroke-width":1},g);
+  el("line",{x1:x-5,y1:y+h*0.3,x2:x+5,y2:y+h*0.3,stroke:"#7a3d0a","stroke-width":1.5},g);
+  el("line",{x1:x-5,y1:y+h*0.55,x2:x+5,y2:y+h*0.55,stroke:"#111","stroke-width":1.5},g);
+  el("text",{x:side==="l"?x-8:x+8,y:y+h/2+3.5,"font-size":9.5,"text-anchor":side==="l"?"end":"start",fill:"var(--ink)"},g,label);
+}
+
+const C={v5:"var(--w-5v)",v33:"var(--w-33)",gnd:"var(--w-gnd)",y:"var(--w1)",g:"var(--w2)",b:"var(--w3)",p:"var(--w4)",c:"var(--w5)",k:"var(--w6)",o:"var(--w7)",n:"var(--w8)"};
+
+/* ================= 보드 A ================= */
+const rc={id:"rc",name:"RC522 RFID",sub:"반드시 3.3V",x:50,y:22,w:260,h:118,side:"bottom",
+  pins:[["3.3V",82],["RST",110],["GND",138],["IRQ",166],["MISO",194],["MOSI",222],["SCK",250],["SDA",278]],
+  art:(g,m)=>{for(let i=0;i<3;i++)el("rect",{x:150+i*7,y:36+i*7,width:140-i*14,height:52-i*14,rx:6,fill:"none",stroke:"#c9a227","stroke-width":1.4},g);}};
+const kp={id:"kp",name:"4x4 키패드",sub:"핀: 앞면 왼쪽부터",x:570,y:14,w:270,h:186,side:"bottom",
+  pins:[["R1",600],["R2",630],["R3",660],["R4",690],["C1",720],["C2",750],["C3",780],["C4",810]],
+  art:(g,m)=>{const K=["123A","456B","789C","*0#D"];for(let r=0;r<4;r++)for(let c=0;c<4;c++){el("rect",{x:700+c*33,y:24+r*33,width:28,height:28,rx:5,fill:"var(--panel)",stroke:"var(--mod-edge)"},g);el("text",{x:714+c*33,y:43+r*33,"font-size":12,"text-anchor":"middle",fill:"var(--ink)"},g,K[r][c]);}}};
+const lcd={id:"lcd",name:"1602 LCD + I2C",sub:"주소 0x27 / 0x3F",x:610,y:668,w:250,h:104,side:"top",
+  pins:[["GND",630],["VCC",670],["SDA",710],["SCL",750]],
+  art:(g,m)=>{el("rect",{x:660,y:690,width:186,height:48,rx:4,fill:"#5d8f2f"},g);el("text",{x:668,y:710,"font-size":12,fill:"#0f2a07"},g,"Door:LOCKED");el("text",{x:668,y:728,"font-size":12,fill:"#0f2a07"},g,"PW:****");}};
+const lkA={id:"lk",name:"→ 보드 B로",sub:"UART 링크",x:250,y:668,w:200,h:90,side:"top",pins:[["B D5",290],["B D4",340],["GND",400]],
+  art:()=>{}};
+
+const wiresA=[
+ {a:["rc","SDA"],b:["uno","D10"],c:C.y,cn:"노랑",r:[270],mod:"RC522 RFID",pin:"SDA (SS)",to:"D10",note:'1k + 2k 분압<span class="tag s">분압</span>'},
+ {a:["rc","SCK"],b:["uno","D13"],c:C.g,cn:"초록",r:[315],mod:"RC522 RFID",pin:"SCK",to:"D13",note:'1k + 2k 분압<span class="tag s">분압</span>'},
+ {a:["rc","MOSI"],b:["uno","D11"],c:C.b,cn:"파랑",r:[285],mod:"RC522 RFID",pin:"MOSI",to:"D11",note:'1k + 2k 분압<span class="tag s">분압</span>'},
+ {a:["rc","MISO"],b:["uno","D12"],c:C.p,cn:"보라",r:[300],mod:"RC522 RFID",pin:"MISO",to:"D12",note:"직결 (RC522 → 아두이노 방향)"},
+ {a:["rc","RST"],b:["uno","D9"],c:C.c,cn:"하늘",r:[255],mod:"RC522 RFID",pin:"RST",to:"D9",note:'1k + 2k 분압<span class="tag s">분압</span>'},
+ {a:["rc","GND"],b:["uno","GND_T"],c:C.gnd,cn:"검정",r:[330],dots:[[138,226]],mod:"RC522 RFID",pin:"GND",to:"GND (위쪽)",note:"분압 저항 2k들의 GND도 여기 연결"},
+ {a:["rc","3.3V"],b:["uno","3V3"],c:C.v33,cn:"주황",r:[620],mod:"RC522 RFID",pin:"3.3V",to:"3.3V",note:'<b>5V 금지</b><span class="tag c">위험</span>'},
+ {a:["kp","R1"],b:["uno","D8"],c:C.y,cn:"노랑",r:[250],mod:"4x4 키패드",pin:"R1 (1번 핀)",to:"D8"},
+ {a:["kp","R2"],b:["uno","D7"],c:C.g,cn:"초록",r:[262],mod:"4x4 키패드",pin:"R2",to:"D7"},
+ {a:["kp","R3"],b:["uno","D6"],c:C.b,cn:"파랑",r:[274],mod:"4x4 키패드",pin:"R3",to:"D6"},
+ {a:["kp","R4"],b:["uno","D5"],c:C.p,cn:"보라",r:[286],mod:"4x4 키패드",pin:"R4",to:"D5"},
+ {a:["kp","C1"],b:["uno","D4"],c:C.c,cn:"하늘",r:[298],mod:"4x4 키패드",pin:"C1",to:"D4"},
+ {a:["kp","C2"],b:["uno","D3"],c:C.k,cn:"분홍",r:[310],mod:"4x4 키패드",pin:"C2",to:"D3"},
+ {a:["kp","C3"],b:["uno","D2"],c:C.o,cn:"연두",r:[322],mod:"4x4 키패드",pin:"C3",to:"D2"},
+ {a:["kp","C4"],b:["uno","A0"],c:C.n,cn:"갈색",r:[214,905,572],mod:"4x4 키패드",pin:"C4 (8번 핀)",to:"A0",note:"보드 오른쪽으로 돌려서 아래 헤더로"},
+ {a:["lcd","GND"],b:["uno","GND_B1"],c:C.gnd,cn:"검정",r:[612],mod:"1602 LCD (I2C)",pin:"GND",to:"GND (아래)"},
+ {a:["lcd","VCC"],b:["uno","5V"],c:C.v5,cn:"빨강",r:[628],mod:"1602 LCD (I2C)",pin:"VCC",to:"5V"},
+ {a:["lcd","SDA"],b:["uno","A4"],c:C.b,cn:"파랑",r:[598],mod:"1602 LCD (I2C)",pin:"SDA",to:"A4",note:"위쪽 SDA 핀과 같은 선이라 그쪽도 OK"},
+ {a:["lcd","SCL"],b:["uno","A5"],c:C.y,cn:"노랑",r:[584],mod:"1602 LCD (I2C)",pin:"SCL",to:"A5"},
+ {a:["lk","B D5"],b:["uno","A1"],c:C.g,cn:"초록",r:[650],mod:"보드 B 링크",pin:"보드 B D5 (TX)",to:"A1 (RX)",note:"TX ↔ RX 엇갈림"},
+ {a:["lk","B D4"],b:["uno","A2"],c:C.y,cn:"노랑",r:[640],mod:"보드 B 링크",pin:"보드 B D4 (RX)",to:"A2 (TX)"},
+ {a:["lk","GND"],b:["uno","GND_B2"],c:C.gnd,cn:"검정",r:[600],mod:"보드 B 링크",pin:"보드 B GND",to:"GND (아래)",note:'공통 GND 필수<span class="tag c">필수</span>'},
+];
+const afterA=svg=>{
+  const g=el("g",{},svg);
+  el("rect",{x:66,y:146,width:250,height:92,rx:8,fill:"none",stroke:"var(--warn)","stroke-dasharray":"4 4"},g);
+  el("text",{x:312,y:160,"font-size":9.5,"text-anchor":"end",fill:"var(--warn)"},g,"분압");
+  el("line",{x1:116,y1:226,x2:292,y2:226,stroke:"var(--w-gnd)","stroke-width":2.5},g);
+  el("text",{x:72,y:230,"font-size":9.5,fill:"var(--muted)"},g,"GND");
+  [110,222,250,278].forEach(x=>{
+    resistorV(g,x,151,20,x===110?"1k":"","l");
+    el("line",{x1:x,y1:184,x2:x+12,y2:184,stroke:"var(--ink)","stroke-width":1.5},g);
+    el("circle",{cx:x,cy:184,r:3,fill:"var(--ink)"},g);
+    el("line",{x1:x+12,y1:184,x2:x+12,y2:194,stroke:"var(--ink)","stroke-width":1.5},g);
+    resistorV(g,x+12,194,20,"",null);
+    el("line",{x1:x+12,y1:214,x2:x+12,y2:226,stroke:"var(--ink)","stroke-width":1.5},g);
+    el("circle",{cx:x+12,cy:226,r:3,fill:"var(--ink)"},g);
+  });
+  el("text",{x:128,y:209,"font-size":9.5,fill:"var(--ink)"},g,"2k");
+  el("text",{x:180,y:198,"font-size":9,fill:"var(--muted)","text-anchor":"middle"},g,"MISO 직결");
+};
+
+/* ================= 보드 B ================= */
+const ledM={id:"led",name:"LED 3개",sub:"",x:20,y:40,w:190,h:140,side:"bottom",
+  pins:[["GND",60],["R",100],["Y",140],["G",180]],
+  art:(g)=>{[[100,"#e0352b"],[140,"#d3a400"],[180,"#1f9d55"]].forEach(([x,col])=>{
+      el("line",{x1:x,y1:105,x2:x,y2:180,stroke:"var(--ink)","stroke-width":1.3},g);
+      el("rect",{x:x-5,y:132,width:10,height:22,rx:2,fill:"#e8d9b5",stroke:"#8a6d10"},g);
+      el("circle",{cx:x,cy:96,r:9,fill:col,stroke:"var(--ink)","stroke-width":1},g);
+      el("line",{x1:x,y1:87,x2:x,y2:66,stroke:"var(--ink)","stroke-width":1.3},g);});
+    el("line",{x1:60,y1:66,x2:180,y2:66,stroke:"var(--ink)","stroke-width":1.3},g);
+    el("line",{x1:60,y1:66,x2:60,y2:180,stroke:"var(--ink)","stroke-width":1.3},g);
+    el("text",{x:196,y:96,"font-size":9,fill:"var(--muted)"},g,"");
+    el("text",{x:68,y:147,"font-size":9,fill:"var(--muted)"},g,"220Ω");}};
+const sr={id:"sr",name:"HC-SR04",sub:"뒤집어 그림",x:236,y:60,w:170,h:120,side:"bottom",
+  pins:[["GND",260],["Echo",300],["Trig",340],["VCC",380]],
+  art:(g)=>{[285,355].forEach(cx=>{el("circle",{cx,cy:118,r:22,fill:"#c7ccce",stroke:"#7f8a8e","stroke-width":2},g);el("circle",{cx,cy:118,r:12,fill:"#7f8a8e"},g);});}};
+const lkB={id:"lk",name:"→ 보드 A로",sub:"UART 링크",x:425,y:80,w:140,h:100,side:"bottom",
+  pins:[["A A1",455],["A A2",495],["GND",540]],art:()=>{}};
+const btn={id:"btn",name:"실내 버튼",sub:"INT0",x:585,y:80,w:100,h:100,side:"bottom",pins:[["1",610],["2",655]],
+  art:(g)=>{el("line",{x1:610,y1:180,x2:610,y2:140,stroke:"var(--ink)","stroke-width":1.5},g);el("line",{x1:655,y1:180,x2:655,y2:140,stroke:"var(--ink)","stroke-width":1.5},g);
+    el("line",{x1:602,y1:130,x2:663,y2:130,stroke:"var(--ink)","stroke-width":2},g);el("line",{x1:632,y1:130,x2:632,y2:118,stroke:"var(--ink)","stroke-width":2},g);
+    el("circle",{cx:610,cy:140,r:2.5,fill:"var(--ink)"},g);el("circle",{cx:655,cy:140,r:2.5,fill:"var(--ink)"},g);}};
+const dv={id:"dv",name:"분압",sub:"1k · 2k",x:700,y:80,w:108,h:100,side:"bottom",stroke:"var(--warn)",dash:"4 4",
+  pins:[["IN",720],["GND",752],["OUT",788]],
+  art:(g)=>{el("line",{x1:720,y1:180,x2:720,y2:160,stroke:"var(--ink)","stroke-width":1.4},g);
+    resistorV(g,720,128,22,"1k","r");
+    el("line",{x1:720,y1:128,x2:720,y2:118,stroke:"var(--ink)","stroke-width":1.4},g);
+    el("line",{x1:720,y1:118,x2:788,y2:118,stroke:"var(--ink)","stroke-width":1.4},g);
+    el("circle",{cx:752,cy:118,r:3,fill:"var(--ink)"},g);
+    el("line",{x1:788,y1:118,x2:788,y2:180,stroke:"var(--ink)","stroke-width":1.4},g);
+    el("line",{x1:720,y1:150,x2:720,y2:180,stroke:"var(--ink)","stroke-width":1.4},g);
+    resistorV(g,752,128,22,"2k","r");
+    el("line",{x1:752,y1:150,x2:752,y2:180,stroke:"var(--ink)","stroke-width":1.4},g);}};
+const bt={id:"bt",name:"HC-06",sub:"라벨 보고 꽂기",x:826,y:40,w:160,h:140,side:"bottom",
+  pins:[["RXD",846],["TXD",886],["GND",926],["VCC",966]],
+  art:(g)=>{el("rect",{x:846,y:76,width:120,height:62,rx:4,fill:"#2f62b8"},g);el("polyline",{points:"856,90 866,82 876,90 886,82 896,90 906,82",fill:"none",stroke:"#d9c56a","stroke-width":2},g);
+    el("text",{x:906,y:126,"font-size":10,fill:"#eaf0ff","text-anchor":"middle"},g,"RX는 3.3V");}};
+const ps={id:"ps",name:"서보 전용 5V 외부전원",sub:"어댑터 / 전원모듈(5V)",x:40,y:668,w:220,h:110,side:"top",stroke:"var(--w-5v)",
+  pins:[["+5V",90],["GND",170]],
+  art:(g)=>{ // 470uF 커패시터
+    el("line",{x1:90,y1:668,x2:90,y2:716,stroke:"var(--w-5v)","stroke-width":1.5},g);el("line",{x1:170,y1:668,x2:170,y2:716,stroke:"var(--w-gnd)","stroke-width":1.5},g);
+    el("line",{x1:90,y1:716,x2:122,y2:716,stroke:"var(--ink)","stroke-width":1.4},g);el("line",{x1:138,y1:716,x2:170,y2:716,stroke:"var(--ink)","stroke-width":1.4},g);
+    el("line",{x1:122,y1:704,x2:122,y2:728,stroke:"var(--ink)","stroke-width":2},g);
+    el("path",{d:"M138 704 Q132 716 138 728",fill:"none",stroke:"var(--ink)","stroke-width":2},g);
+    el("text",{x:112,y:704,"font-size":11,fill:"var(--ink)"},g,"+");
+    el("text",{x:130,y:744,"font-size":10,fill:"var(--ink)","text-anchor":"middle"},g,"470µF");}};
+const sv={id:"sv",name:"SG90 서보",sub:"",x:290,y:668,w:170,h:104,side:"top",
+  pins:[["갈(GND)",330],["빨(+)",380],["주(신호)",430]],
+  art:(g)=>{el("rect",{x:330,y:712,width:96,height:40,rx:4,fill:"#3b7fd4"},g);el("circle",{cx:360,cy:732,r:9,fill:"#e9eef5"},g);el("rect",{x:352,y:728,width:56,height:8,rx:4,fill:"#e9eef5"},g);}};
+
+const wiresB=[
+ {a:["led","R"],b:["uno","D12"],c:C.y,cn:"노랑",r:[338],mod:"LED 3개",pin:"빨강 LED (+)",to:"D12",note:"220Ω 거쳐서"},
+ {a:["led","Y"],b:["uno","D11"],c:C.g,cn:"초록",r:[326],mod:"LED 3개",pin:"노랑 LED (+)",to:"D11",note:"220Ω 거쳐서"},
+ {a:["led","G"],b:["uno","D10"],c:C.b,cn:"파랑",r:[314],mod:"LED 3개",pin:"초록 LED (+)",to:"D10",note:"220Ω 거쳐서"},
+ {a:["led","GND"],b:["pt",60,200,1],c:C.gnd,cn:"검정",r:[200],mod:"LED 3개",pin:"LED (−) 공통",to:"GND 레일"},
+ {a:["sr","Echo"],b:["uno","D7"],c:C.p,cn:"보라",r:[302],mod:"HC-SR04",pin:"Echo",to:"D7"},
+ {a:["sr","Trig"],b:["uno","D6"],c:C.c,cn:"하늘",r:[290],mod:"HC-SR04",pin:"Trig",to:"D6"},
+ {a:["sr","VCC"],b:["pt",380,214,1],c:C.v5,cn:"빨강",r:[214],mod:"HC-SR04",pin:"VCC",to:"5V 레일"},
+ {a:["sr","GND"],b:["pt",260,200,1],c:C.gnd,cn:"검정",r:[200],mod:"HC-SR04",pin:"GND",to:"GND 레일"},
+ {a:["lk","A A1"],b:["uno","D5"],c:C.g,cn:"초록",r:[278],mod:"보드 A 링크",pin:"보드 A A1 (RX)",to:"D5 (TX)",note:"TX ↔ RX 엇갈림"},
+ {a:["lk","A A2"],b:["uno","D4"],c:C.y,cn:"노랑",r:[266],mod:"보드 A 링크",pin:"보드 A A2 (TX)",to:"D4 (RX)"},
+ {a:["lk","GND"],b:["pt",540,200,1],c:C.gnd,cn:"검정",r:[200],mod:"보드 A 링크",pin:"보드 A GND",to:"GND 레일",note:'공통 GND 필수<span class="tag c">필수</span>'},
+ {a:["btn","1"],b:["uno","D2"],c:C.k,cn:"분홍",r:[254],mod:"실내 버튼",pin:"버튼 한쪽",to:"D2 (INT0)",note:"INPUT_PULLUP이라 저항 필요 없음"},
+ {a:["btn","2"],b:["pt",655,200,1],c:C.gnd,cn:"검정",r:[200],mod:"실내 버튼",pin:"버튼 반대쪽",to:"GND 레일",note:"4핀 버튼이면 대각선 두 핀 사용"},
+ {a:["dv","IN"],b:["uno","D1"],c:C.n,cn:"갈색",r:[242],mod:"HC-06 블루투스",pin:"분압 IN (1k 앞)",to:"D1 (TX)"},
+ {a:["dv","GND"],b:["pt",752,200,1],c:C.gnd,cn:"검정",r:[200],mod:"HC-06 블루투스",pin:"분압 2k 아래",to:"GND 레일"},
+ {a:["dv","OUT"],b:["bt","RXD"],c:C.n,cn:"갈색",r:[190],mod:"HC-06 블루투스",pin:"HC-06 RXD",to:"분압 OUT (1k·2k 사이)",note:'3.3V 신호<span class="tag s">분압</span>'},
+ {a:["bt","TXD"],b:["uno","D0"],c:C.o,cn:"연두",r:[256],mod:"HC-06 블루투스",pin:"HC-06 TXD",to:"D0 (RX)",note:'<b>업로드 전 뽑기</b><span class="tag c">주의</span>'},
+ {a:["bt","GND"],b:["pt",926,200,1],c:C.gnd,cn:"검정",r:[200],mod:"HC-06 블루투스",pin:"HC-06 GND",to:"GND 레일"},
+ {a:["bt","VCC"],b:["pt",966,214,1],c:C.v5,cn:"빨강",r:[214],mod:"HC-06 블루투스",pin:"HC-06 VCC",to:"5V 레일"},
+ {a:["pt",12,200],b:["uno","GND_B1"],c:C.gnd,cn:"검정",r:[600],dots:[[170,600]],mod:"전원 레일",pin:"GND 레일 (−)",to:"GND (아래)"},
+ {a:["pt",26,214],b:["uno","5V"],c:C.v5,cn:"빨강",r:[585],mod:"전원 레일",pin:"5V 레일 (+)",to:"5V",note:"HC-06·HC-SR04 전원용. 서보 연결 금지"},
+ {a:["ps","+5V"],b:["sv","빨(+)"],c:C.v5,cn:"빨강",r:[618],mod:"서보 + 외부전원",pin:"외부전원 +5V",to:"서보 빨강",note:'아두이노 5V 금지<span class="tag c">위험</span>'},
+ {a:["ps","GND"],b:["sv","갈(GND)"],c:C.gnd,cn:"검정",r:[640],mod:"서보 + 외부전원",pin:"외부전원 GND",to:"서보 갈색 + 아두이노 GND",note:"위쪽 GND 선과 점(●)으로 연결 = 공통 GND"},
+ {a:["sv","주(신호)"],b:["uno","A0"],c:C.y,cn:"노랑",r:[630],mod:"서보 + 외부전원",pin:"서보 주황(신호)",to:"A0"},
+];
+// 외부전원 GND → 위쪽 GND 선(y=600)까지 올라가는 짧은 연결
+wiresB.push({a:["ps","GND"],b:["pt",170,600],c:C.gnd,cn:"검정",r:[600],hideRow:true,mod:"서보 + 외부전원",pin:"",to:""});
+
+build("A",{title:"보드 A",modules:[rc,kp,lcd,lkA],wires:wiresA,after:afterA});
+build("B",{title:"보드 B",modules:[ledM,sr,lkB,btn,dv,bt,ps,sv],wires:wiresB,
+  rails:[{x1:12,x2:990,y:200,color:"var(--w-gnd)",label:"GND −",lx:214,ly:195},{x1:26,x2:990,y:214,color:"var(--w-5v)",label:"5V +",lx:214,ly:229}]});
+
+/* ---------- 안전 체크리스트 ---------- */
+const CHECKS=[
+ ["c","RC522 VCC가 보드 A의 3.3V 핀에 꽂혀 있다 (5V 아님)"],
+ ["c","RC522 SDA·SCK·MOSI·RST 4선에 1k(직렬) + 2k(GND) 분압이 들어가 있다"],
+ ["c","서보 빨강선은 외부 5V 전원에만 연결돼 있다 (아두이노 5V·레일 아님)"],
+ ["c","외부전원 GND, 보드 B GND, 보드 A GND가 모두 이어져 있다"],
+ ["c","두 보드의 5V 핀끼리는 연결돼 있지 않다"],
+ ["c","470µF 커패시터 극성이 맞다 (긴 다리 = +, 띠 표시 = −)"],
+ ["s","HC-06 RXD 앞에 1k + 2k 분압이 있다"],
+ ["s","LED마다 220Ω 저항이 있고, 긴 다리(+)가 핀 쪽이다"],
+ ["s","5V 레일과 GND 레일이 서로 닿지 않았다 (멀티미터 통전 모드로 삐 소리 안 남)"],
+ ["s","3.3V–GND, 5V–GND 사이가 단락되지 않았다 (통전 모드로 확인)"],
+ ["s","보드 B 업로드 전 D0의 HC-06 TXD 선을 뺐다"],
+ ["s","링크선이 엇갈려 있다: A2→D4, D5→A1"],
+];
+const box=document.getElementById("checks"),prog=document.getElementById("progress");
+let saved={}; try{saved=JSON.parse(localStorage.getItem("doorlock-checks")||"{}");}catch(e){}
+CHECKS.forEach(([lv,t],i)=>{
+  const lab=document.createElement("label");
+  lab.innerHTML=`<input type="checkbox" id="chk${i}"><span class="txt">${t}</span><span class="lvl ${lv}">${lv==="c"?"손상 위험":"오작동"}</span>`;
+  const inp=lab.querySelector("input"); inp.checked=!!saved[i];
+  inp.addEventListener("change",()=>{saved[i]=inp.checked;try{localStorage.setItem("doorlock-checks",JSON.stringify(saved));}catch(e){}upd();});
+  box.appendChild(lab);
+});
+function upd(){const n=CHECKS.filter((_,i)=>saved[i]).length;prog.textContent=`${n} / ${CHECKS.length} 확인됨`+(n===CHECKS.length?" · 전원 넣어도 돼":"");}
+upd();
+})();
+</script>
