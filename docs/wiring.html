@@ -102,7 +102,7 @@ svg text{font-family:var(--font-mono)}
 .el{transition:opacity .2s}
 svg.stepped .el.future{opacity:0;pointer-events:none}
 svg.stepped .el.past{opacity:.55}
-svg .el.cur .wcore{stroke-width:5.2}
+svg .el.cur .wcore{stroke-width:5}
 svg .el.cur .glow{opacity:.9}
 svg .glow{opacity:0}
 svg.pick .el{opacity:.18} svg.pick .el.picked{opacity:1}
@@ -145,22 +145,27 @@ ol.steps > li > div{display:flex;flex-direction:column;gap:8px;min-width:0}
 
 <section id="parts">
   <h2><span class="no">01</span>부품과 저항 사용 계획</h2>
-  <p class="lead">가진 저항이 220Ω 10개, 1kΩ 5개라서 남는 것 없이 딱 맞게 나눴어. 하나라도 다른 곳에 쓰면 모자라니까 이 표대로 써.</p>
+  <p class="lead">새로 살 것 없이 <b>지금 가진 저항(2kΩ 6개, 10kΩ 5개, 220Ω 10개)만으로</b> 만들었어. 분압은 모두 "위(핀 쪽) 1 : 아래(GND 쪽) 2" 비율이라 출력이 약 <b>3.33V</b>야. 1kΩ이 없어서, 아래쪽을 같은 저항 2개(또는 4개)를 직렬로 이어 2배를 만들었어.</p>
   <div class="tablewrap"><table>
-    <thead><tr><th>용도</th><th>보드</th><th>220Ω</th><th>1kΩ</th><th>메모</th></tr></thead>
+    <thead><tr><th>용도</th><th>보드</th><th>위 (핀 쪽)</th><th>아래 (GND 쪽, 직렬)</th><th>2kΩ</th><th>10kΩ</th><th>220Ω</th></tr></thead>
     <tbody>
-      <tr><td>RC522 SDA 분압</td><td>A</td><td class="mono">2</td><td class="mono">1</td><td>220+220 직렬 → 노드 → 1k → GND</td></tr>
-      <tr><td>RC522 SCK 분압</td><td>A</td><td class="mono">2</td><td class="mono">1</td><td>같은 구조</td></tr>
-      <tr><td>RC522 MOSI 분압</td><td>A</td><td class="mono">2</td><td class="mono">1</td><td>같은 구조</td></tr>
-      <tr><td>HC-06 RXD 분압</td><td>B</td><td class="mono">2</td><td class="mono">1</td><td>같은 구조</td></tr>
-      <tr><td>노랑·초록 LED</td><td>B</td><td class="mono">2</td><td class="mono">0</td><td>각 220Ω</td></tr>
-      <tr><td>빨강 LED</td><td>B</td><td class="mono">0</td><td class="mono">1</td><td>1kΩ이라 조금 어두움 (정상)</td></tr>
-      <tr class="grp"><td>합계</td><td></td><td class="mono">10</td><td class="mono">5</td><td>RC522 RST는 저항 없이 3.3V 직결</td></tr>
+      <tr><td>RC522 SCK 분압</td><td>A</td><td>2kΩ</td><td>2kΩ + 2kΩ</td><td class="mono">3</td><td class="mono">0</td><td class="mono">0</td></tr>
+      <tr><td>RC522 MOSI 분압</td><td>A</td><td>2kΩ</td><td>2kΩ + 2kΩ</td><td class="mono">3</td><td class="mono">0</td><td class="mono">0</td></tr>
+      <tr><td>RC522 SDA(SS) 분압</td><td>A</td><td>10kΩ</td><td>10kΩ + 10kΩ</td><td class="mono">0</td><td class="mono">3</td><td class="mono">0</td></tr>
+      <tr><td>HC-06 RXD 분압</td><td>B</td><td>220Ω + 220Ω</td><td>220Ω × 4</td><td class="mono">0</td><td class="mono">0</td><td class="mono">6</td></tr>
+      <tr><td>LED 3개</td><td>B</td><td colspan="2">각 220Ω</td><td class="mono">0</td><td class="mono">0</td><td class="mono">3</td></tr>
+      <tr class="grp"><td>합계 / 보유</td><td></td><td colspan="2">RC522 RST는 저항 없이 3.3V 직결</td><td class="mono">6 / 6</td><td class="mono">3 / 5</td><td class="mono">9 / 10</td></tr>
     </tbody></table></div>
+  <div class="callout warn"><b class="t">왜 채널마다 저항이 다르냐면</b>
+    <ul class="plain">
+      <li><b>SCK·MOSI</b>는 1초에 4백만 번 바뀌는 빠른 신호라 작은 저항(2kΩ)이 필요해. 10kΩ으로 만들면 신호가 제때 못 올라가서 통신이 깨져.</li>
+      <li><b>SDA(SS)</b>는 통신 시작·끝에만 바뀌는 느린 신호라 10kΩ으로 만들어도 돼. 2kΩ이 6개뿐이라 두 채널(SCK·MOSI)에 먼저 썼어.</li>
+      <li><b>HC-06 RXD</b>는 남은 게 220Ω뿐이라, 작은 저항을 6개 이어서 같은 1:2 비율(440Ω : 880Ω)을 만들었어.</li>
+    </ul></div>
   <div class="grid2">
     <div class="card"><h3>저항 색띠로 구별하기</h3>
-      <svg viewBox="0 0 300 96" role="img" aria-label="220옴과 1킬로옴 저항 색띠" style="max-width:340px;width:100%"><g id="legendRes"></g></svg>
-      <p style="font-size:13.5px;color:var(--muted)">금색 띠(오차)가 오른쪽에 오게 놓고 왼쪽부터 읽어. 헷갈리면 멀티미터 저항 모드로 재 봐.</p></div>
+      <svg viewBox="0 0 300 140" role="img" aria-label="220옴, 2킬로옴, 10킬로옴 저항 색띠" style="max-width:340px;width:100%"><g id="legendRes"></g></svg>
+      <p style="font-size:13.5px;color:var(--muted)">금색 띠(오차)가 오른쪽에 오게 놓고 왼쪽부터 읽어. 220Ω(빨강 빨강 <b>갈색</b>)과 2kΩ(빨강 <b>검정</b> 빨강)은 색이 비슷하니까, 헷갈리면 멀티미터 저항 모드로 재 보고 꽂아.</p></div>
     <div class="card"><h3>그 밖의 부품</h3>
       <ul class="plain" style="font-size:14px">
         <li>Arduino UNO R3 2개, 400홀 하프 브레드보드 2개</li>
@@ -188,18 +193,32 @@ ol.steps > li > div{display:flex;flex-direction:column;gap:8px;min-width:0}
 
 <section id="divider">
   <h2><span class="no">03</span>분압 회로 자세히</h2>
-  <p class="lead">아두이노 핀은 5V를 내보내는데, RC522 신호선과 HC-06 RXD는 3.3V까지만 받아. 그래서 저항 3개로 전압을 낮춰. 같은 모양을 4번 만들게 돼(보드 A 3번, 보드 B 1번).</p>
+  <p class="lead">아두이노 핀은 5V를 내보내는데, RC522 신호선과 HC-06 RXD는 3.3V까지만 받아. 그래서 "위 1 : 아래 2" 비율의 저항으로 전압을 낮춰. 그림은 보드 A SCK 채널(2kΩ 3개) 예시야. SDA는 같은 모양에 10kΩ 3개를 꽂으면 되고, HC-06은 220Ω 6개라 모양이 조금 길어(보드 B 6단계 참고).</p>
   <div class="bench">
     <div class="matscroll"><svg id="divSvg" viewBox="0 0 1000 440" role="img" aria-label="분압 회로 브레드보드 확대도와 회로도"></svg></div>
     <div class="stepdesc">
       <ul>
-        <li><b>①</b> 아두이노 핀에서 온 선을 <b>P칸</b>(e줄)에 꽂아.</li>
-        <li><b>②</b> 220Ω 하나를 P칸 c줄 → Q칸 c줄(3칸 옆)에, 다른 220Ω을 Q칸 b줄 → N칸 b줄(또 3칸 옆)에 꽂아. 두 저항이 Q칸 세로줄에서 이어져서 <b>440Ω 직렬</b>이 돼.</li>
-        <li><b>③</b> 1kΩ 한쪽 다리를 <b>N칸 a줄</b>에, 다른 다리를 바로 위 <b>− 레일(GND)</b>에 꽂아. a줄과 레일 사이가 좁아서 눕혀서는 안 들어가니까 <b>한쪽 다리를 U자로 접어 세워서</b> 꽂아. − 레일은 가로로 전부 이어져 있어서 레일 쪽 다리는 근처 아무 구멍에 꽂아도 같은 GND야.</li>
-        <li><b>④</b> 모듈(RC522나 HC-06)로 가는 선을 <b>N칸 d줄</b>에 꽂아. 여기가 약 3.47V가 나오는 곳이야.</li>
+        <li><b>①</b> 아두이노 핀에서 온 선을 <b>P칸 f줄</b>에 꽂아. (보드 A는 분압을 브레드보드 <b>아래쪽 절반</b>에 만들어)</li>
+        <li><b>②</b> <b>위 저항</b>을 P칸 h줄 → N칸 h줄(3칸 옆)에 눕혀서 꽂아.</li>
+        <li><b>③</b> <b>아래 저항 1</b>을 N칸 i줄 → X칸 i줄(또 3칸 옆)에 눕혀서 꽂아.</li>
+        <li><b>④</b> <b>아래 저항 2</b>의 한쪽 다리를 <b>X칸 j줄</b>에, 다른 다리를 <b>j줄 바로 아래 − 레일</b>에 세워서 꽂아. 이 브레드보드는 레일 쌍마다 <b>−가 위, +가 아래</b>라서, 아래쪽 쌍은 j줄 바로 아래가 −야. <b>꽂기 전에 그 줄 옆에 파란 선과 − 표시가 있는지 꼭 확인해.</b> + 레일에 꽂으면 모듈에 4V가 넘게 걸려. − 레일은 가로로 전부 이어져 있어서 근처 아무 구멍에 꽂아도 같은 GND야.</li>
+        <li><b>⑤</b> 모듈(RC522)로 가는 선을 <b>N칸 g줄</b>에 꽂아. 여기가 약 3.33V가 나오는 곳이야.</li>
+        <li>보드 B의 HC-06은 위쪽 절반에 만들고, 마지막 저항 끝에서 <b>검정 점퍼선</b>으로 맨 위 − 레일에 연결해 (보드 B 6단계).</li>
       </ul>
-      <p><b>계산:</b> 5V × 1000 / (220 + 220 + 1000) = <b>3.47V</b>. RC522는 2.3V 이상이면 HIGH로 읽고 최대 3.8V까지 버티니까 안전한 범위야. 핀이 HIGH일 때 흐르는 전류는 5V / 1440Ω ≈ 3.5mA라 아두이노에도 부담이 없어.</p>
-      <p><b>멀티미터 확인:</b> 보드 A 메인 스케치를 실행 중이면 SDA(SS) 핀이 평소 HIGH야. 그래서 SDA 채널 N칸과 GND 사이를 재면 <b>3.3~3.5V</b>가 나와야 해. 5V가 나오면 1kΩ이 GND 레일에 안 꽂힌 거고, 0V면 220Ω이 빠진 거야.</p>
+      <div class="tablewrap"><table style="min-width:520px"><thead><tr><th>채널</th><th>위</th><th>아래 1 + 아래 2</th><th>출력</th><th>핀 HIGH일 때 전류</th></tr></thead><tbody>
+        <tr><td>SCK · MOSI</td><td>2kΩ</td><td>2kΩ + 2kΩ</td><td>5 × 4k / 6k = 3.33V</td><td>0.8mA</td></tr>
+        <tr><td>SDA (SS)</td><td>10kΩ</td><td>10kΩ + 10kΩ</td><td>5 × 20k / 30k = 3.33V</td><td>0.17mA</td></tr>
+        <tr><td>HC-06 RXD</td><td>220Ω + 220Ω</td><td>220Ω × 4</td><td>5 × 880 / 1320 = 3.33V</td><td>3.8mA</td></tr>
+      </tbody></table></div>
+      <p>RC522는 2.3V 이상이면 HIGH로 읽고 최대 3.8V까지 버티니까 3.33V는 안전한 범위야. 모듈 쪽에서 본 저항이 SCK·MOSI는 약 1.3kΩ(2k와 4k의 병렬)이라 4MHz 신호도 충분히 빨리 따라와.</p>
+      <p><b>위·아래를 바꾸면 안 돼.</b> 위 1개, 아래 2개(직렬)야. 바꾸면 약 1.7V가 돼서 신호를 못 읽어.</p>
+      <p><b>멀티미터 확인:</b> 보드 A 메인 스케치를 실행 중이면 SDA(SS) 핀이 평소 HIGH야. 그래서 SDA 채널 N칸과 GND 사이를 재면 <b>3.2~3.5V</b>가 나와야 해. 5V면 아래 저항이 GND 레일에 안 이어진 거고, 0V면 위 저항이 빠진 거야. 1.7V 근처면 위·아래가 바뀐 거야. <b>4V가 넘으면 아래 저항이 + 레일에 꽂힌 거니까 바로 USB를 뽑아.</b></p>
+      <p><b>전원 끄고 4채널 모두 확인 (추천):</b> SCK·MOSI는 평소 LOW라 위 방법으로는 확인이 안 돼. USB를 뽑고 <b>아두이노 선과 모듈 선을 뺀 상태</b>에서 멀티미터 저항 모드로 재 봐. 무한대(OL)가 나오면 아래 저항이 − 레일이 아닌 곳에 꽂힌 거야.</p>
+      <div class="tablewrap"><table style="min-width:420px"><thead><tr><th>채널</th><th>N칸 ↔ − 레일</th><th>P칸 ↔ − 레일</th></tr></thead><tbody>
+        <tr><td>SCK · MOSI</td><td>≈ 4kΩ</td><td>≈ 6kΩ</td></tr>
+        <tr><td>SDA (SS)</td><td>≈ 20kΩ</td><td>≈ 30kΩ</td></tr>
+        <tr><td>HC-06 RXD</td><td>≈ 880Ω</td><td>≈ 1.3kΩ</td></tr>
+      </tbody></table></div>
     </div>
   </div>
 </section>
@@ -231,7 +250,7 @@ Found: 0x27</div>
       <div class="out">key: 1  (row 1, col 1)
 key: 2  (row 1, col 2)
 key: 5  (row 2, col 2)</div>
-      <dl class="trouble"><dt>아무것도 안 나옴</dt><dd>시리얼 모니터 9600, 포트 선택, 8개 선이 한 칸씩 밀리지 않았는지</dd><dt>1→D, 2→C</dt><dd>키패드 커넥터를 거꾸로 꽂음 → 돌려 꽂기</dd><dt>1→D, 2→#</dt><dd>핀 순서만 반대 → <code>rowPins = {5, 6, 7, 8}; colPins = {A0, 2, 3, 4};</code></dd><dt>1→1, 2→4</dt><dd>행·열이 바뀜 → <code>rowPins</code>와 <code>colPins</code>를 맞바꾸기</dd></dl></div></li>
+      <dl class="trouble"><dt>아무것도 안 나옴</dt><dd>시리얼 모니터 9600, 포트 선택, 8개 선이 한 칸씩 밀리지 않았는지</dd><dt>1→1, 2→4</dt><dd>커넥터를 위아래 거꾸로 꽂음 → 돌려 꽂거나 <code>rowPins</code>와 <code>colPins</code>를 맞바꾸기</dd><dt>그 밖의 결과</dt><dd>1~5를 눌러 나온 글자를 적어 두고 핀 순서(C4 C3 C2 C1 R1 R2 R3 R4)를 다시 확인</dd></dl></div></li>
     <li><div><h3>RFID · <code>tests/A3_rfid_test</code></h3>
       <p>배선 단계 1~5까지 꽂은 상태. USB를 뽑고 RC522 3.3V 선이 <b>+ 레일(3.3V)</b>에 꽂혀 있는지, 그 레일이 우노 <b>3.3V</b> 핀에서 왔는지 한 번 더 확인한 다음 업로드해.</p>
       <div class="out">RC522 version: 0x92
@@ -300,130 +319,142 @@ firmware/tools/i2c_scanner → LCD 주소 찾기</pre>
 <script id="scene-data">
 const SCENES = {
 A: {
-  view: [0, 0, 1180, 900],
-  uno: { x: 60, y: 470, label: "보드 A" },
-  bb:  { x: 480, y: 500 },
+  view: [0, 0, 1180, 1020],
+  uno: { x: 60, y: 580, label: "보드 A" },
+  bb:  { x: 480, y: 580 },
   mods: [
-    { id: "kp",  type: "keypad", x: 60,  y: 20,  label: "4x4 키패드" },
-    { id: "rc",  type: "rc522",  x: 560, y: 70,  label: "RC522" },
-    { id: "lcd", type: "lcd",    x: 560, y: 735, label: "1602 LCD + I2C" },
-    { id: "lkA", type: "link",   x: 120, y: 800, label: "→ 보드 B", pins: ["B D4", "B D5", "GND"] },
+    { id: "kp",  type: "keypad", x: 140, y: 30,  label: "4x4 키패드" },
+    { id: "rc",  type: "rc522",  x: 620, y: 150, label: "RC522" },
+    { id: "lcd", type: "lcd",    x: 640, y: 860, label: "1602 LCD + I2C" },
+    { id: "lkA", type: "link",   x: 223, y: 900, label: "→ 보드 B", pins: ["GND", "B D5", "B D4"], offs: [0, 4, 7] },
   ],
   parts: [
-    { id: "R1", type: "res", ohm: 220,  a: { bb: [1, "c"] },  b: { bb: [4, "c"] },  step: 2 },
-    { id: "R2", type: "res", ohm: 220,  a: { bb: [4, "b"] },  b: { bb: [7, "b"] },  step: 2 },
-    { id: "R3", type: "res", ohm: 1000, a: { bb: [7, "a"] },  b: { rail: ["T-", 8] }, step: 2 },
-    { id: "R4", type: "res", ohm: 220,  a: { bb: [10, "c"] }, b: { bb: [13, "c"] }, step: 3 },
-    { id: "R5", type: "res", ohm: 220,  a: { bb: [13, "b"] }, b: { bb: [16, "b"] }, step: 3 },
-    { id: "R6", type: "res", ohm: 1000, a: { bb: [16, "a"] }, b: { rail: ["T-", 16] }, step: 3 },
-    { id: "R7", type: "res", ohm: 220,  a: { bb: [19, "c"] }, b: { bb: [22, "c"] }, step: 4 },
-    { id: "R8", type: "res", ohm: 220,  a: { bb: [22, "b"] }, b: { bb: [25, "b"] }, step: 4 },
-    { id: "R9", type: "res", ohm: 1000, a: { bb: [25, "a"] }, b: { rail: ["T-", 26] }, step: 4 },
+    // 분압은 브레드보드 아래쪽 절반(f~j줄)에: 위 저항 1개(P칸 h→N칸 h) + 아래 저항 2개 직렬(N칸 i→X칸 i, X칸 j→바로 아래 − 레일)
+    // SDA 는 10kΩ, SCK·MOSI 는 2kΩ
+    { id: "R1", type: "res", ohm: 10000, a: { bb: [1, "h"] },  b: { bb: [4, "h"] },  step: 2 },
+    { id: "R2", type: "res", ohm: 10000, a: { bb: [4, "i"] },  b: { bb: [7, "i"] },  step: 2 },
+    { id: "R3", type: "res", ohm: 10000, a: { bb: [7, "j"] },  b: { rail: ["B-", 8] }, step: 2 },
+    { id: "R4", type: "res", ohm: 2000,  a: { bb: [10, "h"] }, b: { bb: [13, "h"] }, step: 3 },
+    { id: "R5", type: "res", ohm: 2000,  a: { bb: [13, "i"] }, b: { bb: [16, "i"] }, step: 3 },
+    { id: "R6", type: "res", ohm: 2000,  a: { bb: [16, "j"] }, b: { rail: ["B-", 16] }, step: 3 },
+    { id: "R7", type: "res", ohm: 2000,  a: { bb: [19, "h"] }, b: { bb: [22, "h"] }, step: 4 },
+    { id: "R8", type: "res", ohm: 2000,  a: { bb: [22, "i"] }, b: { bb: [25, "i"] }, step: 4 },
+    { id: "R9", type: "res", ohm: 2000,  a: { bb: [25, "j"] }, b: { rail: ["B-", 26] }, step: 4 },
   ],
   wires: [
-    { from: { uno: "3V3" },    to: { rail: ["T+", 2] },  color: "orange", step: 1, note: "+ 레일 = 3.3V <span class='tag c'>5V 아님</span>" },
-    { from: { uno: "GND_T" },  to: { rail: ["T-", 3] },  color: "black",  step: 1, note: "− 레일 = GND" },
-    { from: { uno: "D10" },    to: { bb: [1, "e"] },     color: "yellow", step: 2, note: "SDA 채널 입력 (P칸)" },
-    { from: { uno: "D13" },    to: { bb: [10, "e"] },    color: "green",  step: 3, note: "SCK 채널 입력 (P칸)" },
-    { from: { uno: "D11" },    to: { bb: [19, "e"] },    color: "blue",   step: 4, note: "MOSI 채널 입력 (P칸)" },
-    { from: { mod: ["rc", "SDA"] },  to: { bb: [7, "d"] },   color: "yellow", step: 5, note: "SDA 채널 출력 (N칸)" },
-    { from: { mod: ["rc", "SCK"] },  to: { bb: [16, "d"] },  color: "green",  step: 5, note: "SCK 채널 출력 (N칸)" },
-    { from: { mod: ["rc", "MOSI"] }, to: { bb: [25, "d"] },  color: "blue",   step: 5, note: "MOSI 채널 출력 (N칸)" },
+    { from: { uno: "3V3" },    to: { rail: ["T+", 2] },  color: "orange", step: 1, note: "위쪽 + 레일 = 3.3V <span class='tag c'>5V 아님</span>" },
+    { from: { uno: "GND_T" },  to: { rail: ["T-", 3] },  color: "black",  step: 1, note: "위쪽 − 레일 = GND (RC522용)" },
+    { from: { uno: "GND_B1" }, to: { rail: ["B-", 2] },  color: "black",  step: 1, note: "아래쪽 − 레일 = GND (분압·LCD용)" },
+    { from: { uno: "D10" },    to: { bb: [1, "f"] },     color: "yellow", step: 2, note: "SDA 채널 입력 (P칸)" },
+    { from: { uno: "D13" },    to: { bb: [10, "f"] },    color: "green",  step: 3, note: "SCK 채널 입력 (P칸)" },
+    { from: { uno: "D11" },    to: { bb: [19, "f"] },    color: "blue",   step: 4, note: "MOSI 채널 입력 (P칸)" },
+    { from: { mod: ["rc", "SDA"] },  to: { bb: [4, "g"] },   color: "yellow", step: 5, note: "SDA 채널 출력 (N칸)" },
+    { from: { mod: ["rc", "SCK"] },  to: { bb: [13, "g"] },  color: "green",  step: 5, note: "SCK 채널 출력 (N칸)" },
+    { from: { mod: ["rc", "MOSI"] }, to: { bb: [22, "g"] },  color: "blue",   step: 5, note: "MOSI 채널 출력 (N칸)" },
     { from: { mod: ["rc", "MISO"] }, to: { uno: "D12" },     color: "purple", step: 5, note: "MISO는 분압 없이 직결" },
     { from: { mod: ["rc", "GND"] },  to: { rail: ["T-", 12] }, color: "black", step: 5, note: "" },
     { from: { mod: ["rc", "RST"] },  to: { rail: ["T+", 18] }, color: "white", step: 5, note: "RST는 3.3V에 직결" },
     { from: { mod: ["rc", "3.3V"] }, to: { rail: ["T+", 22] }, color: "red",   step: 5, note: "<span class='tag c'>+ 레일 = 3.3V</span>" },
-    { from: { mod: ["lcd", "GND"] }, to: { uno: "GND_B1" }, color: "black",  step: 6, note: "" },
+    { from: { mod: ["lcd", "GND"] }, to: { rail: ["B-", 30] }, color: "black", step: 6, note: "아래쪽 − 레일" },
     { from: { mod: ["lcd", "VCC"] }, to: { uno: "5V" },     color: "red",    step: 6, note: "LCD는 5V" },
     { from: { mod: ["lcd", "SDA"] }, to: { uno: "A4" },     color: "blue",   step: 6, note: "" },
     { from: { mod: ["lcd", "SCL"] }, to: { uno: "A5" },     color: "yellow", step: 6, note: "" },
-    { from: { mod: ["kp", "R1"] }, to: { uno: "D8" }, color: "brown",  step: 7, note: "키패드 1번 핀" },
-    { from: { mod: ["kp", "R2"] }, to: { uno: "D7" }, color: "red",    step: 7, note: "" },
-    { from: { mod: ["kp", "R3"] }, to: { uno: "D6" }, color: "orange", step: 7, note: "" },
-    { from: { mod: ["kp", "R4"] }, to: { uno: "D5" }, color: "yellow", step: 7, note: "" },
-    { from: { mod: ["kp", "C1"] }, to: { uno: "D4" }, color: "green",  step: 7, note: "" },
-    { from: { mod: ["kp", "C2"] }, to: { uno: "D3" }, color: "blue",   step: 7, note: "" },
-    { from: { mod: ["kp", "C3"] }, to: { uno: "D2" }, color: "purple", step: 7, note: "" },
-    { from: { mod: ["kp", "C4"] }, to: { uno: "A0" }, color: "gray",   step: 7, note: "키패드 8번 핀" },
-    { from: { mod: ["lkA", "B D4"] }, to: { uno: "A2" },     color: "yellow", step: 8, note: "A2(TX) → 보드 B D4" },
-    { from: { mod: ["lkA", "B D5"] }, to: { uno: "A1" },     color: "green",  step: 8, note: "A1(RX) ← 보드 B D5" },
+    { from: { mod: ["kp", "C4"] }, to: { uno: "D8" }, color: "brown",  step: 7, note: "키패드 1번 핀 (맨 위)" },
+    { from: { mod: ["kp", "C3"] }, to: { uno: "D7" }, color: "red",    step: 7, note: "" },
+    { from: { mod: ["kp", "C2"] }, to: { uno: "D6" }, color: "orange", step: 7, note: "" },
+    { from: { mod: ["kp", "C1"] }, to: { uno: "D5" }, color: "yellow", step: 7, note: "" },
+    { from: { mod: ["kp", "R1"] }, to: { uno: "D4" }, color: "green",  step: 7, note: "" },
+    { from: { mod: ["kp", "R2"] }, to: { uno: "D3" }, color: "blue",   step: 7, note: "" },
+    { from: { mod: ["kp", "R3"] }, to: { uno: "D2" }, color: "purple", step: 7, note: "" },
+    { from: { mod: ["kp", "R4"] }, to: { uno: "A0" }, color: "gray",   step: 7, note: "키패드 8번 핀 (맨 아래)" },
+    { from: { mod: ["lkA", "B D4"] }, to: { uno: "A2" },     color: "cyan", step: 8, note: "A2(TX) → 보드 B D4" },
+    { from: { mod: ["lkA", "B D5"] }, to: { uno: "A1" },     color: "pink",  step: 8, note: "A1(RX) ← 보드 B D5" },
     { from: { mod: ["lkA", "GND"] },  to: { uno: "GND_B2" }, color: "black",  step: 8, note: "공통 GND <span class='tag c'>필수</span>" },
   ],
   steps: [
-    { t: "전원 레일 만들기", d: ["우노 <b>3.3V</b> → 브레드보드 위쪽 <b>+ 레일</b> (주황)", "우노 <b>GND</b>(위쪽 헤더, 13번 옆) → 위쪽 <b>− 레일</b> (검정)", "보드 A에서 + 레일은 <b>3.3V</b>야. 5V를 꽂지 마"] },
-    { t: "SDA 분압 (1/3)", d: ["220Ω: 1c → 4c", "220Ω: 4b → 7b", "1kΩ: 7a → 위쪽 − 레일 (세워서 꽂기)", "우노 D10 → 1e (노랑)"] },
-    { t: "SCK 분압 (2/3)", d: ["220Ω: 10c → 13c", "220Ω: 13b → 16b", "1kΩ: 16a → 위쪽 − 레일 (세워서 꽂기)", "우노 D13 → 10e (초록)"] },
-    { t: "MOSI 분압 (3/3)", d: ["220Ω: 19c → 22c", "220Ω: 22b → 25b", "1kΩ: 25a → 위쪽 − 레일 (세워서 꽂기)", "우노 D11 → 19e (파랑)"] },
-    { t: "RC522 연결 (암-수 점퍼)", d: ["SDA → 7d, SCK → 16d, MOSI → 25d (각 채널의 N칸)", "MISO → 우노 D12 (직결)", "GND → − 레일, RST·3.3V → + 레일(3.3V)", "IRQ는 비워 둬", "→ 테스트 <code>A3_rfid_test</code>"] },
-    { t: "LCD 연결", d: ["GND → 우노 GND(아래 헤더), VCC → 5V", "SDA → A4, SCL → A5", "→ 테스트 <code>i2c_scanner</code> → <code>A1_lcd_test</code>"] },
-    { t: "키패드 연결 (수-수 점퍼)", d: ["키패드 앞면 기준 왼쪽 1번 핀부터 D8, D7, D6, D5, D4, D3, D2, A0", "→ 테스트 <code>A2_keypad_test</code>"] },
+    { t: "전원 레일 만들기", d: ["이 브레드보드는 레일 쌍마다 <b>−가 위, +가 아래</b>야. 위쪽 쌍은 바깥이 −, a줄 쪽이 + / 아래쪽 쌍은 j줄 쪽이 −, 바깥이 +", "우노 <b>3.3V</b> → 위쪽 <b>+ 레일</b> (a줄 바로 위, 주황)", "우노 <b>GND</b>(위쪽 헤더) → 위쪽 <b>− 레일</b> (맨 위, 검정)", "우노 <b>GND</b>(아래 헤더) → 아래쪽 <b>− 레일</b> (j줄 바로 아래, 검정)", "보드 A에서 위쪽 + 레일은 <b>3.3V</b>야. 5V를 꽂지 마. 아래쪽 + 레일은 안 써"] },
+    { t: "SDA 분압 (10kΩ × 3, 아래쪽 절반)", d: ["위 10kΩ: 1h → 4h", "아래 10kΩ: 4i → 7i", "아래 10kΩ: 7j → 바로 아래 <b>− 레일</b> 8번 (7번 아래엔 레일 구멍이 없어서 한 칸 옆, 세워서 꽂기)", "우노 D10 → 1f (노랑)"] },
+    { t: "SCK 분압 (2kΩ × 3, 아래쪽 절반)", d: ["위 2kΩ: 10h → 13h", "아래 2kΩ: 13i → 16i", "아래 2kΩ: 16j → 바로 아래 <b>− 레일</b> 16번 (세워서 꽂기)", "우노 D13 → 10f (초록)"] },
+    { t: "MOSI 분압 (2kΩ × 3, 아래쪽 절반)", d: ["위 2kΩ: 19h → 22h", "아래 2kΩ: 22i → 25i", "아래 2kΩ: 25j → 바로 아래 <b>− 레일</b> 26번 (25번 아래엔 레일 구멍이 없어서 한 칸 옆, 세워서 꽂기)", "우노 D11 → 19f (파랑)"] },
+    { t: "RC522 연결 (암-수 점퍼)", d: ["SDA → 4g, SCK → 13g, MOSI → 22g (각 채널의 N칸)", "MISO → 우노 D12 (직결)", "GND → 위쪽 − 레일(맨 위), RST·3.3V → 위쪽 + 레일(3.3V, a줄 바로 위)", "IRQ는 비워 둬", "→ 테스트 <code>A3_rfid_test</code>"] },
+    { t: "LCD 연결", d: ["GND → 아래쪽 − 레일, VCC → 우노 5V", "SDA → A4, SCL → A5", "→ 테스트 <code>i2c_scanner</code> → <code>A1_lcd_test</code>"] },
+    { t: "키패드 연결 (수-수 점퍼)", d: ["키패드 핀 이름(위부터 C4 C3 C2 C1 R1 R2 R3 R4) 순서대로 D8, D7, D6, D5, D4, D3, D2, A0 (그림에선 왼쪽부터)", "→ 테스트 <code>A2_keypad_test</code>"] },
     { t: "보드 B 링크 (마지막)", d: ["보드 B를 만든 뒤에 연결", "A2 → 보드 B D4, A1 ← 보드 B D5, GND ↔ GND"] },
   ],
 },
 B: {
-  view: [0, 0, 1180, 920],
-  uno: { x: 60, y: 470, label: "보드 B" },
-  bb:  { x: 480, y: 500 },
+  view: [0, 0, 1180, 1000],
+  uno: { x: 60, y: 540, label: "보드 B" },
+  bb:  { x: 480, y: 540 },
   mods: [
-    { id: "sr",  type: "hcsr04", x: 120, y: 200, label: "HC-SR04" },
-    { id: "bt",  type: "hc06",   x: 520, y: 160, label: "HC-06" },
-    { id: "sv",  type: "servo",  x: 640, y: 790, label: "SG90 서보" },
-    { id: "ps",  type: "psu",    x: 900, y: 770, label: "서보용 5V 외부전원" },
-    { id: "lkB", type: "link",   x: 120, y: 800, label: "→ 보드 A", pins: ["A A2", "A A1", "GND"] },
+    { id: "sr",  type: "hcsr04", x: 170, y: 230, label: "HC-SR04" },
+    { id: "bt",  type: "hc06",   x: 600, y: 150, label: "HC-06" },
+    { id: "sv",  type: "servo",  x: 640, y: 880, label: "SG90 서보" },
+    { id: "ps",  type: "psu",    x: 900, y: 663, label: "서보용 5V 외부전원" },
+    { id: "lkB", type: "link",   x: 24,  y: 470, label: "→ 보드 A", pins: ["GND", "A A1", "A A2"], offs: [0, 4, 6], down: true },
   ],
   parts: [
-    { id: "R1", type: "res", ohm: 220,  a: { bb: [2, "c"] },  b: { bb: [5, "c"] },  step: 6 },
-    { id: "R2", type: "res", ohm: 220,  a: { bb: [5, "b"] },  b: { bb: [8, "b"] },  step: 6 },
-    { id: "R3", type: "res", ohm: 1000, a: { bb: [8, "a"] },  b: { rail: ["T-", 9] }, step: 6 },
-    { id: "RR", type: "res", ohm: 1000, a: { bb: [10, "g"] }, b: { bb: [13, "g"] }, step: 2 },
+    // HC-06 분압: 위 220Ω×2(2c→5c→8b) + 아래 220Ω×4(8c→11c→14b→17c→20b) + 20a 에서 검정 점퍼로 위쪽 − 레일(맨 위)
+    { id: "R1", type: "res", ohm: 220, a: { bb: [2, "c"] },  b: { bb: [5, "c"] },  step: 6 },
+    { id: "R2", type: "res", ohm: 220, a: { bb: [5, "b"] },  b: { bb: [8, "b"] },  step: 6 },
+    { id: "R3", type: "res", ohm: 220, a: { bb: [8, "c"] },  b: { bb: [11, "c"] }, step: 6 },
+    { id: "R4", type: "res", ohm: 220, a: { bb: [11, "b"] }, b: { bb: [14, "b"] }, step: 6 },
+    { id: "R5", type: "res", ohm: 220, a: { bb: [14, "c"] }, b: { bb: [17, "c"] }, step: 6 },
+    { id: "R6", type: "res", ohm: 220, a: { bb: [17, "b"] }, b: { bb: [20, "b"] }, step: 6 },
+    { id: "RR", type: "res", ohm: 220,  a: { bb: [10, "g"] }, b: { bb: [13, "g"] }, step: 2 },
     { id: "LR", type: "led", color: "red",    a: { bb: [13, "j"] }, k: { rail: ["B-", 14] }, step: 2 },
     { id: "RY", type: "res", ohm: 220,  a: { bb: [16, "g"] }, b: { bb: [19, "g"] }, step: 2 },
     { id: "LY", type: "led", color: "yellow", a: { bb: [19, "j"] }, k: { rail: ["B-", 20] }, step: 2 },
     { id: "RG", type: "res", ohm: 220,  a: { bb: [22, "g"] }, b: { bb: [25, "g"] }, step: 2 },
     { id: "LG", type: "led", color: "green",  a: { bb: [25, "j"] }, k: { rail: ["B-", 26] }, step: 2 },
     { id: "SW", type: "button", col: 27, step: 3 },
-    { id: "C1", type: "cap", p: { rail: ["B+", 4] }, n: { rail: ["B-", 4] }, step: 5 },
+    { id: "C1", type: "cap", p: { rail: ["B+", 4] }, n: { rail: ["B-", 6] }, step: 5 },
   ],
   wires: [
     { from: { uno: "5V" },     to: { rail: ["T+", 2] },  color: "red",   step: 1, note: "위쪽 + 레일 = 아두이노 5V" },
     { from: { uno: "GND_T" },  to: { rail: ["T-", 3] },  color: "black", step: 1, note: "위쪽 − 레일" },
     { from: { uno: "GND_B1" }, to: { rail: ["B-", 2] },  color: "black", step: 1, note: "아래쪽 − 레일 (공통 GND)" },
-    { from: { uno: "D12" }, to: { bb: [10, "f"] }, color: "orange", step: 2, note: "빨강 LED (1kΩ)" },
+    { from: { uno: "D12" }, to: { bb: [10, "f"] }, color: "orange", step: 2, note: "빨강 LED (220Ω)" },
     { from: { uno: "D11" }, to: { bb: [16, "f"] }, color: "yellow", step: 2, note: "노랑 LED (220Ω)" },
     { from: { uno: "D10" }, to: { bb: [22, "f"] }, color: "green",  step: 2, note: "초록 LED (220Ω)" },
     { from: { uno: "D2" },  to: { bb: [27, "a"] }, color: "purple", step: 3, note: "버튼 왼쪽 위 다리 칸" },
     { from: { bb: [29, "j"] }, to: { rail: ["B-", 29] }, color: "black", step: 3, note: "버튼 오른쪽 아래 다리 칸 → GND (대각선)" },
     { from: { mod: ["sr", "VCC"] },  to: { rail: ["T+", 11] }, color: "red",    step: 4, note: "" },
     { from: { mod: ["sr", "Trig"] }, to: { uno: "D6" },        color: "blue",   step: 4, note: "" },
-    { from: { mod: ["sr", "Echo"] }, to: { uno: "D7" },        color: "green",  step: 4, note: "" },
+    { from: { mod: ["sr", "Echo"] }, to: { uno: "D7" },        color: "brown",  step: 4, note: "" },
     { from: { mod: ["sr", "GND"] },  to: { rail: ["T-", 12] }, color: "black",  step: 4, note: "" },
     { from: { mod: ["ps", "+5V"] },  to: { rail: ["B+", 30] }, color: "red",    step: 5, note: "외부 5V → 아래쪽 + 레일" },
     { from: { mod: ["ps", "GND"] },  to: { rail: ["B-", 30] }, color: "black",  step: 5, note: "외부 GND → 아래쪽 − 레일" },
-    { from: { mod: ["sv", "V+"] },   to: { rail: ["B+", 6] },  color: "red",    step: 5, note: "서보 빨강 <span class='tag c'>외부 5V만</span>" },
-    { from: { mod: ["sv", "GND"] },  to: { rail: ["B-", 6] },  color: "brown",  step: 5, note: "서보 갈색" },
+    { from: { mod: ["sv", "V+"] },   to: { rail: ["B+", 9] },  color: "red",    step: 5, note: "서보 빨강 <span class='tag c'>외부 5V만</span>" },
+    { from: { mod: ["sv", "GND"] },  to: { rail: ["B-", 9] },  color: "brown",  step: 5, note: "서보 갈색" },
     { from: { mod: ["sv", "SIG"] },  to: { uno: "A0" },        color: "orange", step: 5, note: "서보 주황(신호)" },
     { from: { uno: "D1" },  to: { bb: [2, "e"] },              color: "white",  step: 6, note: "D1(TX) → 분압 P칸" },
+    { from: { bb: [20, "a"] }, to: { rail: ["T-", 20] },       color: "black",  step: 6, note: "분압 끝 → 위쪽 − 레일 (맨 위, + 레일 건너서)" },
     { from: { mod: ["bt", "RXD"] },  to: { bb: [8, "d"] },     color: "white",  step: 6, note: "분압 N칸 → HC-06 RXD" },
     { from: { mod: ["bt", "TXD"] },  to: { uno: "D0" },        color: "gray",   step: 6, note: "<span class='tag c'>업로드 전 뽑기</span>" },
     { from: { mod: ["bt", "GND"] },  to: { rail: ["T-", 14] }, color: "black",  step: 6, note: "" },
     { from: { mod: ["bt", "VCC"] },  to: { rail: ["T+", 15] }, color: "red",    step: 6, note: "HC-06 VCC는 5V" },
-    { from: { mod: ["lkB", "A A2"] }, to: { uno: "D4" },       color: "yellow", step: 7, note: "D4(RX) ← 보드 A A2" },
-    { from: { mod: ["lkB", "A A1"] }, to: { uno: "D5" },       color: "green",  step: 7, note: "D5(TX) → 보드 A A1" },
-    { from: { mod: ["lkB", "GND"] },  to: { uno: "GND_B2" },   color: "black",  step: 7, note: "공통 GND <span class='tag c'>필수</span>" },
+    { from: { mod: ["lkB", "A A2"] }, to: { uno: "D4" },       color: "cyan", step: 7, note: "D4(RX) ← 보드 A A2" },
+    { from: { mod: ["lkB", "A A1"] }, to: { uno: "D5" },       color: "pink",  step: 7, note: "D5(TX) → 보드 A A1" },
+    { from: { mod: ["lkB", "GND"] },  to: { rail: ["T-", 2] }, color: "black",  step: 7, note: "공통 GND (위쪽 − 레일) <span class='tag c'>필수</span>" },
   ],
   steps: [
-    { t: "전원 레일 만들기", d: ["우노 5V → 위쪽 + 레일, 우노 GND(위쪽 헤더) → 위쪽 − 레일", "우노 GND(아래 헤더) → 아래쪽 − 레일", "아래쪽 + 레일은 서보 전용이야. 아무것도 꽂지 마"] },
-    { t: "LED 3개", d: ["저항: 10g→13g(1kΩ), 16g→19g(220Ω), 22g→25g(220Ω)", "LED 긴 다리(+)는 13j, 19j, 25j / 짧은 다리(−)는 아래쪽 − 레일", "D12 → 10f(빨강), D11 → 16f(노랑), D10 → 22f(초록)"] },
+    { t: "전원 레일 만들기", d: ["이 브레드보드는 레일 쌍마다 <b>−가 위, +가 아래</b>야", "우노 5V → 위쪽 + 레일(a줄 바로 위), 우노 GND(위쪽 헤더) → 위쪽 − 레일(맨 위)", "우노 GND(아래 헤더) → 아래쪽 − 레일(j줄 바로 아래)", "아래쪽 + 레일(맨 아래)은 서보 전용이야. 아무것도 꽂지 마"] },
+    { t: "LED 3개", d: ["220Ω 저항: 10g→13g, 16g→19g, 22g→25g", "LED 긴 다리(+)는 13j, 19j, 25j / 짧은 다리(−)는 j줄 바로 아래 − 레일", "D12 → 10f(빨강), D11 → 16f(노랑), D10 → 22f(초록)"] },
     { t: "실내 버튼", d: ["버튼을 가운데 홈에 걸쳐서 꽂기 (다리 4개: 27e, 29e, 27f, 29f)", "D2 → 27a (왼쪽 위 다리와 같은 세로줄)", "29j → 아래쪽 − 레일 (오른쪽 아래 다리 = 대각선)", "→ board_B_door 업로드 후 버튼 테스트 (HC-06는 아직 꽂지 마)"] },
     { t: "HC-SR04", d: ["VCC → 위쪽 + 레일(5V), GND → 위쪽 − 레일", "Trig → D6, Echo → D7"] },
-    { t: "서보 + 외부전원", d: ["470µF: 띠(−) 다리를 아래 − 레일 4번, 긴 다리(+)를 아래 + 레일 4번에", "외부 5V + → 아래 + 레일, 외부 GND → 아래 − 레일", "서보 빨강 → 아래 + 레일, 갈색 → 아래 − 레일, 주황 → A0", "<b>위 + 레일과 아래 + 레일을 잇지 마</b>"] },
-    { t: "HC-06 + 분압", d: ["220Ω: 2c→5c, 220Ω: 5b→8b, 1kΩ: 8a → 위쪽 − 레일 (세워서 꽂기)", "D1 → 2e, HC-06 RXD ← 8d", "HC-06 TXD → D0 (업로드할 땐 뽑기)", "VCC → 위쪽 + 레일(5V), GND → 위쪽 − 레일"] },
-    { t: "보드 A 링크 (마지막)", d: ["D4 ← 보드 A A2, D5 → 보드 A A1, GND ↔ GND"] },
+    { t: "서보 + 외부전원", d: ["470µF: 긴 다리(+)는 맨 아래 + 레일 4번, 띠(−) 다리는 그 위 − 레일 6번에 (몸통은 브레드보드 아래로)", "외부 5V + → 아래 + 레일, 외부 GND → 아래 − 레일", "서보 빨강 → 아래 + 레일, 갈색 → 아래 − 레일, 주황 → A0", "<b>위 + 레일과 아래 + 레일을 잇지 마</b>"] },
+    { t: "HC-06 + 분압", d: ["위 220Ω 2개: 2c→5c, 5b→8b", "아래 220Ω 4개: 8c→11c, 11b→14b, 14c→17c, 17b→20b", "검정 점퍼: 20a → 위쪽 <b>− 레일</b>(맨 위). a줄 바로 위는 + 레일(5V)이니까 한 줄 건너 꽂아", "D1 → 2e, HC-06 RXD ← 8d (위 2개와 아래 4개 사이)", "HC-06 TXD → D0 (업로드할 땐 뽑기)", "VCC → 위쪽 + 레일(5V), GND → 위쪽 − 레일"] },
+    { t: "보드 A 링크 (마지막)", d: ["D4 ← 보드 A A2, D5 → 보드 A A1", "보드 A GND ↔ 보드 B 위쪽 − 레일"] },
   ],
 },
 };
 </script>
 
+<script id="route-cache">
+/* 미리 계산한 배선 (scene-data 가 바뀌면 서명이 달라져서 자동으로 다시 계산함) */
+const ROUTE_CACHE = {"A":{"sig":"ec11049f","routes":[[[41,154],[41,171],[86,171],[86,116],[96,116]],[[34,116],[34,109],[98,109],[98,114]],[[45,154],[45,159],[88,159],[88,146],[96,146]],[[42,116],[42,107],[88,107],[88,132],[94,132],[94,134]],[[36,116],[36,103],[111,103],[111,134],[112,134]],[[40,116],[40,105],[125,105],[125,130],[130,130],[130,134]],[[130,77],[130,101],[101,101],[101,136],[100,136]],[[132,77],[132,103],[119,103],[119,136],[118,136]],[[134,77],[134,118],[135,118],[135,136],[136,136]],[[136,77],[136,99],[38,99],[38,116]],[[140,77],[140,106],[127,106],[127,109],[116,109],[116,114]],[[142,77],[142,108],[129,108],[129,116],[128,116]],[[144,77],[144,110],[137,110],[137,116],[136,116]],[[123,175],[119,175],[119,153],[151,153],[151,146],[152,146]],[[123,177],[70,177],[70,169],[43,169],[43,154]],[[123,179],[68,179],[68,165],[61,165],[61,154]],[[123,181],[66,181],[66,163],[63,163],[63,154]],[[47,84],[47,111],[46,111],[46,116]],[[49,84],[49,116]],[[51,84],[51,116]],[[53,84],[53,116]],[[55,84],[55,116]],[[57,84],[57,116]],[[59,84],[59,116]],[[61,84],[61,112],[67,112],[67,161],[53,161],[53,154]],[[61,177],[61,167],[57,167],[57,154]],[[55,177],[55,154]],[[47,177],[47,154]]]},"B":{"sig":"8e567714","routes":[[[43,146],[43,153],[86,153],[86,108],[96,108]],[[34,108],[34,101],[98,101],[98,106]],[[45,146],[45,151],[88,151],[88,138],[96,138]],[[38,108],[38,99],[88,99],[88,124],[112,124],[112,126]],[[40,108],[40,91],[139,91],[139,124],[124,124],[124,126]],[[42,108],[42,93],[111,93],[111,110],[137,110],[137,126],[136,126]],[[59,108],[59,97],[145,97],[145,112],[146,112]],[[150,134],[150,138]],[[48,61],[48,85],[113,85],[113,108],[114,108]],[[50,61],[50,89],[51,89],[51,108]],[[52,61],[52,87],[48,87],[48,89],[49,89],[49,108]],[[54,61],[54,87],[116,87],[116,106]],[[175,140],[152,140]],[[175,138],[152,138]],[[119,178],[110,178],[110,140]],[[119,176],[113,176],[113,138],[110,138]],[[119,180],[53,180],[53,146]],[[61,108],[61,103],[84,103],[84,122],[96,122],[96,120]],[[132,112],[132,106]],[[132,64],[132,102],[135,102],[135,122],[109,122],[109,118],[108,118]],[[130,64],[130,89],[63,89],[63,108]],[[128,64],[128,102],[120,102],[120,106]],[[126,64],[126,100],[118,100],[118,108],[122,108]],[[20,92],[20,97],[55,97],[55,108]],[[16,92],[16,103],[53,103],[53,108]],[[8,92],[8,99],[36,99],[36,95],[96,95],[96,106]]]}};
+</script>
 <script>
 (function(){
 "use strict";
@@ -432,8 +463,8 @@ function el(tag,attrs,parent,text){const e=document.createElementNS(NS,tag);for(
 
 /* 공통 치수: 4px = 1mm, 2.54mm 피치 = 10.16px */
 const MM=4, P=2.54*MM, INCH=25.4*MM;
-const WIRE={red:"#d93025",black:"#2a2a2a",orange:"#f08a00",yellow:"#f2c200",green:"#1f9d55",blue:"#2f6fe0",purple:"#8b4fd6",white:"#f4f4f4",gray:"#9aa3a6",brown:"#8a4b20"};
-const WNAME={red:"빨강",black:"검정",orange:"주황",yellow:"노랑",green:"초록",blue:"파랑",purple:"보라",white:"흰색",gray:"회색",brown:"갈색"};
+const WIRE={red:"#d93025",black:"#2a2a2a",orange:"#f08a00",yellow:"#f2c200",green:"#1f9d55",blue:"#2f6fe0",purple:"#8b4fd6",white:"#f4f4f4",gray:"#9aa3a6",brown:"#8a4b20",pink:"#e8579a",cyan:"#1bb3c9"};
+const WNAME={red:"빨강",black:"검정",orange:"주황",yellow:"노랑",green:"초록",blue:"파랑",purple:"보라",white:"흰색",gray:"회색",brown:"갈색",pink:"분홍",cyan:"하늘"};
 
 /* 아두이노 우노 R3 (USB 왼쪽), 헤더 핀 좌표는 인치(보드 왼쪽 아래 기준) */
 const UNO_TOP={SCL:.84,SDA:.94,AREF:1.04,GND_T:1.14,D13:1.24,D12:1.34,D11:1.44,D10:1.54,D9:1.64,D8:1.74,D7:1.9,D6:2.0,D5:2.1,D4:2.2,D3:2.3,D2:2.4,D1:2.5,D0:2.6};
@@ -481,13 +512,14 @@ function bbHole(b,col,row){
   const r=ROWS.indexOf(row); if(r<0||col<1||col>30) throw new Error("hole "+col+row);
   return {x:b.x+(col-1)*P, y:b.y+(r<5?3+r:5+r)*P};
 }
-function railY(b,name){return b.y+({"T+":0,"T-":1,"B+":16,"B-":17})[name]*P;}
+// 레일 순서(이 브레드보드): 각 쌍에서 − 가 위, + 가 아래 → 위쪽 쌍은 −(바깥)/+(안쪽), 아래쪽 쌍은 −(안쪽)/+(바깥)
+function railY(b,name){return b.y+({"T-":0,"T+":1,"B-":16,"B+":17})[name]*P;}
 function railHole(b,name,col){if(!RAIL_COLS.includes(col))throw new Error("rail col "+col);return {x:b.x+(col-1)*P,y:railY(b,name)};}
 function drawBB(g,b){
   const x0=b.x-2.2*P,x1=b.x+29*P+2.2*P,y0=b.y-1.6*P,y1=b.y+18.6*P;
   el("rect",{x:x0,y:y0,width:x1-x0,height:y1-y0,rx:6,fill:"#f3f1ea",stroke:"#cfcbbd"},g);
   el("rect",{x:x0+4,y:b.y+7.6*P,width:x1-x0-8,height:1.8*P,fill:"#e4e0d3"},g);
-  [["T+",-0.55],["T-",1.55],["B+",15.45],["B-",17.55]].forEach(([n,off])=>{
+  [["T-",-0.55],["T+",1.55],["B-",15.45],["B+",17.55]].forEach(([n,off])=>{
     const y=b.y+off*P, col=n.endsWith("+")?"#d93025":"#2f6fe0";
     el("line",{x1:x0+14,x2:x1-8,y1:y,y2:y,stroke:col,"stroke-width":1.4},g);
     el("text",{x:x0+4,y:railY(b,n)+3.5,"font-size":10,"font-weight":700,fill:col},g,n.endsWith("+")?"+":"−");
@@ -504,7 +536,7 @@ function drawBB(g,b){
 
 /* 모듈 */
 const MODS={
-  keypad:{pins:["R1","R2","R3","R4","C1","C2","C3","C4"],
+  keypad:{pins:["C4","C3","C2","C1","R1","R2","R3","R4"],
     pinPos(m,i){return {x:m.x+34.5*MM+(i-3.5)*P,y:m.y+99*MM,d:[0,1]};},
     draw(g,m){
       el("rect",{x:m.x,y:m.y,width:69*MM,height:77*MM,rx:8,fill:"#1d1f22"},g);
@@ -517,7 +549,7 @@ const MODS={
       el("rect",{x:m.x+34.5*MM-4.2*P,y:m.y+77*MM,width:8.4*P,height:16*MM,fill:"#cfd3d6",opacity:.9},g);
       el("rect",{x:m.x+34.5*MM-4.4*P,y:m.y+92*MM,width:8.8*P,height:7*MM,rx:1.5,fill:"#111"},g);
       MODS.keypad.pins.forEach((n,i)=>{const p=MODS.keypad.pinPos(m,i);el("text",{x:p.x,y:p.y-11,"font-size":7.5,"text-anchor":"middle",fill:"#ffffff"},g,n);});
-      el("text",{x:m.x+34.5*MM,y:m.y+86*MM,"font-size":8.5,"text-anchor":"middle",fill:"#1d1f22"},g,"1번 핀 ← (앞면 기준) → 8번");
+      el("text",{x:m.x+34.5*MM,y:m.y+86*MM,"font-size":8.5,"text-anchor":"middle",fill:"#1d1f22"},g,"C4(1번) ← 핀 순서 → R4(8번)");
     }},
   rc522:{pins:["SDA","SCK","MOSI","MISO","IRQ","GND","RST","3.3V"],
     pinPos(m,i){return {x:m.x+20*MM+(i-3.5)*P,y:m.y+60*MM,d:[0,1]};},
@@ -568,19 +600,21 @@ const MODS={
       el("rect",{x:m.x-9*MM,y:m.y+2.5*MM,width:4*MM,height:3*P,rx:1,fill:"#111"},g);
       MODS.servo.pins.forEach((n,i)=>{const p=MODS.servo.pinPos(m,i);el("text",{x:p.x-6,y:p.y+3,"font-size":8,"text-anchor":"end",fill:"#ffffff"},g,["갈 GND","빨 +","주 신호"][i]);});
     }},
-  psu:{pins:["+5V","GND"],
-    pinPos(m,i){return {x:m.x+12*MM+i*16*MM,y:m.y,d:[0,-1]};},
+  psu:{pins:["GND","+5V"],
+    pinPos(m,i){return {x:m.x-2*MM,y:m.y+10*MM+i*P,d:[-1,0]};},
     draw(g,m){
       el("rect",{x:m.x,y:m.y,width:40*MM,height:28*MM,rx:4,fill:"#2b2f31",stroke:"#d93025","stroke-width":2,"stroke-dasharray":"6 4"},g);
-      el("text",{x:m.x+20*MM,y:m.y+16*MM,"font-size":11,"text-anchor":"middle",fill:"#ffffff"},g,"5V 1A↑");
-      el("text",{x:m.x+20*MM,y:m.y+23*MM,"font-size":8.5,"text-anchor":"middle",fill:"#cfd4d6"},g,"어댑터 / 전원모듈");
-      MODS.psu.pins.forEach((n,i)=>{const p=MODS.psu.pinPos(m,i);el("circle",{cx:p.x,cy:p.y,r:5,fill:i?"#2a2a2a":"#d93025",stroke:"#fff"},g);el("text",{x:p.x,y:p.y+17,"font-size":8,"text-anchor":"middle",fill:"#fff"},g,n);});
+      el("rect",{x:m.x-4*MM,y:m.y+10*MM-P*0.8,width:5*MM,height:P*2.6,rx:1,fill:"#111"},g);
+      el("text",{x:m.x+22*MM,y:m.y+16*MM,"font-size":11,"text-anchor":"middle",fill:"#ffffff"},g,"5V 1A↑");
+      el("text",{x:m.x+22*MM,y:m.y+23*MM,"font-size":8.5,"text-anchor":"middle",fill:"#cfd4d6"},g,"어댑터 / 전원모듈");
+      MODS.psu.pins.forEach((n,i)=>{const p=MODS.psu.pinPos(m,i);el("circle",{cx:p.x,cy:p.y,r:3.6,fill:i?"#d93025":"#2a2a2a",stroke:"#fff"},g);el("text",{x:m.x+3*MM,y:p.y+3,"font-size":8,fill:"#fff"},g,n);});
     }},
   link:{pins:null,
-    pinPos(m,i){return {x:m.x+5*MM+i*10*MM,y:m.y,d:[0,-1]};},
+    pinPos(m,i){return {x:m.x+5*MM+(m.offs?m.offs[i]:i*4)*P,y:m.y,d:m.down?[0,1]:[0,-1]};},
     draw(g,m){
-      el("rect",{x:m.x-4*MM,y:m.y-4*MM,width:38*MM,height:12*MM,rx:4,fill:"none",stroke:"#ffffff","stroke-dasharray":"4 4"},g);
-      m.pins.forEach((n,i)=>{const p=MODS.link.pinPos(m,i);el("circle",{cx:p.x,cy:p.y,r:3,fill:"#fff"},g);el("text",{x:p.x,y:p.y+14,"font-size":7.5,"text-anchor":"middle",fill:"#fff"},g,n);});
+      const [x1,y1,x2,y2]=MODBOX.link(m);
+      el("rect",{x:x1,y:y1,width:x2-x1,height:y2-y1,rx:4,fill:"none",stroke:"#ffffff","stroke-dasharray":"4 4"},g);
+      m.pins.forEach((n,i)=>{const p=MODS.link.pinPos(m,i);el("circle",{cx:p.x,cy:p.y,r:3,fill:"#fff"},g);const prev=i?MODS.link.pinPos(m,i-1).x:-1e9, alt=(p.x-prev<3*P)?10:0;el("text",{x:p.x,y:m.down?p.y-8-alt:p.y+14+alt,"font-size":7.5,"text-anchor":"middle",fill:"#fff"},g,n.replace(/^[AB] /,""));});
     }},
 };
 function modPinPos(m,name){
@@ -615,14 +649,18 @@ function drawLED(g,a,k,color){
   el("circle",{cx:k.x,cy:k.y,r:2.2,fill:"#8d9396"},g);
   el("text",{x:a.x-4,y:a.y+3,"font-size":9,"text-anchor":"end",fill:"#1d1f22","font-weight":700},g,"+");
 }
+// 470µF: + 레일이 맨 아래(바깥)라 몸통은 브레드보드 아래. + 다리는 바로 위 + 레일 구멍, − 다리는 구멍 사이 틈으로 올라가 − 레일 구멍
+function capBody(p,n){return {x:(p.x+n.x)/2,y:p.y+30};}
 function drawCap(g,p,n){
-  el("line",{x1:p.x,y1:p.y,x2:p.x-6,y2:p.y-20,stroke:"#b9bec2","stroke-width":1.6},g);
-  el("line",{x1:n.x,y1:n.y,x2:n.x+6,y2:n.y-30,stroke:"#b9bec2","stroke-width":1.6},g);
-  const cx=p.x,cy=p.y-36;
-  el("circle",{cx,cy,r:17,fill:"#1f3f8f",stroke:"#0f2350"},g);
-  el("path",{d:`M${cx} ${cy-17} A17 17 0 0 1 ${cx} ${cy+17} L${cx+8} ${cy+15} A17 17 0 0 0 ${cx+8} ${cy-15}Z`,fill:"#c9d3ea",opacity:.85},g);
-  el("text",{x:cx+10,y:cy+4,"font-size":10,"text-anchor":"middle",fill:"#0f2350","font-weight":700},g,"−");
-  el("text",{x:cx-5,y:cy+3,"font-size":7,"text-anchor":"middle",fill:"#e8eef9"},g,"470µ");
+  const {x:cx,y:cy}=capBody(p,n), gapX=n.x-P/2;
+  el("polyline",{points:`${cx-6},${cy-12} ${p.x},${p.y+6} ${p.x},${p.y}`,fill:"none",stroke:"#b9bec2","stroke-width":1.8},g);
+  el("polyline",{points:`${cx+6},${cy-12} ${gapX},${p.y+6} ${gapX},${n.y+4} ${n.x},${n.y}`,fill:"none",stroke:"#b9bec2","stroke-width":1.8},g);
+  el("circle",{cx,cy,r:15,fill:"#1f3f8f",stroke:"#0f2350"},g);
+  el("path",{d:`M${cx} ${cy-15} A15 15 0 0 1 ${cx} ${cy+15} L${cx+7} ${cy+13} A15 15 0 0 0 ${cx+7} ${cy-13}Z`,fill:"#c9d3ea",opacity:.9},g);
+  el("text",{x:cx+9,y:cy+4,"font-size":11,"text-anchor":"middle",fill:"#0f2350","font-weight":700},g,"−");
+  el("text",{x:cx-6,y:cy+3,"font-size":7,"text-anchor":"middle",fill:"#e8eef9"},g,"470µ");
+  el("text",{x:p.x-6,y:p.y+12,"font-size":10,"text-anchor":"end",fill:"#d93025","font-weight":700},g,"+");
+  el("circle",{cx:p.x,cy:p.y,r:2.4,fill:"#8d9396"},g); el("circle",{cx:n.x,cy:n.y,r:2.4,fill:"#8d9396"},g);
 }
 function drawButton(g,pts){
   const xs=pts.map(p=>p.x),ys=pts.map(p=>p.y),x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
@@ -631,19 +669,236 @@ function drawButton(g,pts){
   el("circle",{cx:(x0+x1)/2,cy:(y0+y1)/2,r:7,fill:"#111",stroke:"#555"},g);
 }
 
-/* 점퍼선 */
-function wirePath(a,b){
-  const dist=Math.hypot(b.x-a.x,b.y-a.y), L=Math.min(90,Math.max(22,dist*0.38));
-  const da=a.d||[0,Math.sign(b.y-a.y)||1], db=b.d||[0,Math.sign(a.y-b.y)||-1];
-  return `M${a.x} ${a.y} C ${a.x+da[0]*L} ${a.y+da[1]*L} ${b.x+db[0]*L} ${b.y+db[1]*L} ${b.x} ${b.y}`;
+/* ================= 점퍼선: 직각 자동 배선 =================
+   화면을 G(=1.27mm=5.08px) 격자로 나누고 A* 로 길을 찾는다.
+   - 모듈·우노·부품·다른 선의 끝점은 지나갈 수 없음
+   - 같은 방향으로 달리는 선끼리는 겹치지 않고 최소 2칸(10px) 떨어짐
+   - 다른 선과는 수직으로만 교차 (교차점에서 꺾지 않음)
+   - 꺾는 횟수와 교차 횟수를 줄이는 쪽을 우선 */
+const G=P/2, DX=[1,0,-1,0], DY=[0,1,0,-1];
+function makeGrid(S){
+  const [vx,vy,vw,vh]=S.view;
+  const x0=S.bb.x-Math.floor((S.bb.x-vx)/G)*G, y0=S.bb.y-Math.floor((S.bb.y-vy)/G)*G;
+  const NX=Math.floor((vx+vw-x0)/G)+1, NY=Math.floor((vy+vh-y0)/G)+1;
+  return {x0,y0,NX,NY,N:NX*NY,cx:x=>Math.round((x-x0)/G),cy:y=>Math.round((y-y0)/G),X:i=>x0+i*G,Y:j=>y0+j*G};
 }
+// 우노·모듈 위치를 격자에 맞춤 (핀이 격자점에 오도록)
+function alignScene(S,gr){
+  const fix=(o,p)=>{o.x+=gr.X(gr.cx(p.x))-p.x;o.y+=gr.Y(gr.cy(p.y))-p.y;};
+  fix(S.uno,unoPin(S.uno,"D7"));
+  S.mods.forEach(m=>fix(m,modPinPos(m,(m.pins||MODS[m.type].pins)[0])));
+}
+const MODBOX={
+  keypad:m=>[m.x,m.y,m.x+69*MM,m.y+99*MM], rc522:m=>[m.x,m.y,m.x+40*MM,m.y+60*MM],
+  lcd:m=>[m.x-5*MM,m.y,m.x+80*MM,m.y+36*MM], hcsr04:m=>[m.x,m.y,m.x+45*MM,m.y+20*MM],
+  hc06:m=>[m.x,m.y,m.x+28*MM,m.y+44*MM], servo:m=>[m.x-9*MM,m.y,m.x+36.5*MM,m.y+12.5*MM],
+  psu:m=>[m.x-4*MM,m.y,m.x+40*MM,m.y+28*MM],
+  link:m=>{const n=m.pins.length,last=m.offs?m.offs[n-1]:(n-1)*4;return m.down?[m.x-4*MM,m.y-14*MM,m.x+9*MM+last*P,m.y+3*MM]:[m.x-4*MM,m.y-3*MM,m.x+9*MM+last*P,m.y+14*MM];},
+};
+function unoBox(u){return [u.x-0.25*INCH,u.y,u.x+2.7*INCH,u.y+2.1*INCH];}
+
+class Heap{constructor(){this.k=[];this.v=[];}
+  push(key,val){const k=this.k,v=this.v;let i=k.length;k.push(key);v.push(val);
+    while(i>0){const p=(i-1)>>1;if(k[p]<=key)break;k[i]=k[p];v[i]=v[p];i=p;}k[i]=key;v[i]=val;}
+  pop(){const k=this.k,v=this.v,top=v[0],lk=k.pop(),lv=v.pop(),n=k.length;
+    if(n){let i=0;for(;;){let c=2*i+1;if(c>=n)break;if(c+1<n&&k[c+1]<k[c])c++;if(k[c]>=lk)break;k[i]=k[c];v[i]=v[c];i=c;}k[i]=lk;v[i]=lv;}return top;}
+  get size(){return this.k.length;}}
+
+function routeScene(S,gr,order,ripRounds){
+  const {NX,NY,N}=gr, id=(i,j)=>j*NX+i, inb=(i,j)=>i>=0&&j>=0&&i<NX&&j<NY;
+  const block=new Uint8Array(N), owner=new Int16Array(N).fill(-1), hOcc=new Uint8Array(N), vOcc=new Uint8Array(N), cost=new Float32Array(N), hCost=new Float32Array(N), keep=new Int16Array(N).fill(-1);
+  const rectCells=(b,pad,fn)=>{for(let j=gr.cy(b[1])-pad;j<=gr.cy(b[3])+pad;j++)for(let i=gr.cx(b[0])-pad;i<=gr.cx(b[2])+pad;i++)if(inb(i,j))fn(id(i,j));};
+  rectCells(unoBox(S.uno),1,c=>block[c]=1);
+  S.mods.forEach(m=>rectCells(MODBOX[m.type](m),1,c=>block[c]=1));
+  // 브레드보드 위는 지나갈 수 있지만 약간 비싸게, 구멍 바로 위는 더 비싸게 (구멍 사이로 지나가도록)
+  const b=S.bb; rectCells([b.x-2.2*P,b.y-1.6*P,b.x+31.2*P,b.y+18.6*P],0,c=>cost[c]+=0.3);
+  for(let c=1;c<=30;c++)for(const r of ROWS){const h=bbHole(b,c,r);cost[id(gr.cx(h.x),gr.cy(h.y))]+=6;}
+  ["T+","T-","B+","B-"].forEach(n=>RAIL_COLS.forEach(c=>{const h=railHole(b,n,c);cost[id(gr.cx(h.x),gr.cy(h.y))]+=6;}));
+  // 브레드보드 구멍 줄(a~e, f~j, 레일) 안에서는 가로로 달리지 못하게: 가로 이동은 가운데 홈·레일 바깥에서만
+  const bandY=(y1,y2)=>rectCells([b.x-2.2*P,y1,b.x+31.2*P,y2],0,c=>hCost[c]+=80);
+  bandY(railY(b,"T+")-P*0.5,railY(b,"T-")+P*0.5); bandY(bbHole(b,1,"a").y-P*0.5,bbHole(b,1,"e").y+P*0.5);
+  bandY(bbHole(b,1,"f").y-P*0.5,bbHole(b,1,"j").y+P*0.5); bandY(railY(b,"B+")-P*0.5,railY(b,"B-")+P*0.5);
+  const blockSeg=(p1,p2,pad)=>rectCells([Math.min(p1.x,p2.x),Math.min(p1.y,p2.y),Math.max(p1.x,p2.x),Math.max(p1.y,p2.y)],pad,c=>block[c]=1);
+  S.parts.forEach(pt=>{
+    if(pt.type==="res"){const a=refPos(S,pt.a),q=refPos(S,pt.b);blockSeg(a,q,1);}
+    if(pt.type==="led"){const a=refPos(S,pt.a),k=refPos(S,pt.k),bd=ledBody(a);blockSeg({x:Math.min(a.x,k.x),y:bd.y-8},{x:Math.max(a.x,k.x)+4,y:k.y},0);}
+    if(pt.type==="cap"){const p=refPos(S,pt.p),n=refPos(S,pt.n);blockSeg({x:p.x-14,y:n.y},{x:n.x+4,y:p.y+48},0);}
+    if(pt.type==="button"){const h=buttonHoles(S,pt.col);blockSeg(h[0],h[3],1);}
+  });
+  // 끝점과 스텁(핀에서 몸체 밖으로 곧게 나가는 부분)
+  const ends=S.wires.map(w=>[w.from,w.to].map(ref=>{
+    const p=refPos(S,ref);
+    if(ref.bb||ref.rail){const c=[gr.cx(p.x),gr.cy(p.y)];return {p,cell:c,stub:[c],need:-1};}
+    const m=ref.mod&&S.mods.find(x=>x.id===ref.mod[0]);
+    const box=ref.uno?unoBox(S.uno):MODBOX[m.type](m);
+    const d=p.d; let i=gr.cx(p.x),j=gr.cy(p.y); const stub=[[i,j]];
+    const outside=()=>{const x=gr.X(i),y=gr.Y(j);return d[0]>0?x>box[2]+G*1.5:d[0]<0?x<box[0]-G*1.5:d[1]>0?y>box[3]+G*1.5:y<box[1]-G*1.5;};
+    while(!outside()){i+=d[0];j+=d[1];stub.push([i,j]);}
+    const dir=DX.findIndex((v,k)=>v===d[0]&&DY[k]===d[1]);
+    return {p,cell:[i,j],stub,dir,need:(dir+2)%4};
+  }));
+  ends.forEach((e2,wi)=>e2.forEach(e=>e.stub.forEach(([i,j])=>{owner[id(i,j)]=wi;})));
+  // 브레드보드 끝점 주변 1칸(5px)은 그 선만 지나갈 수 있음 → 다른 선이 남의 끝점에 붙어 지나가지 않게
+  ends.forEach((e2,wi)=>e2.forEach(e=>{ if(e.need>=0) return; const [i0,j0]=e.cell;
+    for(let dj=-1;dj<=1;dj++)for(let di=-1;di<=1;di++){const i=i0+di,j=j0+dj;if(inb(i,j))keep[id(i,j)]=keep[id(i,j)]===-1||keep[id(i,j)]===wi?wi:-2;}}));
+
+  // 같은 방향 선은 바로 옆 칸까지 막아서 간격 확보 (개수로 세서 다시 지울 수 있게)
+  const mark=(cells,delta)=>{for(let k=1;k<cells.length;k++){const [i0,j0]=cells[k-1],[i1,j1]=cells[k];
+      const horiz=j0===j1;
+      for(const [i,j] of [[i0,j0],[i1,j1]])for(let t=-1;t<=1;t++){const ii=horiz?i:i+t,jj=horiz?j+t:j;if(inb(ii,jj))(horiz?hOcc:vOcc)[id(ii,jj)]+=delta;}}};
+  const BEND=5, CROSS=6, OVER=60;
+  function astar(wi,s,t){
+    const dist=new Float32Array(N*4).fill(Infinity), prev=new Int32Array(N*4).fill(-1), H=new Heap();
+    const goal=id(t.cell[0],t.cell[1]), gi=t.cell[0], gj=t.cell[1];
+    const h=(c)=>{const i=c%NX,j=(c/NX)|0;return Math.abs(i-gi)+Math.abs(j-gj);};
+    const sc=id(s.cell[0],s.cell[1]);
+    (s.need>=0?[s.dir]:[0,1,2,3]).forEach(d=>{dist[sc*4+d]=0;H.push(h(sc),sc*4+d);});
+    while(H.size){
+      const st=H.pop(), c=st>>2, d=st&3, g0=dist[st];
+      if(c===goal&&(t.need<0||d===t.need)) return {st,prev,cost:g0};
+      const ci=c%NX,cj=(c/NX)|0;
+      for(let nd=0;nd<4;nd++){
+        if(nd===((d+2)&3))continue;
+        const ni=ci+DX[nd],nj=cj+DY[nd]; if(!inb(ni,nj))continue;
+        const n=id(ni,nj);
+        if(n!==goal){ if(block[n])continue; if(owner[n]>=0&&owner[n]!==wi)continue; if(keep[n]!==-1&&keep[n]!==wi)continue; }
+        let k=1+cost[n];
+        if((nd===0||nd===2)&&n!==goal) k+=hCost[n];
+        if(nd!==d){ if(c!==sc&&(hOcc[c]||vOcc[c])) k+=OVER; k+=BEND; }
+        const horiz=nd===0||nd===2;
+        if(horiz?hOcc[n]:vOcc[n]) k+=OVER;           // 같은 방향 선과 겹침: 거의 금지
+        if(horiz?vOcc[n]:hOcc[n]) k+=CROSS;          // 수직 교차: 허용하지만 비용
+        const ns=n*4+nd, g1=g0+k;
+        if(g1<dist[ns]){dist[ns]=g1;prev[ns]=st;H.push(g1+h(n),ns);}
+      }
+    }
+    return null;
+  }
+  const routeOne=wi=>{
+    const [s,t]=ends[wi], r=astar(wi,s,t);
+    let cells;
+    if(r){cells=[];let st=r.st;while(st>=0){const c=st>>2;cells.push([c%NX,(c/NX)|0]);st=r.prev[st];}cells.reverse();}
+    else cells=[s.cell,[t.cell[0],s.cell[1]],t.cell];
+    return {full:[...s.stub.slice(0,-1),...cells,...t.stub.slice(0,-1).reverse()],cost:r?r.cost:1e6};
+  };
+  const L=i=>Math.abs(ends[i][0].cell[0]-ends[i][1].cell[0])+Math.abs(ends[i][0].cell[1]-ends[i][1].cell[1]);
+  order=order||S.wires.map((w,i)=>i).sort((a,b2)=>L(a)-L(b2));
+  const res=[];
+  order.forEach(wi=>{res[wi]=routeOne(wi);mark(res[wi].full,1);});
+  // 뜯고 다시 그리기: 비용이 큰 선부터 다른 선은 그대로 둔 채 다시 찾아서 더 좋으면 교체
+  for(let round=0;round<(ripRounds??2);round++){
+    const worst=res.map((r,i)=>i).sort((a,b2)=>res[b2].cost/Math.max(1,L(b2))-res[a].cost/Math.max(1,L(a)));
+    worst.forEach(wi=>{mark(res[wi].full,-1);const r=routeOne(wi);if(r.cost<res[wi].cost)res[wi]=r;mark(res[wi].full,1);});
+  }
+  const score=res.reduce((a,r)=>a+r.cost,0);
+  return {score,routes:res.map(r=>r.full)};
+}
+// 격자 칸 목록 → 실제 좌표 (끝은 정확한 핀 위치), 꺾이는 점만 남김
+function cellsToPts(S,gr,w,full){
+  const s=refPos(S,w.from),t=refPos(S,w.to);
+  let pts=full.map(([i,j])=>({x:gr.X(i),y:gr.Y(j)}));
+  // 핀이 격자와 조금 어긋나 있으면, 핀에서 첫 번째로 꺾이는 곳까지의 직선 구간을 핀 위치에 맞춰 옮김 (사선 방지)
+  const snapRun=(arr,p)=>{ if(arr.length<2) return;
+    const vert=Math.abs(arr[0].x-arr[1].x)<0.01, key=vert?"x":"y", v0=arr[0][key];
+    for(let k=0;k<arr.length&&Math.abs(arr[k][key]-v0)<0.01;k++) arr[k][key]=p[key];
+    if(vert) arr[0].y=arr[0].y; };
+  snapRun(pts,s); pts.reverse(); snapRun(pts,t); pts.reverse();
+  pts.unshift({x:s.x,y:s.y}); pts.push({x:t.x,y:t.y});
+  const out=[pts[0]];
+  for(let k=1;k<pts.length-1;k++){const a=out[out.length-1],q=pts[k],c=pts[k+1];
+    if(Math.abs(q.x-a.x)<0.01&&Math.abs(q.y-a.y)<0.01)continue;
+    const col=(Math.abs(a.x-q.x)<0.01&&Math.abs(q.x-c.x)<0.01)||(Math.abs(a.y-q.y)<0.01&&Math.abs(q.y-c.y)<0.01);
+    if(!col)out.push(q);}
+  out.push(pts[pts.length-1]);
+  return out;
+}
+// 배치 데이터 서명 (미리 계산한 배선이 지금 데이터와 맞는지 확인용)
+function sceneSig(S){const t=JSON.stringify([S.view,S.uno,S.bb,S.mods,S.parts,S.wires.map(w=>[w.from,w.to])]);let h=2166136261;for(let i=0;i<t.length;i++){h^=t.charCodeAt(i);h=Math.imul(h,16777619);}return (h>>>0).toString(16);}
+// 여러 순서로 시도해서 가장 좋은 배선 고르기 (미리 계산할 때 사용)
+function optimizeRoutes(S,gr,trials){
+  let best=routeScene(S,gr,null,2);
+  const n=S.wires.length; let seed=12345;
+  const rnd=()=>{seed=(seed*1103515245+12345)&0x7fffffff;return seed/0x7fffffff;};
+  for(let t=0;t<trials;t++){
+    const ord=[...Array(n).keys()];
+    for(let i=n-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[ord[i],ord[j]]=[ord[j],ord[i]];}
+    const r=routeScene(S,gr,ord,2); if(r.score<best.score)best=r;
+  }
+  return best;
+}
+function wireLabel(S,w){
+  const n=r=>r.uno?(LBL[r.uno]||r.uno):r.mod?r.mod[1]:null;
+  const a=n(w.from),b=n(w.to);
+  if(w.from.uno&&!w.to.uno) return a;
+  if(w.from.mod&&w.to.uno) return a===b?a:`${a}→${b}`;
+  if(w.from.mod) return a;
+  return b||"GND";
+}
+function drawOrthoWire(g,pts,color){
+  const d="M"+pts.map(p=>`${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(" L"), c=WIRE[color];
+  const light=color==="white"||color==="yellow"||color==="gray";
+  el("path",{d,class:"glow",stroke:"#7cf7ff","stroke-width":11,fill:"none","stroke-linejoin":"miter"},g);
+  el("path",{d,stroke:"#ffffff","stroke-opacity":.9,"stroke-width":7,fill:"none","stroke-linejoin":"miter","stroke-linecap":"square"},g);
+  if(light) el("path",{d,stroke:"#333333","stroke-width":5.4,fill:"none","stroke-linejoin":"miter","stroke-linecap":"square"},g);
+  el("path",{d,class:"wcore",stroke:c,"stroke-width":4,fill:"none","stroke-linejoin":"miter","stroke-linecap":"square"},g);
+}
+// 끝점: 밝은 색 선은 진한 테두리를 한 겹 더 (크림색 브레드보드 위에서도 보이게). 모든 선 위에 그림
+function drawEnds(g,pts,color){
+  const c=WIRE[color], light=color==="white"||color==="yellow"||color==="gray";
+  [pts[0],pts[pts.length-1]].forEach(p=>{
+    if(light) el("circle",{cx:p.x,cy:p.y,r:5.4,fill:"none",stroke:"#222222","stroke-width":1.2},g);
+    el("circle",{cx:p.x,cy:p.y,r:light?4.2:3.6,fill:"#1b1b1b",stroke:c,"stroke-width":light?2:1.6},g);
+  });
+}
+// 이름표 자리 찾기: 자기 선 위에서, 다른 선·다른 이름표·끝점·화면 밖과 겹치지 않는 곳 (긴 구간 우선)
+function placeTags(S,routes,view){
+  const segs=[];
+  routes.forEach((pts,wi)=>{for(let k=1;k<pts.length;k++)segs.push({wi,a:pts[k-1],b:pts[k],h:Math.abs(pts[k].y-pts[k-1].y)<0.01});});
+  const endsAll=routes.flatMap(pts=>[pts[0],pts[pts.length-1]]);
+  const placed=[], bb=S.bb, bbr=[bb.x-2.2*P,bb.y-1.6*P,bb.x+31.2*P,bb.y+18.6*P];
+  const hitsSeg=(r,sg)=>{const x1=Math.min(sg.a.x,sg.b.x)-2,x2=Math.max(sg.a.x,sg.b.x)+2,y1=Math.min(sg.a.y,sg.b.y)-2,y2=Math.max(sg.a.y,sg.b.y)+2;
+    return !(x2<r.x1||x1>r.x2||y2<r.y1||y1>r.y2);};
+  const shortLabel=w=>{const r=w.to.uno?w.to:w.from.uno?w.from:null;return r?(LBL[r.uno]||r.uno):(w.from.mod?w.from.mod[1]:"GND");};
+  const tryPlace=(wi,label,mode)=>{
+    const pts=routes[wi], len=label.length*5+8, th=10;
+    const mine=[];for(let k=1;k<pts.length;k++){const a=pts[k-1],b=pts[k];mine.push({a,b,h:Math.abs(b.y-a.y)<0.01,L:Math.abs(b.x-a.x)+Math.abs(b.y-a.y)});}
+    mine.sort((p,q)=>q.L-p.L);
+    for(const sg of mine){
+      if(sg.L<14) continue;
+      for(const f of [0.5,0.4,0.6,0.3,0.7,0.2,0.8,0.15,0.85,0.1,0.9]){
+        const x=sg.a.x+(sg.b.x-sg.a.x)*f, y=sg.a.y+(sg.b.y-sg.a.y)*f;
+        // 세로 구간이면 이름표도 세로로 (선 한 가닥 폭 안에 들어가게)
+        const vert=!sg.h, w=vert?th:len, h=vert?len:th;
+        const r={x1:x-w/2-1.5,x2:x+w/2+1.5,y1:y-h/2-1.5,y2:y+h/2+1.5};
+        if(sg.L<len*0.7) continue;
+        if(r.x1<view[0]+2||r.x2>view[0]+view[2]-2||r.y1<view[1]+2||r.y2>view[1]+view[3]-2) continue;
+        // mode 0: 다른 선이 전혀 안 지나감 / mode 1: 수직으로 지나가는 건 허용 (같은 방향으로 나란히 겹치는 건 안 됨)
+        if(!(r.x2<bbr[0]||r.x1>bbr[2]||r.y2<bbr[1]||r.y1>bbr[3])) continue;
+        if(segs.some(o=>o.wi!==wi&&hitsSeg(r,o)&&(mode===0||o.h===sg.h))) continue;
+        if(placed.some(o=>!(o.x2<r.x1||o.x1>r.x2||o.y2<r.y1||o.y1>r.y2))) continue;
+        if(endsAll.some(p=>p.x>r.x1-3&&p.x<r.x2+3&&p.y>r.y1-3&&p.y<r.y2+3)) continue;
+        placed.push(r); return {x,y,len,th,vert,label};
+      }
+    }
+    return null;
+  };
+  const out=new Array(routes.length).fill(null);
+  // 먼저 모든 선에 엄격한 자리 → 남은 선은 완화 → 그래도 없으면 짧은 이름
+  for(const [mode,short] of [[0,false],[1,false],[0,true],[1,true]])
+    routes.forEach((pts,wi)=>{ if(out[wi]) return; const w=S.wires[wi];
+      const label=short?shortLabel(w):wireLabel(S,w); if(label) out[wi]=tryPlace(wi,label,mode); });
+  return out;
+}
+function drawTag(g,t,color){
+  const c=WIRE[color], dark=["black","blue","purple","green","brown","red"].includes(color);
+  const tg=el("g",{transform:t.vert?`rotate(-90 ${t.x} ${t.y})`:null},g);
+  el("rect",{x:t.x-t.len/2,y:t.y-t.th/2,width:t.len,height:t.th,rx:2.5,fill:c,stroke:dark?"#ffffff":"#222222","stroke-width":1},tg);
+  el("text",{x:t.x,y:t.y+2.9,"font-size":8,"font-weight":700,"text-anchor":"middle",fill:dark?"#ffffff":"#111111"},tg,t.label);
+}
+// 분압 확대도용: 직각 선을 직접 그림
 function drawWire(g,a,b,color){
-  const d=wirePath(a,b), c=WIRE[color];
-  el("path",{d,class:"glow",stroke:"#7cf7ff","stroke-width":11,fill:"none","stroke-linecap":"round"},g);
-  el("path",{d,stroke:"#00000066","stroke-width":6.2,fill:"none","stroke-linecap":"round"},g);
-  el("path",{d,class:"wcore",stroke:c,"stroke-width":4,fill:"none","stroke-linecap":"round"},g);
-  el("path",{d,stroke:"#ffffff",opacity:.28,"stroke-width":1.2,fill:"none","stroke-linecap":"round",transform:"translate(-0.8 -0.8)"},g);
-  [a,b].forEach(p=>el("circle",{cx:p.x,cy:p.y,r:3.2,fill:"#1b1b1b",stroke:c,"stroke-width":1.5},g));
+  const mid={x:a.x,y:b.y+(a.y>b.y?40:-40)};
+  drawOrthoWire(g,[a,{x:a.x,y:mid.y},{x:b.x,y:mid.y},b],color); drawEnds(g,[a,b],color);
 }
 
 /* 장면 */
@@ -665,18 +920,20 @@ function buttonHoles(S,c){return [bbHole(S.bb,c,"e"),bbHole(S.bb,c+2,"e"),bbHole
 function buildBench(key){
   const S=SCENES[key], host=document.getElementById("bench"+key), nSteps=S.steps.length;
   host.innerHTML=`<div class="stepbar"><button data-act="prev">← 이전</button><div class="stepinfo"><span class="n"></span><span class="t"></span></div><button data-act="next">다음 →</button></div>
-    <div class="stepdots"></div><div class="matscroll"></div><div class="stepdesc"></div><div class="hint">선을 누르면 그 선만 강조되고, 다시 누르면 해제돼. 선 끝 동그라미가 꽂는 위치야. 브레드보드 칸 번호는 1, 5, 10 … 마다 적혀 있어.</div>`;
+    <div class="stepdots"></div><div class="matscroll"></div><div class="stepdesc"></div><div class="hint">선은 직각으로만 꺾이고, 선끼리는 겹치지 않고 수직으로만 교차해. 각 선의 이름표(예: D10)로 구분하고, 선을 누르면 그 선만 강조돼. 선 끝 동그라미가 꽂는 위치야. 브레드보드 칸 번호는 1, 5, 10 … 마다 적혀 있어.</div>`;
   const svg=el("svg",{viewBox:S.view.join(" "),role:"img","aria-label":`보드 ${key} 실물 배선도`},host.querySelector(".matscroll"));
   el("rect",{x:0,y:0,width:S.view[2],height:S.view[3],fill:"#5b7468"},svg);
   for(let x=0;x<S.view[2];x+=40)el("line",{x1:x,x2:x,y1:0,y2:S.view[3],stroke:"#ffffff",opacity:.07},svg);
   for(let y=0;y<S.view[3];y+=40)el("line",{x1:0,x2:S.view[2],y1:y,y2:y,stroke:"#ffffff",opacity:.07},svg);
 
+  const gr=makeGrid(S), sig0=sceneSig(S); alignScene(S,gr);
   const used=new Set(S.wires.flatMap(w=>[w.from,w.to]).filter(r=>r.uno).map(r=>r.uno));
   drawUno(el("g",{},svg),S.uno,used);
   drawBB(el("g",{},svg),S.bb);
   S.mods.forEach(m=>{const g=el("g",{},svg);MODS[m.type].draw(g,m);
-    const ly=m.type==="link"?m.y-20:m.type==="psu"?m.y+28*MM+16:m.y-7;
-    el("text",{x:m.type==="link"?m.x-4*MM:m.x,y:ly,"font-size":12,"font-weight":700,fill:"#ffffff"},g,m.label);});
+    const lb=m.type==="link"?MODBOX.link(m):null;
+    const ly=m.type==="link"?(m.down?lb[1]+14:lb[3]-6):m.type==="psu"?m.y+28*MM+16:m.y-7;
+    el("text",{x:m.type==="link"?lb[0]+6:m.x,y:ly,"font-size":11,"font-weight":700,fill:"#ffffff"},g,m.label);});
 
   const items=[];
   S.parts.forEach(pt=>{
@@ -684,16 +941,25 @@ function buildBench(key){
     if(pt.type==="res"){const a=refPos(S,pt.a),b=refPos(S,pt.b);
       el("line",{x1:a.x,y1:a.y,x2:b.x,y2:b.y,class:"glow",stroke:"#7cf7ff","stroke-width":12,"stroke-linecap":"round"},g);drawResistor(g,a,b,pt.ohm);}
     if(pt.type==="led"){const a=refPos(S,pt.a),k=refPos(S,pt.k),b=ledBody(a);el("circle",{cx:b.x,cy:b.y,r:13,class:"glow",fill:"#7cf7ff"},g);drawLED(g,a,k,pt.color);}
-    if(pt.type==="cap"){const p=refPos(S,pt.p),n=refPos(S,pt.n);el("circle",{cx:p.x,cy:p.y-36,r:22,class:"glow",fill:"#7cf7ff"},g);drawCap(g,p,n);}
+    if(pt.type==="cap"){const p=refPos(S,pt.p),n=refPos(S,pt.n),cb=capBody(p,n);el("circle",{cx:cb.x,cy:cb.y,r:20,class:"glow",fill:"#7cf7ff"},g);drawCap(g,p,n);}
     if(pt.type==="button"){const h=buttonHoles(S,pt.col);el("rect",{x:h[0].x-9,y:h[0].y-9,width:h[1].x-h[0].x+18,height:h[2].y-h[0].y+18,class:"glow",fill:"#7cf7ff",rx:4},g);drawButton(g,h);}
     items.push(g);
   });
+  const sig=sig0;
+  const cached=(typeof ROUTE_CACHE!=="undefined")&&ROUTE_CACHE[key]&&ROUTE_CACHE[key].sig===sig?ROUTE_CACHE[key].routes:null;
+  const cellRoutes=cached||routeScene(S,gr,null,2).routes;
+  if(typeof window!=="undefined") (window.__routeInfo=window.__routeInfo||{})[key]={sig,cached:!!cached,S,gr};
+  const routes=cellRoutes.map((full,i)=>cellsToPts(S,gr,S.wires[i],full));
   S.wires.forEach((w,i)=>{
     const g=el("g",{class:"el wire","data-step":w.step,"data-k":i},svg);
-    drawWire(g,refPos(S,w.from),refPos(S,w.to),w.color);
+    drawOrthoWire(g,routes[i],w.color);
     el("title",{},g,`${refText(S,w.from)} → ${refText(S,w.to)}`);
     items.push(g);
   });
+  S.wires.forEach((w,i)=>{ const g=el("g",{class:"el wire","data-step":w.step,"data-k":i},svg); drawEnds(g,routes[i],w.color); items.push(g); });
+  // 이름표는 모든 선을 그린 뒤 맨 위에 (다른 선에 가려지지 않게). 단계 표시·선택도 그 선과 같이 움직임
+  placeTags(S,routes,S.view).forEach((t,i)=>{ if(!t) return; const w=S.wires[i];
+    const g=el("g",{class:"el wire","data-step":w.step,"data-k":i},svg); drawTag(g,t,w.color); items.push(g); });
 
   // 표: 단계별로 부품 → 선 순서
   const tb=document.querySelector(`#table${key} tbody`);
@@ -746,33 +1012,36 @@ function buildBench(key){
 function buildDivider(){
   const svg=document.getElementById("divSvg");
   el("rect",{x:0,y:0,width:1000,height:440,fill:"#5b7468"},svg);
-  const p=P*3, bx=110, by=70;
-  el("rect",{x:bx-50,y:by-46,width:p*8+90,height:p*7+110,rx:10,fill:"#f3f1ea",stroke:"#cfcbbd"},svg);
-  const hx=c=>bx+(c-1)*p, ry=r=>by+({"T+":0,"T-":1,a:2.6,b:3.6,c:4.6,d:5.6,e:6.6})[r]*p;
-  el("line",{x1:bx-30,x2:bx+p*8+24,y1:ry("T+")-p*0.45,y2:ry("T+")-p*0.45,stroke:"#d93025","stroke-width":2},svg);
-  el("line",{x1:bx-30,x2:bx+p*8+24,y1:ry("T-")+p*0.45,y2:ry("T-")+p*0.45,stroke:"#2f6fe0","stroke-width":2},svg);
-  el("text",{x:bx-42,y:ry("T+")+6,"font-size":17,fill:"#d93025","font-weight":700},svg,"+");
-  el("text",{x:bx-42,y:ry("T-")+6,"font-size":17,fill:"#2f6fe0","font-weight":700},svg,"−");
+  // 브레드보드 아래쪽 절반(f~j줄)과 그 아래 레일 2줄(− 위, + 아래)을 3배 확대
+  const p=P*3, bx=110, by=100;
+  const hx=c=>bx+(c-1)*p, ry=r=>by+({f:0,g:1,h:2,i:3,j:4,"B-":5.6,"B+":6.6})[r]*p;
+  el("rect",{x:bx-50,y:by-34,width:p*8+90,height:ry("B+")-by+120,rx:10,fill:"#f3f1ea",stroke:"#cfcbbd"},svg);
+  el("line",{x1:bx-30,x2:bx+p*8+24,y1:ry("B-")-p*0.45,y2:ry("B-")-p*0.45,stroke:"#2f6fe0","stroke-width":2},svg);
+  el("line",{x1:bx-30,x2:bx+p*8+24,y1:ry("B+")+p*0.45,y2:ry("B+")+p*0.45,stroke:"#d93025","stroke-width":2},svg);
+  el("text",{x:bx-42,y:ry("B-")+6,"font-size":17,fill:"#2f6fe0","font-weight":700},svg,"−");
+  el("text",{x:bx-42,y:ry("B+")+6,"font-size":17,fill:"#d93025","font-weight":700},svg,"+");
   for(let c=1;c<=9;c++){
-    ["T+","T-","a","b","c","d","e"].forEach(r=>{if((r==="T+"||r==="T-")&&!RAIL_COLS.includes(c))return;el("rect",{x:hx(c)-6,y:ry(r)-6,width:12,height:12,rx:2,fill:"#3a3a36"},svg);});
+    ["f","g","h","i","j","B-","B+"].forEach(r=>{if((r==="B+"||r==="B-")&&!RAIL_COLS.includes(c))return;el("rect",{x:hx(c)-6,y:ry(r)-6,width:12,height:12,rx:2,fill:"#3a3a36"},svg);});
   }
-  "abcde".split("").forEach(r=>el("text",{x:bx-30,y:ry(r)+5,"font-size":13,"text-anchor":"middle",fill:"#8a8676"},svg,r));
-  [[1,"P","아두이노 핀"],[4,"Q","중간"],[7,"N","모듈로"]].forEach(([c,n,t])=>{
-    el("rect",{x:hx(c)-12,y:ry("a")-12,width:24,height:ry("e")-ry("a")+24,rx:6,fill:"none",stroke:"#00838c","stroke-width":2.5,"stroke-dasharray":"5 4"},svg);
-    el("text",{x:hx(c),y:ry("e")+38,"font-size":15,"font-weight":700,"text-anchor":"middle",fill:"#00838c"},svg,n+"칸");
-    el("text",{x:hx(c),y:ry("e")+55,"font-size":11.5,"text-anchor":"middle",fill:"#4c5d58"},svg,t);
+  "fghij".split("").forEach(r=>el("text",{x:bx-30,y:ry(r)+5,"font-size":13,"text-anchor":"middle",fill:"#8a8676"},svg,r));
+  [[1,"P","아두이노 핀"],[4,"N","모듈로"],[7,"X","아래 저항 잇기"]].forEach(([c,n,t])=>{
+    el("rect",{x:hx(c)-12,y:ry("f")-12,width:24,height:ry("j")-ry("f")+24,rx:6,fill:"none",stroke:"#00838c","stroke-width":2.5,"stroke-dasharray":"5 4"},svg);
+    el("text",{x:hx(c),y:ry("B+")+40,"font-size":15,"font-weight":700,"text-anchor":"middle",fill:"#00838c"},svg,n+"칸");
+    el("text",{x:hx(c),y:ry("B+")+57,"font-size":11.5,"text-anchor":"middle",fill:"#4c5d58"},svg,t);
   });
-  drawResistor(svg,{x:hx(1),y:ry("c")},{x:hx(4),y:ry("c")},220,2.6);
-  drawResistor(svg,{x:hx(4),y:ry("b")},{x:hx(7),y:ry("b")},220,2.6);
-  drawResistor(svg,{x:hx(7),y:ry("a")},{x:hx(8),y:ry("T-")},1000,2.2);
-  drawWire(svg,{x:hx(1)-70,y:ry("e")+90,d:[0,-1]},{x:hx(1),y:ry("e")},"yellow");
-  drawWire(svg,{x:hx(7)+150,y:ry("d")+70,d:[0,-1]},{x:hx(7),y:ry("d")},"yellow");
-  el("text",{x:hx(1)-70,y:ry("e")+108,"font-size":12,"text-anchor":"middle",fill:"#fff"},svg,"← 우노 D10 (5V)");
-  el("text",{x:hx(7)+150,y:ry("d")+88,"font-size":12,"text-anchor":"middle",fill:"#fff"},svg,"RC522 SDA로 (3.47V) →");
-  el("text",{x:(hx(1)+hx(4))/2,y:ry("c")+26,"font-size":12,"text-anchor":"middle",fill:"#1d1f22"},svg,"220Ω");
-  el("text",{x:(hx(4)+hx(7))/2,y:ry("b")-14,"font-size":12,"text-anchor":"middle",fill:"#1d1f22"},svg,"220Ω");
-  el("text",{x:hx(8)+12,y:ry("a")-6,"font-size":12,fill:"#1d1f22"},svg,"1kΩ");
-  el("text",{x:hx(9)+30,y:ry("T-")+5,"font-size":11,fill:"#ffffff"},svg,"← 1·7번 칸엔 레일 구멍이 없어서 8번에");
+  drawResistor(svg,{x:hx(1),y:ry("h")},{x:hx(4),y:ry("h")},2000,2.6);
+  drawResistor(svg,{x:hx(4),y:ry("i")},{x:hx(7),y:ry("i")},2000,2.6);
+  drawResistor(svg,{x:hx(7),y:ry("j")},{x:hx(8),y:ry("B-")},2000,1.9);
+  // 선은 위쪽에서 칸 사이 틈으로 내려와 구멍에 꽂힘 (칸 이름표를 가리지 않게)
+  const yIn=by-62, yLane=ry("f")-p/2;
+  drawOrthoWire(svg,[{x:hx(1)-60,y:yIn},{x:hx(1)-60,y:yLane},{x:hx(1),y:yLane},{x:hx(1),y:ry("f")}],"green"); drawEnds(svg,[{x:hx(1)-60,y:yIn},{x:hx(1),y:ry("f")}],"green");
+  drawOrthoWire(svg,[{x:hx(9)+80,y:yIn},{x:hx(9)+80,y:yLane},{x:hx(4)+p/2,y:yLane},{x:hx(4)+p/2,y:ry("g")},{x:hx(4),y:ry("g")}],"green"); drawEnds(svg,[{x:hx(9)+80,y:yIn},{x:hx(4),y:ry("g")}],"green");
+  el("text",{x:hx(1)-60,y:yIn-10,"font-size":12,"text-anchor":"start",fill:"#fff"},svg,"우노 D13 (5V)");
+  el("text",{x:hx(9)+80,y:yIn-10,"font-size":12,"text-anchor":"middle",fill:"#fff"},svg,"RC522 SCK로 (3.33V)");
+  el("text",{x:(hx(1)+hx(4))/2,y:ry("h")-14,"font-size":12,"text-anchor":"middle",fill:"#1d1f22"},svg,"위 2kΩ");
+  el("text",{x:(hx(4)+hx(7))/2,y:ry("i")+26,"font-size":12,"text-anchor":"middle",fill:"#1d1f22"},svg,"아래 2kΩ");
+  el("text",{x:hx(8)+14,y:(ry("j")+ry("B-"))/2+4,"font-size":12,fill:"#1d1f22"},svg,"아래 2kΩ (세워서)");
+  el("text",{x:hx(9)+30,y:ry("B-")+5,"font-size":11,fill:"#ffffff"},svg,"← j줄 바로 아래가 − 레일");
 
   const ox=660, oy=50, ink="#ffffff";
   el("text",{x:ox,y:oy,"font-size":14,"font-weight":700,fill:ink},svg,"회로도");
@@ -781,16 +1050,16 @@ function buildDivider(){
   const X=ox+70;
   el("text",{x:X,y:oy+28,"font-size":13,"text-anchor":"middle",fill:"#f2c200"},svg,"아두이노 핀 (5V)");
   el("circle",{cx:X,cy:oy+40,r:4,fill:"#f2c200"},svg);
-  line(X,oy+40,X,oy+55); zig(X,oy+55,oy+100,"220Ω"); line(X,oy+100,X,oy+110); zig(X,oy+110,oy+155,"220Ω");
+  line(X,oy+40,X,oy+70); zig(X,oy+70,oy+140,"위 2kΩ"); line(X,oy+140,X,oy+155);
   line(X,oy+155,X,oy+185); el("circle",{cx:X,cy:oy+185,r:5,fill:ink},svg);
   line(X,oy+185,X+120,oy+185); el("circle",{cx:X+120,cy:oy+185,r:4,fill:"#f2c200"},svg);
   el("text",{x:X+130,y:oy+181,"font-size":13,fill:"#f2c200"},svg,"모듈 핀");
-  el("text",{x:X+130,y:oy+199,"font-size":13,fill:"#f2c200"},svg,"≈ 3.47V");
-  line(X,oy+185,X,oy+205); zig(X,oy+205,oy+260,"1kΩ"); line(X,oy+260,X,oy+280);
+  el("text",{x:X+130,y:oy+199,"font-size":13,fill:"#f2c200"},svg,"≈ 3.33V");
+  line(X,oy+185,X,oy+195); zig(X,oy+195,oy+228,"아래 2kΩ"); line(X,oy+228,X,oy+236); zig(X,oy+236,oy+269,"아래 2kΩ"); line(X,oy+269,X,oy+280);
   line(X-18,oy+280,X+18,oy+280); line(X-12,oy+287,X+12,oy+287); line(X-6,oy+294,X+6,oy+294);
   el("text",{x:X+30,y:oy+291,"font-size":13,fill:ink},svg,"GND");
-  el("text",{x:ox,y:oy+335,"font-size":13,fill:ink},svg,"Vout = 5 × 1000 / 1440 ≈ 3.47 V");
-  el("text",{x:ox,y:oy+357,"font-size":13,fill:ink},svg,"I = 5 / 1440 ≈ 3.5 mA");
+  el("text",{x:ox,y:oy+335,"font-size":13,fill:ink},svg,"Vout = 5 × 4k / (2k + 4k) ≈ 3.33 V");
+  el("text",{x:ox,y:oy+357,"font-size":13,fill:ink},svg,"SDA는 10kΩ, HC-06은 220Ω 조합 (표 참고)");
 }
 
 function buildLegend(){
@@ -798,20 +1067,24 @@ function buildLegend(){
   drawResistor(g,{x:16,y:28},{x:150,y:28},220,2.2);
   el("text",{x:168,y:26,"font-size":13,fill:"var(--ink)"},g,"220Ω");
   el("text",{x:168,y:43,"font-size":11,fill:"var(--muted)"},g,"빨강 빨강 갈색 금");
-  drawResistor(g,{x:16,y:74},{x:150,y:74},1000,2.2);
-  el("text",{x:168,y:72,"font-size":13,fill:"var(--ink)"},g,"1kΩ");
-  el("text",{x:168,y:89,"font-size":11,fill:"var(--muted)"},g,"갈색 검정 빨강 금");
+  drawResistor(g,{x:16,y:74},{x:150,y:74},2000,2.2);
+  el("text",{x:168,y:72,"font-size":13,fill:"var(--ink)"},g,"2kΩ");
+  el("text",{x:168,y:89,"font-size":11,fill:"var(--muted)"},g,"빨강 검정 빨강 금");
+  drawResistor(g,{x:16,y:120},{x:150,y:120},10000,2.2);
+  el("text",{x:168,y:118,"font-size":13,fill:"var(--ink)"},g,"10kΩ");
+  el("text",{x:168,y:135,"font-size":11,fill:"var(--muted)"},g,"갈색 검정 주황 금");
 }
 
 function buildChecks(){
   const CHECKS=[
    ["c","보드 A: RC522 3.3V 선과 RST 선이 위쪽 + 레일에 있고, 그 레일은 우노 3.3V에서 왔다"],
-   ["c","보드 A: SDA·SCK·MOSI 세 채널 모두 220Ω 2개 + 1kΩ 1개가 들어가 있다 (MISO만 직결)"],
+   ["c","보드 A: SCK·MOSI는 2kΩ 3개, SDA는 10kΩ 3개 (위 1개 + 아래 2개 직렬). MISO만 직결"],
+   ["c","레일 쌍마다 −가 위, +가 아래인 걸 확인했다. 보드 A 분압 3채널의 마지막 저항은 j줄 바로 아래 − 레일, 보드 B HC-06 점퍼는 맨 위 − 레일에 있다 (전원 끄고 N칸↔− 레일: SCK·MOSI ≈ 4kΩ, SDA ≈ 20kΩ, HC-06 ≈ 880Ω)"],
    ["c","보드 B: 위 + 레일(우노 5V)과 아래 + 레일(외부 5V) 사이에 연결된 선이 없다"],
    ["c","보드 B: 서보 빨강선은 아래 + 레일(외부 5V)에만 꽂혀 있다"],
    ["c","보드 B: 470µF의 띠(−) 다리가 − 레일에 꽂혀 있다"],
    ["c","두 보드의 5V 핀끼리 연결된 선이 없다"],
-   ["s","보드 B: HC-06 RXD 앞에 220Ω 2개 + 1kΩ 분압이 있다"],
+   ["s","보드 B: HC-06 분압이 위 220Ω 2개 + 아래 220Ω 4개이고, RXD 선이 그 사이(8d)에 있다"],
    ["s","보드 B: 외부전원 GND와 우노 GND가 아래 − 레일에서 만난다"],
    ["s","LED 긴 다리(+)가 저항 쪽, 짧은 다리(−)가 − 레일 쪽이다"],
    ["s","멀티미터 통전 모드: 각 + 레일과 − 레일 사이에서 삐 소리가 나지 않는다"],
@@ -830,5 +1103,6 @@ function buildChecks(){
 }
 
 buildLegend(); buildChecks(); buildDivider(); buildBench("A"); buildBench("B");
+window.__optimize=(key,trials)=>{const I=window.__routeInfo[key];const r=optimizeRoutes(I.S,I.gr,trials);return {sig:I.sig,score:r.score,routes:r.routes};};
 })();
 </script>

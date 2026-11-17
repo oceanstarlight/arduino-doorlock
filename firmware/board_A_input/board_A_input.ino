@@ -27,9 +27,10 @@
 #include <SoftwareSerial.h>
 
 // ---------------- 핀 배치 ----------------
-// 키패드 : R1~R4 = D8, D7, D6, D5 / C1~C4 = D4, D3, D2, A0
+// 키패드 : 핀 위(1번)부터 C4 C3 C2 C1 R1 R2 R3 R4 → D8 D7 D6 D5 D4 D3 D2 A0 에 차례대로
+//          (R1~R4 = D4, D3, D2, A0 / C1~C4 = D5, D6, D7, D8)
 // RFID   : SDA(SS)=D10, SCK=D13, MOSI=D11, MISO=D12, RST=3.3V 직결, 3.3V, GND
-//          (SDA·SCK·MOSI 는 220Ω+220Ω / 1kΩ 분압 → 약 3.47V)
+//          (분압 → 약 3.33V : SCK·MOSI 는 2kΩ / 2kΩ+2kΩ, SDA 는 10kΩ / 10kΩ+10kΩ)
 // LCD    : SDA=A4, SCL=A5, VCC=5V, GND
 // 링크   : A1(RX) <- 보드B D5 / A2(TX) -> 보드B D4
 const uint8_t PIN_RFID_SS  = 10;
@@ -68,8 +69,8 @@ char keys[ROWS][COLS] = {
   {'7', '8', '9', 'C'},
   {'*', '0', '#', 'D'},
 };
-byte rowPins[ROWS] = {8, 7, 6, 5};
-byte colPins[COLS] = {4, 3, 2, A0};
+byte rowPins[ROWS] = {4, 3, 2, A0};   // R1, R2, R3, R4
+byte colPins[COLS] = {5, 6, 7, 8};    // C1, C2, C3, C4
 
 Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
 // RST 핀을 3.3V 에 바로 연결했으므로 리셋 핀은 '사용 안 함'으로 지정 → 라이브러리가 소프트 리셋 사용
