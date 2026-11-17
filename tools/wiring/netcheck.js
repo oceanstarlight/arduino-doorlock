@@ -48,22 +48,22 @@ function check(name, expected, btnOrient){
   return got;
 }
 const A=[
- ['U:D10','P:R1.a'],['P:R1.b','P:R2.a','M:rc.SDA'],['P:R2.b','P:R3.a'],
- ['U:D13','P:R4.a'],['P:R4.b','P:R5.a','M:rc.SCK'],['P:R5.b','P:R6.a'],
- ['U:D11','P:R7.a'],['P:R7.b','P:R8.a','M:rc.MOSI'],['P:R8.b','P:R9.a'],
+ ['U:D10','P:R1.a'],['P:R1.b','P:R2.a','M:rc.SDA'],
+ ['U:D13','P:R3.a'],['P:R3.b','P:R4.a','M:rc.SCK'],
+ ['U:D11','P:R5.a'],['P:R5.b','P:R6.a','M:rc.MOSI'],
  ['U:D12','M:rc.MISO'],
  ['U:3V3','M:rc.3.3V','M:rc.RST'],
- ['U:GND_T','U:GND_B1','U:GND_B2','P:R3.b','P:R6.b','P:R9.b','M:rc.GND','M:lcd.GND','M:lkA.GND'],
+ ['U:GND_T','U:GND_B1','U:GND_B2','P:R2.b','P:R4.b','P:R6.b','M:rc.GND','M:lcd.GND','M:lkA.GND'],
  ['U:5V','M:lcd.VCC'],['U:A4','M:lcd.SDA'],['U:A5','M:lcd.SCL'],
  ['U:D8','M:kp.C4'],['U:D7','M:kp.C3'],['U:D6','M:kp.C2'],['U:D5','M:kp.C1'],['U:D4','M:kp.R1'],['U:D3','M:kp.R2'],['U:D2','M:kp.R3'],['U:A0','M:kp.R4'],
  ['U:A2','M:lkA.B D4'],['U:A1','M:lkA.B D5'],
 ];
 check('A',A);
 const Bexp=[
- ['U:D1','P:R1.a'],['P:R1.b','P:R2.a'],['P:R2.b','P:R3.a','M:bt.RXD'],['P:R3.b','P:R4.a'],['P:R4.b','P:R5.a'],['P:R5.b','P:R6.a'],
+ ['U:D1','P:R1.a'],['P:R1.b','P:R2.a','M:bt.RXD'],
  ['U:D0','M:bt.TXD'],
  ['U:5V','M:bt.VCC','M:sr.VCC'],
- ['U:GND_T','U:GND_B1','P:R6.b','M:bt.GND','M:sr.GND','P:LR.k','P:LY.k','P:LG.k','P:SW.br','M:ps.GND','M:sv.GND','P:C1.n','M:lkB.GND'],
+ ['U:GND_T','U:GND_B1','P:R2.b','M:bt.GND','M:sr.GND','P:LR.k','P:LY.k','P:LG.k','P:SW.br','M:ps.GND','M:sv.GND','P:C1.n','M:lkB.GND'],
  ['U:D6','M:sr.Trig'],['U:D7','M:sr.Echo'],
  ['U:D12','P:RR.a'],['P:RR.b','P:LR.a'],['U:D11','P:RY.a'],['P:RY.b','P:LY.a'],['U:D10','P:RG.a'],['P:RG.b','P:LG.a'],
  ['U:D2','P:SW.tl'],

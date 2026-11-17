@@ -30,7 +30,7 @@
 // 키패드 : 핀 위(1번)부터 C4 C3 C2 C1 R1 R2 R3 R4 → D8 D7 D6 D5 D4 D3 D2 A0 에 차례대로
 //          (R1~R4 = D4, D3, D2, A0 / C1~C4 = D5, D6, D7, D8)
 // RFID   : SDA(SS)=D10, SCK=D13, MOSI=D11, MISO=D12, RST=3.3V 직결, 3.3V, GND
-//          (분압 → 약 3.33V : SCK·MOSI 는 2kΩ / 2kΩ+2kΩ, SDA 는 10kΩ / 10kΩ+10kΩ)
+//          (SDA·SCK·MOSI 는 핀 → 1kΩ → [RC522] → 2kΩ → GND 분압 → 약 3.33V)
 // LCD    : SDA=A4, SCL=A5, VCC=5V, GND
 // 링크   : A1(RX) <- 보드B D5 / A2(TX) -> 보드B D4
 const uint8_t PIN_RFID_SS  = 10;
