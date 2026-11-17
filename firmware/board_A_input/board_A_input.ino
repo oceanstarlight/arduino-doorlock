@@ -29,7 +29,7 @@
 // ---------------- 핀 배치 ----------------
 // 키패드 : R1~R4 = D8, D7, D6, D5 / C1~C4 = D4, D3, D2, A0
 // RFID   : SDA(SS)=D10, SCK=D13, MOSI=D11, MISO=D12, RST=3.3V 직결, 3.3V, GND
-//          (SDA·SCK·MOSI 는 핀 → 1kΩ → [RC522] → 2kΩ → GND 분압 → 약 3.33V)
+//          (분압 → 약 3.33V : SCK·MOSI 는 2kΩ / 2kΩ+2kΩ, SDA 는 10kΩ / 10kΩ+10kΩ)
 // LCD    : SDA=A4, SCL=A5, VCC=5V, GND
 // 링크   : A1(RX) <- 보드B D5 / A2(TX) -> 보드B D4
 const uint8_t PIN_RFID_SS  = 10;

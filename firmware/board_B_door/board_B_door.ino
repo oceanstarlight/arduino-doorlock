@@ -28,7 +28,7 @@
 
 // ---------------- 핀 배치 ----------------
 // D0 (RX) <- HC-06 TXD         (하드웨어 시리얼 = 블루투스)
-// D1 (TX) -> 1kΩ -> HC-06 RXD, RXD -> 2kΩ -> GND (분압, HC-06 RX는 3.3V 레벨!)
+// D1 (TX) -> 220Ω+220Ω -> HC-06 RXD, RXD -> 220Ω×4 -> GND (분압 약 3.33V, HC-06 RX는 3.3V 레벨!)
 const uint8_t PIN_BUTTON  = 2;   // 실내 열림 버튼 (INT0)
 const uint8_t PIN_LINK_RX = 4;   // <- 보드 A 의 A2 (TX)
 const uint8_t PIN_LINK_TX = 5;   // -> 보드 A 의 A1 (RX)
