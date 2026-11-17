@@ -55,7 +55,7 @@ const A=[
  ['U:3V3','M:rc.3.3V','M:rc.RST'],
  ['U:GND_T','U:GND_B1','U:GND_B2','P:R3.b','P:R6.b','P:R9.b','M:rc.GND','M:lcd.GND','M:lkA.GND'],
  ['U:5V','M:lcd.VCC'],['U:A4','M:lcd.SDA'],['U:A5','M:lcd.SCL'],
- ['U:D8','M:kp.R1'],['U:D7','M:kp.R2'],['U:D6','M:kp.R3'],['U:D5','M:kp.R4'],['U:D4','M:kp.C1'],['U:D3','M:kp.C2'],['U:D2','M:kp.C3'],['U:A0','M:kp.C4'],
+ ['U:D8','M:kp.C4'],['U:D7','M:kp.C3'],['U:D6','M:kp.C2'],['U:D5','M:kp.C1'],['U:D4','M:kp.R1'],['U:D3','M:kp.R2'],['U:D2','M:kp.R3'],['U:A0','M:kp.R4'],
  ['U:A2','M:lkA.B D4'],['U:A1','M:lkA.B D5'],
 ];
 check('A',A);
