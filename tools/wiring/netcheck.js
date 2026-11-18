@@ -53,21 +53,17 @@ const A=[
  ['U:D11','P:R5.a'],['P:R5.b','P:R6.a','M:rc.MOSI'],
  ['U:D12','M:rc.MISO'],
  ['U:3V3','M:rc.3.3V','M:rc.RST'],
- ['U:GND_T','U:GND_B1','U:GND_B2','P:R2.b','P:R4.b','P:R6.b','M:rc.GND','M:lcd.GND','M:lkA.GND'],
- ['U:5V','M:lcd.VCC'],['U:A4','M:lcd.SDA'],['U:A5','M:lcd.SCL'],
+ ['U:GND_T','U:GND_B1','U:GND_B2','P:R2.b','P:R4.b','P:R6.b','M:rc.GND','M:lcd.GND','M:lkA.GND','M:pir.GND'],
+ ['U:5V','M:lcd.VCC','M:pir.VCC'],['U:D9','M:pir.OUT'],['U:A4','M:lcd.SDA'],['U:A5','M:lcd.SCL'],
  ['U:D8','M:kp.C4'],['U:D7','M:kp.C3'],['U:D6','M:kp.C2'],['U:D5','M:kp.C1'],['U:D4','M:kp.R1'],['U:D3','M:kp.R2'],['U:D2','M:kp.R3'],['U:A0','M:kp.R4'],
  ['U:A2','M:lkA.B D4'],['U:A1','M:lkA.B D5'],
 ];
 check('A',A);
 const Bexp=[
- ['U:D1','P:R1.a'],['P:R1.b','P:R2.a','M:bt.RXD'],
- ['U:D0','M:bt.TXD'],
- ['U:5V','M:bt.VCC','M:sr.VCC'],
- ['U:GND_T','U:GND_B1','P:R2.b','M:bt.GND','M:sr.GND','P:LR.k','P:LY.k','P:LG.k','P:SW.br','M:ps.GND','M:sv.GND','P:C1.n','M:lkB.GND'],
- ['U:D6','M:sr.Trig'],['U:D7','M:sr.Echo'],
- ['U:D12','P:RR.a'],['P:RR.b','P:LR.a'],['U:D11','P:RY.a'],['P:RY.b','P:LY.a'],['U:D10','P:RG.a'],['P:RG.b','P:LG.a'],
+ ['U:GND_T','U:GND_B1','P:LR.k','P:LG.k','P:SW.br','M:sv.GND','P:C1.n','M:lkB.GND'],
+ ['U:D12','P:RR.a'],['P:RR.b','P:LR.a'],['U:D10','P:RG.a'],['P:RG.b','P:LG.a'],
  ['U:D2','P:SW.tl'],
- ['M:ps.+5V','M:sv.V+','P:C1.p'],
+ ['U:5V','M:sv.V+','P:C1.p'],
  ['U:A0','M:sv.SIG'],
  ['U:D4','M:lkB.A A2'],['U:D5','M:lkB.A A1'],
 ];
