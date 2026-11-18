@@ -6,14 +6,13 @@
  *   - 4x4 키패드 비밀번호 입력  ('*' = 지우기, '#' = 확인)
  *   - RC522 RFID 카드/태그 인식
  *   - I2C 1602 LCD 에 입력/상태 표시
- *   - 보드 B 와 SoftwareSerial(UART) 통신 : 인증 결과 전송, 문 상태 수신
+ *   - 보드 B 와 UART 통신 : 인증 결과 전송, 문 상태 수신
  *
- *  필요한 라이브러리 (라이브러리 매니저에서 설치)
+ *  필요한 라이브러리 (라이브러리 매니저)
  *   - Keypad            (Mark Stanley, Alexander Brevig)
  *   - MFRC522           (GithubCommunity / miguelbalboa)
  *   - LiquidCrystal I2C (Frank de Brabander)
  *
- *  ※ RC522 는 반드시 3.3V 에 연결! 5V 에 꽂으면 모듈이 망가질 수 있음.
  * ================================================================
  */
 
@@ -25,22 +24,19 @@
 #include <SoftwareSerial.h>
 
 // ---------------- 핀 배치 ----------------
-// 키패드 : 핀 위(1번)부터 C4 C3 C2 C1 R1 R2 R3 R4 → D8 D7 D6 D5 D4 D3 D2 A0 에 차례대로
-// RFID   : SDA(SS)=D10, SCK=D13, MOSI=D11, MISO=D12, RST=3.3V 직결, 3.3V, GND
-//          (SDA·SCK·MOSI 는 핀 → 1kΩ → [RC522] → 2kΩ → GND 분압 → 약 3.33V)
-// LCD    : SDA=A4, SCL=A5, VCC=5V, GND
-// 링크   : A1(RX) <- 보드B D5 / A2(TX) -> 보드B D4
+// 키패드 : 핀 위(1번)부터 C4 C3 C2 C1 R1 R2 R3 R4 → D8 D7 D6 D5 D4 D3 D2 A0 차례대로
+
 const uint8_t PIN_RFID_SS = 10;
 const uint8_t PIN_LINK_RX = A1;
 const uint8_t PIN_LINK_TX = A2;
-const uint8_t LCD_ADDR    = 0x27;   // 안 되면 0x3F 로 바꿔보기
+const uint8_t LCD_ADDR    = 0x27; 
 
 // ---------------- 설정값 ----------------
 const char PASSWORD[]   = "1234";        // 키패드 비밀번호
 const uint8_t MAX_INPUT = 8;             // 최대 입력 자릿수
 const unsigned long MSG_MS = 3000;       // 안내 메시지 표시 시간
 
-// 등록된 RFID UID (A3_rfid_test 로 카드를 찍어서 나온 값을 여기에 적기)
+// 등록된 RFID UID (A3_rfid_test 로 카드를 찍어서 나온 값을 여기에)
 const uint8_t UID_COUNT = 2;
 const uint8_t ALLOWED_UID[UID_COUNT][4] = {
   {0xDE, 0xAD, 0xBE, 0xEF},   // 예시 1 → 내 카드 UID 로 교체
@@ -137,7 +133,7 @@ void handleRfid() {
   if (!rfid.PICC_ReadCardSerial())   return;
 
   bool ok = false;
-  if (rfid.uid.size == 4) {               // 일반 MIFARE 카드는 4바이트 UID
+  if (rfid.uid.size == 4) {               // MIFARE 카드 4바이트 UID
     for (uint8_t n = 0; n < UID_COUNT && !ok; n++) {
       ok = (memcmp(rfid.uid.uidByte, ALLOWED_UID[n], 4) == 0);
     }
@@ -151,6 +147,7 @@ void handleRfid() {
 
 // ================================================================
 //  보드 B 에서 오는 상태 메시지 ("ST:OPEN:BT", "ST:LOCK" 등)
+//  TX/RX 양방향 통신을 위한 함수이며, 없어도 정상 동작한다.
 // ================================================================
 void handleStatus(const char *buf) {
   if (strncmp(buf, "ST:", 3) != 0) return;
@@ -168,7 +165,7 @@ void handleStatus(const char *buf) {
   }
 }
 
-// 보드 B 에서 오는 글자를 모아 '\r' 또는 '\n' 이 오면 한 줄로 처리 (빈 줄은 무시)
+// 보드 B 에서 오는 글자를 모아 '\r' 또는 '\n' 이 오면 한 줄로 처리
 void handleLink() {
   static char buf[20];
   static uint8_t len = 0;
