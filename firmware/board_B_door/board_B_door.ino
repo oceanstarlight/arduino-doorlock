@@ -50,8 +50,6 @@ const uint8_t  FAIL_TICKS     = 20;       // 실패 시 빨강 깜빡임 2초
 const uint8_t  SERVO_OFF_TICK = 8;        // 이동 후 0.8초 뒤 서보 detach (떨림 방지)
 const int      NEAR_CM        = 100;      // 1m
 const uint8_t  NEAR_COUNT_OK  = 3;        // 연속 3번 1m 이내여야 열림 (오작동 방지)
-const uint8_t  BT_MAX_FAIL    = 3;        // BT 비밀번호 연속 실패 허용 횟수
-const unsigned long BT_LOCKOUT_MS = 30000; // 초과 시 30초 BT 입력 차단
 
 SoftwareSerial link(PIN_LINK_RX, PIN_LINK_TX);
 Servo lockServo;
@@ -101,7 +99,8 @@ void isrTick() {
 }
 
 // ---------------- 보드 A 로 상태 전송 ----------------
-// 형식: "ST:<상태>\n"  예) ST:OPEN:BT, ST:LOCK, ST:ARM
+// 형식: "ST:<상태>\n"  예) ST:OPEN:BT, ST:LOCK
+// 보드 A 는 OPEN·LOCK 만 LCD 에 표시하고 나머지(ARM 등)는 무시함. 폰에는 전부 보임
 void sendStatus(const char *msg) {
   link.print(F("ST:"));
   link.println(msg);
@@ -199,8 +198,6 @@ void loop() {
   static uint8_t btLen = 0,   linkLen = 0;
   static unsigned long lastSonar = 0;
   static uint8_t nearCount = 0;
-  static uint8_t btFail = 0;
-  static unsigned long btLockUntil = 0;   // 0 이 아니면 그 시각까지 BT 입력 무시
 
   // ---- 1) 실내 버튼 (외부 인터럽트가 세운 플래그 처리) ----
   if (buttonFlag) {
@@ -215,24 +212,13 @@ void loop() {
   if (servoOffFlag) { servoOffFlag = false; if (servoOffTicks == 0) lockServo.detach(); }
 
   // ---- 3) 블루투스(폰) 수신 ----
-  if (btLockUntil != 0 && (long)(millis() - btLockUntil) >= 0) btLockUntil = 0;
   if (readLine(Serial, btBuf, sizeof(btBuf), btLen)) {
-    if (btLockUntil != 0) {
-      Serial.println(F("LOCKED OUT. wait."));   // 차단 중: 무시
-    } else if (strcmp(btBuf, BT_PASSWORD) == 0) {
-      btFail = 0;
+    if (strcmp(btBuf, BT_PASSWORD) == 0) {
       noInterrupts(); armTicks = ARM_TICKS; interrupts();
       nearCount = 0;
       sendStatus("ARM");            // 폰 화면: ARM → 1m 안으로 다가오면 열림
-    } else if (strcmp(btBuf, "LOCK") == 0) {
-      lockDoor();
     } else {
-      signalFail("BTFAIL");
-      if (++btFail >= BT_MAX_FAIL) {          // 무작위 대입 방지
-        btFail = 0;
-        btLockUntil = millis() + BT_LOCKOUT_MS;
-        if (btLockUntil == 0) btLockUntil = 1;
-      }
+      signalFail("BTFAIL");         // 빨강 LED 깜빡임 + 폰에 BTFAIL
     }
   }
 

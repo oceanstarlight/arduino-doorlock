@@ -243,17 +243,14 @@ UID (4 bytes): {0xDE, 0xAD, 0xBE, 0xEF},</div>
       <dl class="trouble"><dt>FAIL: no response</dt><dd>3.3V·GND, RST가 + 레일(3.3V)에 꽂혔는지, D10/D11/D13 선, 분압 저항 위치</dd><dt>FAIL: unstable</dt><dd>저항 다리가 헐겁게 꽂힘, MISO(D12) 선 접촉</dd><dt>FAIL: write/read-back</dt><dd>MOSI·MISO·SCK 선이 서로 바뀌었는지</dd><dt>'UNUSED_PIN' 오류</dt><dd>MFRC522 라이브러리를 최신(1.4.x)으로 업데이트</dd></dl></div></li>
     <li><div><h3>링크 핀 · <code>tests/A4_link_loopback</code></h3>
       <p>보드 B 링크선은 빼고, 점퍼선 1개로 <b>A2와 A1</b>을 이어. 1초마다 <code>PASS: A2 -> A1 OK</code>가 나오면 통과야. 끝나면 점퍼를 빼.</p></div></li>
-    <li><div><h3>전체 동작 · <code>board_A_input</code> (TEST_MODE)</h3>
-      <p>등록한 UID를 넣고 업로드. 보드 B가 없어도 시리얼 모니터가 보드 B 역할을 대신해.</p>
-      <div class="tablewrap"><table style="min-width:520px"><thead><tr><th>해볼 것</th><th>LCD</th><th>시리얼 모니터</th></tr></thead><tbody>
-        <tr><td><code>1234#</code></td><td>ACCESS GRANTED / KEY</td><td><code>[A->B] OPEN:KEY</code></td></tr>
-        <tr><td>틀린 번호 + <code>#</code></td><td>ACCESS DENIED / KEY  (1/3)</td><td><code>[A->B] FAIL:KEY</code></td></tr>
-        <tr><td>3번 연속 실패</td><td>TOO MANY FAILS / Wait 30 sec</td><td>30초 동안 키·카드 무시</td></tr>
-        <tr><td>등록 카드</td><td>ACCESS GRANTED / RFID</td><td><code>[A->B] OPEN:RFID</code></td></tr>
-        <tr><td>미등록 카드</td><td>ACCESS DENIED + UID</td><td><code>RFID UID: ..</code></td></tr>
-        <tr><td><code>ST:OPEN:BT</code> 입력</td><td>OPEN by PHONE</td><td><code>[B->A] ST:OPEN:BT</code></td></tr>
-        <tr><td><code>ST:ARM</code> 입력</td><td>PHONE VERIFIED / Come within 1m</td><td><code>[B->A] ST:ARM</code></td></tr>
-        <tr><td><code>ST:LOCK</code> 입력</td><td>Door:LOCKED</td><td><code>[B->A] ST:LOCK</code></td></tr>
+    <li><div><h3>전체 동작 · <code>board_A_input</code></h3>
+      <p>등록한 UID를 넣고 업로드. 보드 B 없이도 키패드·RFID·LCD는 확인할 수 있어. 문 상태(OPEN/LOCKED) 표시는 보드 B를 연결한 뒤에 바뀌어.</p>
+      <div class="tablewrap"><table style="min-width:420px"><thead><tr><th>해볼 것</th><th>LCD</th></tr></thead><tbody>
+        <tr><td><code>1234#</code></td><td>ACCESS GRANTED / KEY</td></tr>
+        <tr><td>틀린 번호 + <code>#</code></td><td>ACCESS DENIED / KEY</td></tr>
+        <tr><td>등록 카드</td><td>ACCESS GRANTED / RFID</td></tr>
+        <tr><td>미등록 카드</td><td>ACCESS DENIED / RFID</td></tr>
+        <tr><td>3초 뒤</td><td>Door:LOCKED / PW:</td></tr>
       </tbody></table></div></div></li>
   </ol>
 </section>
@@ -308,7 +305,7 @@ UID (4 bytes): {0xDE, 0xAD, 0xBE, 0xEF},</div>
     <div class="card"><h3>LED (보드 B)</h3>
       <dl class="kv"><dt><span class="led" style="background:#e0352b"></span>빨강</dt><dd>켜짐 = 잠김, 빠른 깜빡임 = 인증 실패</dd><dt><span class="led" style="background:#e5b400"></span>노랑</dt><dd>깜빡임 = 폰 인증됨, 1m 접근 대기 (30초)</dd><dt><span class="led" style="background:#1f9d55"></span>초록</dt><dd>켜짐 = 열림 (5초 뒤 자동 잠금)</dd></dl></div>
     <div class="card"><h3>폰 앱 (Serial Bluetooth Terminal)</h3>
-      <ul class="plain" style="font-size:14px"><li>HC-06 페어링 (PIN <code>1234</code> 또는 <code>0000</code>)</li><li>Settings → Send → Newline: <code>CR+LF</code></li><li><code>BT1234</code> 전송 → 30초 안에 1m 이내로 접근</li><li><code>LOCK</code> 전송 → 즉시 잠금</li></ul></div>
+      <ul class="plain" style="font-size:14px"><li>HC-06 페어링 (PIN <code>1234</code> 또는 <code>0000</code>)</li><li>Settings → Send → Newline: <code>CR+LF</code></li><li><code>BT1234</code> 전송 → 30초 안에 1m 이내로 접근</li><li>틀리면 폰에 <code>BTFAIL</code>, 빨강 LED 빠르게 깜빡</li></ul></div>
   </div>
 </section>
 

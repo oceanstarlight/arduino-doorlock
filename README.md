@@ -66,8 +66,7 @@ flowchart LR
 4. 보드 B가 먼저 보드 A로 `ST:OPEN:KEY`를 보내고, 그다음 서보를 90°로 돌려 문을 연다. 초록 LED는 100ms 타이머 인터럽트가 켠다.
    - 상태를 먼저 보내는 이유: SoftwareSerial로 보내는 동안 인터럽트가 잠깐 막혀서 서보 펄스가 흔들리기 때문이다.
 5. 5초 뒤 보드 B의 타이머 인터럽트가 자동 잠금 플래그를 세운다. 서보는 0°로 돌아가고, 보드 A로 `ST:LOCK`이 간다.
-6. **틀리면** LCD 1번째 줄에 `ACCESS DENIED`, 2번째 줄에 `KEY  (1/3)`가 뜨고, 보드 B는 빨강 LED를 2초 동안 빠르게 깜빡인다.
-   - 3번 연속 틀리면 `TOO MANY FAILS / Wait 30 sec`가 뜨고 30초 동안 키패드와 RFID 입력이 차단된다.
+6. **틀리면** LCD 1번째 줄에 `ACCESS DENIED`, 2번째 줄에 `KEY`가 뜨고, 보드 A가 `FAIL:KEY`를 보내 보드 B가 빨강 LED를 2초 동안 빠르게 깜빡인다.
 
 ### 2-2. RFID로 열기
 1. 카드를 RC522에 대면 보드 A가 카드의 4바이트 UID를 읽는다.
@@ -84,7 +83,6 @@ sequenceDiagram
   participant A as 보드 A (LCD)
   P->>B: BT1234 (블루투스)
   B->>P: ARM
-  B->>A: ST:ARM → "PHONE VERIFIED / Come within 1m"
   Note over B: 노랑 LED 깜빡, 최대 30초 대기
   loop 100ms마다
     B->>S: 거리 측정
@@ -97,9 +95,8 @@ sequenceDiagram
 1. 휴대폰의 **Serial Bluetooth Terminal** 앱으로 HC-06에 연결하고 `BT1234`를 보낸다.
 2. 보드 B가 인증에 성공하면 **ARM 상태**가 된다. 노랑 LED가 깜빡이고, 최대 30초 동안 접근을 기다린다.
 3. ARM 상태에서만 초음파 센서가 100ms마다 거리를 잰다. **3번 연속 100cm 이내**면 문이 열린다.
-4. 30초 안에 다가오지 않으면 `ARMEND`(LCD에 `PHONE TIMEOUT`)가 뜨고 다시 비밀번호를 보내야 한다.
-5. 블루투스 비밀번호가 틀리면 `BTFAIL`이 뜬다. **3번 연속 틀리면** 30초 동안 블루투스 입력을 무시한다.
-6. 휴대폰에서 `LOCK`을 보내면 즉시 잠긴다.
+4. 30초 안에 다가오지 않으면 휴대폰에 `ARMEND`가 뜨고 다시 비밀번호를 보내야 한다.
+5. 블루투스 비밀번호가 틀리면 휴대폰에 `BTFAIL`이 뜨고 빨강 LED가 2초 동안 빠르게 깜빡인다.
 
 > **왜 초음파를 같이 쓰나?** HC-06은 신호 세기(RSSI)를 아두이노에 알려주지 않아서 블루투스만으로는 거리를 잴 수 없다. 그래서 블루투스로 **누구인지** 인증하고, 초음파로 **얼마나 가까운지** 재는 2단계 방식을 썼다.
 
@@ -130,7 +127,7 @@ LED 표시도 ISR에서 직접 처리한다. 서보 이동이나 시리얼 전�
 | A → B | `FAIL:KEY`, `FAIL:RFID` | 실패 표시 (빨강 LED 깜빡) |
 | B → A | `ST:OPEN:KEY` / `RFID` / `BT` / `BTN` | 문이 열림 (+ 연 방법) |
 | B → A | `ST:LOCK` | 문이 잠김 |
-| B → A | `ST:ARM`, `ST:ARMEND`, `ST:BTFAIL` | 휴대폰 인증 성공 / 만료 / 실패 |
+| B → 휴대폰 | `ARM`, `ARMEND`, `BTFAIL` | 휴대폰 인증 성공 / 만료 / 실패 (보드 A도 받지만 LCD에는 표시하지 않음) |
 
 ### 2-7. 상태 표시
 | LED (보드 B) | 의미 |
@@ -144,11 +141,8 @@ LED 표시도 ISR에서 직접 처리한다. 서보 이동이나 시리얼 전�
 |---|---|
 | `Door:LOCKED` / `PW:***` | 기본 화면 (문 상태 + 입력 중인 비밀번호) |
 | `ACCESS GRANTED` | 키패드·RFID 인증 성공 |
-| `ACCESS DENIED` | 인증 실패 (실패 횟수 또는 카드 UID 표시) |
-| `TOO MANY FAILS` | 3회 실패, 30초 입력 차단 |
-| `PHONE VERIFIED` | 휴대폰 인증 성공, 1m 이내로 오라는 안내 |
+| `ACCESS DENIED` | 키패드·RFID 인증 실패 (2줄에 `KEY` 또는 `RFID`) |
 | `OPEN by PHONE` / `OPEN from INSIDE button` | 휴대폰 / 실내 버튼으로 열림 |
-| `PHONE TIMEOUT` / `PHONE PW WRONG` | 휴대폰 인증 만료 / 블루투스 비밀번호 틀림 |
 
 ---
 
@@ -270,7 +264,7 @@ TX와 RX는 서로 **엇갈려** 연결한다. **두 보드의 5V끼리는 연�
 | ③ | 키패드 | `tests/A2_keypad_test` | 16개 키가 표와 같은 글자로 출력됨. 다르면 스케치 주석의 표대로 핀 순서 수정 |
 | ④ | RC522 + 분압 저항 | `tests/A3_rfid_test` | `OK: RC522 responds` 출력. 카드를 대면 나오는 `{0x.., ...},`를 기록 |
 | ⑤ | A2–A1 사이 점퍼선 (보드 B 링크선은 빼기) | `tests/A4_link_loopback` | `PASS`가 1초마다 출력. 끝나면 점퍼 제거 |
-| ⑥ | (전부) | `board_A_input` | 아래 TEST_MODE 확인 |
+| ⑥ | (전부) | `board_A_input` | 아래 표대로 LCD 확인 |
 
 ④에서 얻은 UID를 `board_A_input.ino`의 `ALLOWED_UID`에 붙여 넣고 업로드한다.
 ```cpp
@@ -281,17 +275,14 @@ const uint8_t ALLOWED_UID[UID_COUNT][4] = {
 };
 ```
 
-**TEST_MODE로 보드 A만 확인하기** (`#define TEST_MODE 1`이 기본값)
-- 시리얼 모니터를 9600, 줄 끝 **New Line**으로 맞춘다.
-- 보드 A가 보드 B로 보내는 메시지가 `[A->B] OPEN:KEY`처럼 보인다.
-- 시리얼 모니터에 `ST:OPEN:BT`를 입력하면, 보드 B가 보낸 것처럼 LCD에 `OPEN by PHONE`이 뜬다.
+**보드 A만 확인하기** (보드 B 없이도 키패드·RFID·LCD는 확인할 수 있다. 문 상태 표시는 보드 B를 연결한 뒤 확인)
 
-| 해볼 것 | 기대 결과 |
+| 해볼 것 | 기대 결과 (LCD) |
 |---|---|
-| `1234#` | LCD `ACCESS GRANTED`, 시리얼 `[A->B] OPEN:KEY` |
-| 틀린 번호 3번 | `TOO MANY FAILS`, 30초 동안 입력 무시 |
-| 등록 카드 / 미등록 카드 | `ACCESS GRANTED` / `ACCESS DENIED` + UID |
-| `ST:ARM`, `ST:OPEN:BTN`, `ST:LOCK` 입력 | LCD에 해당 안내 표시 |
+| `1234#` | `ACCESS GRANTED` / `KEY` |
+| 틀린 번호 + `#` | `ACCESS DENIED` / `KEY` |
+| 등록 카드 / 미등록 카드 | `ACCESS GRANTED` / `ACCESS DENIED` (2줄 `RFID`) |
+| 3초 뒤 | 기본 화면 `Door:LOCKED` / `PW:` |
 
 ### 3단계: 보드 B 만들고 테스트
 | 순서 | 연결할 것 | 확인 방법 |
@@ -330,7 +321,6 @@ const uint8_t ALLOWED_UID[UID_COUNT][4] = {
 | 휴대폰에서 보낼 것 | 동작 |
 |---|---|
 | `BT1234` | 인증 → 1m 접근 대기 |
-| `LOCK` | 즉시 잠금 |
 
 ---
 
@@ -341,14 +331,11 @@ const uint8_t ALLOWED_UID[UID_COUNT][4] = {
 | A | `PASSWORD` | `"1234"` | 키패드 비밀번호 |
 | A | `ALLOWED_UID` | 예시 2개 | 등록된 RFID UID |
 | A | `LCD_ADDR` | `0x27` | LCD I2C 주소 |
-| A | `MAX_FAIL` / `LOCKOUT_MS` | 3 / 30000 | 실패 허용 횟수 / 차단 시간(ms) |
-| A | `TEST_MODE` | 1 | 보드 A 단독 테스트용 시리얼 출력·입력 |
 | B | `BT_PASSWORD` | `"BT1234"` | 휴대폰 인증 코드 |
 | B | `LOCK_ANGLE` / `UNLOCK_ANGLE` | 0 / 90 | 서보 각도 |
 | B | `OPEN_TICKS` | 50 | 열림 유지 시간 (×100ms = 5초) |
 | B | `ARM_TICKS` | 300 | 휴대폰 인증 유효 시간 (×100ms = 30초) |
 | B | `NEAR_CM` / `NEAR_COUNT_OK` | 100 / 3 | 접근 거리(cm) / 연속 감지 횟수 |
-| B | `BT_MAX_FAIL` / `BT_LOCKOUT_MS` | 3 / 30000 | 블루투스 실패 허용 / 차단 시간 |
 
 A = `firmware/board_A_input/board_A_input.ino`, B = `firmware/board_B_door/board_B_door.ino`
 
@@ -365,7 +352,7 @@ A = `firmware/board_A_input/board_A_input.ino`, B = `firmware/board_B_door/board
 | RFID `FAIL: unstable reads` | 분압 저항, MISO 선 접촉 불량 |
 | 보드 B 업로드 실패 | D0의 HC-06 TXD 선 뽑기 |
 | 서보가 움직일 때 보드가 리셋됨 | 서보를 외부 5V로 연결했는지, GND가 공통인지, 커패시터가 있는지 |
-| 휴대폰 인증 무반응 | 앱 Newline 설정, HC-06 분압, 3번 틀려서 30초 차단 중인지 |
+| 휴대폰 인증 무반응 | 앱 Newline 설정, HC-06 분압, 비밀번호(`BT1234`) 확인 |
 | 보드 간 통신 안 됨 | TX↔RX 엇갈림, GND 공통, 양쪽 9600 |
 
 ---
@@ -391,6 +378,6 @@ A = `firmware/board_A_input/board_A_input.ino`, B = `firmware/board_B_door/board
 
 ## 10. 한계와 개선점
 - **1m 판정은 사람을 재는 것이다.** 초음파는 휴대폰이 아니라 앞에 있는 물체까지의 거리를 잰다. 그래서 인증 후 30초 안에만 측정하고, 3번 연속 감지될 때만 열도록 해서 오작동을 줄였다.
-- **보안은 학습용 수준이다.** 비밀번호와 UID가 코드에 평문으로 들어 있고, 블루투스 통신도 암호화되지 않는다. 대신 키패드·RFID·블루투스 모두 3회 실패 시 30초 차단을 넣었다.
+- **보안은 학습용 수준이다.** 비밀번호와 UID가 코드에 평문으로 들어 있고, 블루투스 통신도 암호화되지 않는다. 실패 횟수 제한(무작위 대입 방지)은 발표용 코드를 단순하게 하려고 넣지 않았다.
 - **서보는 잠근 뒤 detach한다.** 떨림을 막으려는 것이라 유지 토크가 없다. 실제 문에 쓰려면 솔레노이드 잠금장치나 걸쇠 구조를 보강해야 한다.
 - **개선 아이디어:** EEPROM에 비밀번호·UID 저장 / 키패드로 비밀번호 변경 / RSSI를 읽을 수 있는 BLE 모듈(HM-10)로 교체 / 부저 추가(단, MsTimer2와 `tone()`이 충돌하므로 능동 부저 사용)
