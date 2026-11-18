@@ -3,6 +3,7 @@
  *  보드 A : 입력부 (Arduino Uno)
  * ================================================================
  *  담당 기능
+ *   - PIR 모션 센서 : 사람이 감지되면 10초 동안 키패드 입력 활성화
  *   - 4x4 키패드 비밀번호 입력  ('*' = 지우기, '#' = 확인)
  *   - RC522 RFID 카드/태그 인식
  *   - I2C 1602 LCD 에 입력/상태 표시
@@ -24,9 +25,10 @@
 #include <SoftwareSerial.h>
 
 // ---------------- 핀 배치 ----------------
-// 키패드 : 핀 위(1번)부터 C4 C3 C2 C1 R1 R2 R3 R4 → D8 D7 D6 D5 D4 D3 D2 A0 차례대로
 
+// 키패드 : 핀 위(1번)부터 C4 C3 C2 C1 R1 R2 R3 R4 → D8 D7 D6 D5 D4 D3 D2 A0 차례대로
 const uint8_t PIN_RFID_SS = 10;
+const uint8_t PIN_PIR     = 9;
 const uint8_t PIN_LINK_RX = A1;
 const uint8_t PIN_LINK_TX = A2;
 const uint8_t LCD_ADDR    = 0x27; 
@@ -34,7 +36,8 @@ const uint8_t LCD_ADDR    = 0x27;
 // ---------------- 설정값 ----------------
 const char PASSWORD[]   = "1234";        // 키패드 비밀번호
 const uint8_t MAX_INPUT = 8;             // 최대 입력 자릿수
-const unsigned long MSG_MS = 3000;       // 안내 메시지 표시 시간
+const unsigned long MSG_MS    = 3000;    // 안내 메시지 표시 시간
+const unsigned long ACTIVE_MS = 10000;   // 마지막 움직임(또는 키 입력) 뒤 키패드 활성 시간
 
 // 등록된 RFID UID (A3_rfid_test 로 카드를 찍어서 나온 값을 여기에)
 const uint8_t UID_COUNT = 2;
@@ -64,20 +67,26 @@ SoftwareSerial link(PIN_LINK_RX, PIN_LINK_TX);
 char    input[MAX_INPUT + 1];
 uint8_t inputLen = 0;
 unsigned long msgUntil = 0;       // 0 이 아니면 그 시각에 기본 화면으로 복귀
+bool keypadActive = false;        // 모션 감지 후 키패드 입력 가능 상태
+unsigned long lastMotion = 0;     // 마지막으로 움직임(또는 키 입력)이 있던 시각
 const char *doorState = "LOCKED";
 
 // ================================================================
 //  LCD 표시
 // ================================================================
-// 기본 화면 : 1줄 = 문 상태, 2줄 = 입력한 비밀번호(* 로 가림)
+// 기본 화면 : 1줄 = 문 상태, 2줄 = 키패드 활성이면 입력한 비밀번호(* 로 가림), 아니면 안내
 void showIdle() {
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print(F("Door:"));
   lcd.print(doorState);
   lcd.setCursor(0, 1);
-  lcd.print(F("PW:"));
-  for (uint8_t i = 0; i < inputLen; i++) lcd.print('*');
+  if (keypadActive) {
+    lcd.print(F("PW:"));
+    for (uint8_t i = 0; i < inputLen; i++) lcd.print('*');
+  } else {
+    lcd.print(F("Wave to start"));
+  }
   msgUntil = 0;
 }
 
@@ -107,9 +116,27 @@ void deny(const char *method) {
 }
 
 // ================================================================
+//  PIR 모션 센서 : 감지되면 키패드 활성화, ACTIVE_MS 동안 움직임·입력이 없으면 비활성화
+// ================================================================
+void updateMotion() {
+  if (digitalRead(PIN_PIR) == HIGH) {
+    lastMotion = millis();
+    if (!keypadActive) {
+      keypadActive = true;
+      if (msgUntil == 0) showIdle();
+    }
+  } else if (keypadActive && millis() - lastMotion >= ACTIVE_MS) {
+    keypadActive = false;
+    inputLen = 0;                         // 입력하다 만 비밀번호는 지움
+    if (msgUntil == 0) showIdle();
+  }
+}
+
+// ================================================================
 //  키패드
 // ================================================================
 void handleKey(char k) {
+  lastMotion = millis();                  // 입력하는 동안은 꺼지지 않게
   if (k == '*') {                         // 전체 지우기
     inputLen = 0;
   } else if (k == '#') {                  // 확인
@@ -146,8 +173,7 @@ void handleRfid() {
 }
 
 // ================================================================
-//  보드 B 에서 오는 상태 메시지 ("ST:OPEN:BT", "ST:LOCK" 등)
-//  TX/RX 양방향 통신을 위한 함수이며, 없어도 정상 동작한다.
+//  보드 B 에서 오는 상태 메시지 ("ST:OPEN:BTN", "ST:LOCK" 등)
 // ================================================================
 void handleStatus(const char *buf) {
   if (strncmp(buf, "ST:", 3) != 0) return;
@@ -156,8 +182,7 @@ void handleStatus(const char *buf) {
   if (strncmp(st, "OPEN", 4) == 0) {
     doorState = "OPEN";
     const char *by = (st[4] == ':') ? st + 5 : "";
-    if      (strcmp(by, "BT")  == 0) showMsg(F("OPEN by PHONE"), "Bluetooth+1m");
-    else if (strcmp(by, "BTN") == 0) showMsg(F("OPEN from"), "INSIDE button");
+    if      (strcmp(by, "BTN") == 0) showMsg(F("OPEN from"), "INSIDE button");
     else if (msgUntil == 0)          showIdle();  // KEY/RFID 는 이미 GRANTED 표시 중
   } else if (strcmp(st, "LOCK") == 0) {
     doorState = "LOCKED";
@@ -190,6 +215,8 @@ void setup() {
   lcd.init();
   lcd.backlight();
 
+  pinMode(PIN_PIR, INPUT);
+
   SPI.begin();
   rfid.PCD_Init();
   Serial.println(F("DoorLock A ready."));
@@ -203,8 +230,10 @@ void loop() {
   // 안내 메시지 시간이 끝나면 기본 화면으로
   if (msgUntil != 0 && (long)(millis() - msgUntil) >= 0) showIdle();
 
-  char k = keypad.getKey();
-  if (k) handleKey(k);
+  updateMotion();
+
+  char k = keypad.getKey();               // 비활성 중에 눌린 키는 읽고 버림
+  if (k && keypadActive) handleKey(k);
 
   handleRfid();
 }
