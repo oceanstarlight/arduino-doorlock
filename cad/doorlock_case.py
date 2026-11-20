@@ -645,6 +645,29 @@ def build_viewer():
     with open(out, "w", encoding="utf-8") as f:
         f.write(html)
     print("viewer:", out, f"{len(html)/1e6:.1f} MB")
+    return html
+
+
+def artifact_html(html, three_ver="0.147.0"):
+    """claude.ai Artifact 용: 문서 골격 제거, three.js 는 허용된 CDN(jsDelivr) UMD 빌드로 로드"""
+    import re
+    cdn = f"https://cdn.jsdelivr.net/npm/three@{three_ver}"
+    s = re.sub(r"<!doctype html>\s*<html[^>]*>\s*<head>\s*", "", html, flags=re.I)
+    s = re.sub(r'<meta charset="utf-8">\s*<meta name="viewport"[^>]*>\s*', "", s)
+    s = s.replace("</head>\n<body>\n", "").replace("</body>\n</html>\n", "")
+    i = s.index("<script>/* three.js")
+    j = s.index("</script>", i) + len("</script>")
+    tags = "\n".join(f'<script src="{cdn}/{p}"></script>' for p in (
+        "build/three.min.js", "examples/js/controls/OrbitControls.js",
+        "examples/js/loaders/GLTFLoader.js", "examples/js/renderers/CSS2DRenderer.js"))
+    s = s[:i] + tags + s[j:]
+    s = s.replace("const { OrbitControls, GLTFLoader, CSS2DRenderer, CSS2DObject } = THREE_ADDONS;",
+                  "const { OrbitControls, GLTFLoader, CSS2DRenderer, CSS2DObject } = THREE;")
+    s = s.replace("renderer.setPixelRatio(", "renderer.outputEncoding = THREE.sRGBEncoding;\nrenderer.setPixelRatio(", 1)
+    # r147 은 조명 강도 기준이 달라서 낮춰 줌 (r160 과 비슷한 밝기)
+    s = s.replace("0x8a8f94, 1.6)", "0x8a8f94, 0.75)").replace("DirectionalLight(0xffffff, 1.6)", "DirectionalLight(0xffffff, 0.55)")
+    s = s.replace("DirectionalLight(0xffffff, 0.7)", "DirectionalLight(0xffffff, 0.25)")
+    return s
 
 
 if __name__ == "__main__":
