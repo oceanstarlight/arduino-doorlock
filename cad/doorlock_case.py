@@ -639,6 +639,8 @@ def build_viewer():
                 .replace("__FRONT_SVG__", front_svg())
                 .replace("__NAMES__", json.dumps(PART_NAMES, ensure_ascii=False))
                 .replace("__GLB_B64__", b64))
+    with open(os.path.join(HERE, "three_bundle.min.js"), encoding="utf-8") as f:
+        html = html.replace("__THREE_BUNDLE__", f.read().replace("</script", "<\\/script"))
     out = os.path.join(os.path.dirname(HERE), "docs", "case3d.html")
     with open(out, "w", encoding="utf-8") as f:
         f.write(html)

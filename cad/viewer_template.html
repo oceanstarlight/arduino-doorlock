@@ -203,15 +203,13 @@ svg text{font-family:var(--font-mono)}
 </section>
 </div>
 
-<script type="importmap">
-{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-"three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}
+<script>/* three.js r160 (MIT License, Copyright 2010-2023 three.js authors) — 인터넷 없이 열리도록 내장 */
+__THREE_BUNDLE__</script>
+<script>
+window.addEventListener('error', e => { const p = document.getElementById('pick'); if (p) p.innerHTML = '<b>3D를 불러오지 못했어</b><span class="mono">' + (e.message || e) + '</span>'; });
 </script>
-<script type="module">
-import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+<script>
+const { OrbitControls, GLTFLoader, CSS2DRenderer, CSS2DObject } = THREE_ADDONS;
 
 const GLB_B64 = "__GLB_B64__";
 const NAMES = __NAMES__;
