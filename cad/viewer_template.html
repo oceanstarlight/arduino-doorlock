@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>도어락 3D 도면</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --bg:#f4f6f5; --panel:#ffffff; --ink:#17201e; --muted:#5a6765; --line:#d5dddb;
+  --accent:#00838c; --accent-ink:#ffffff; --warn:#a36700; --warn-bg:#fff4da;
+  --stage:#e9eeed; --dim:#c2410c;
+  --font-body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1514; --panel:#162020; --ink:#e3ebe9; --muted:#93a4a1; --line:#283634;
+  --accent:#30c3ca; --accent-ink:#061a1b; --warn:#f2b33d; --warn-bg:#352a10;
+  --stage:#1a2423; --dim:#fb923c; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1514; --panel:#162020; --ink:#e3ebe9; --muted:#93a4a1; --line:#283634;
+  --accent:#30c3ca; --accent-ink:#061a1b; --warn:#f2b33d; --warn-bg:#352a10;
+  --stage:#1a2423; --dim:#fb923c; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:15px;line-height:1.6;
+  padding:24px 16px 72px}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:36px}
+h1{font-size:clamp(24px,4vw,34px);margin:0 0 6px;line-height:1.25}
+h2{font-size:20px;margin:0 0 12px}
+p{margin:0}
+.lead{color:var(--muted);max-width:760px}
+.mono{font-family:var(--font-mono);font-size:13px}
+.viewer{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:14px}
+@media (max-width:860px){.viewer{grid-template-columns:1fr}}
+.stage{position:relative;background:var(--stage);border:1px solid var(--line);border-radius:12px;overflow:hidden;
+  height:min(72vh,640px);min-height:380px;touch-action:none}
+.stage canvas{display:block}
+.pick{position:absolute;left:12px;bottom:12px;background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:8px 12px;font-size:13px;max-width:calc(100% - 24px);pointer-events:none}
+.pick b{display:block;font-size:14px}
+.dimlbl{font-family:var(--font-mono);font-size:12px;font-weight:600;color:var(--dim);background:var(--panel);
+  border:1px solid var(--dim);border-radius:6px;padding:1px 6px;white-space:nowrap}
+.ctrl{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:14px;align-self:start}
+.ctrl h3{font-size:13px;color:var(--muted);margin:0 0 6px;font-weight:600;letter-spacing:.02em}
+.ctrl label{display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer;padding:2px 0}
+.sw{width:12px;height:12px;border-radius:3px;flex:none;border:1px solid rgba(0,0,0,.2)}
+.btns{display:flex;flex-wrap:wrap;gap:6px}
+button{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:5px 10px;cursor:pointer}
+button:hover{border-color:var(--accent)}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.rangeval{font-family:var(--font-mono);font-size:12px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+.card .big{font-family:var(--font-mono);font-size:20px;font-weight:600}
+.tag{display:inline-block;font-size:12px;border-radius:999px;padding:1px 8px;background:var(--bg);border:1px solid var(--line);color:var(--muted)}
+.tablewrap{overflow-x:auto;background:var(--panel);border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;min-width:600px;font-size:14px}
+th,td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12.5px;color:var(--muted);font-weight:600;background:var(--bg)}
+tr:last-child td{border-bottom:none}
+td.num{font-family:var(--font-mono);font-size:13px;white-space:nowrap}
+.note{background:var(--warn-bg);border-left:3px solid var(--warn);padding:10px 14px;border-radius:8px;font-size:14px}
+ol{margin:0;padding-left:22px}
+ol li{margin:4px 0}
+svg text{font-family:var(--font-mono)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>도어락 3D 도면</h1>
+  <p class="lead">보드 A 박스(3D 프린터 출력)와 직접 만드는 큰 틀(문·문틀)을 실제 치수로 조립한 모델이다. 드래그로 돌리고, 휠·핀치로 확대하고, 부품을 누르면 이름과 크기가 나온다. 단위는 모두 mm다.</p>
+</header>
+
+<section class="viewer">
+  <div class="stage" id="stage">
+    <div class="pick" id="pick"><b>부품을 눌러 보기</b><span class="mono">드래그 회전 · 우클릭 이동 · 휠 확대</span></div>
+  </div>
+  <aside class="ctrl">
+    <div>
+      <h3>보이기</h3>
+      <label><input type="checkbox" data-grp="A_box_printed" checked><span class="sw" style="background:#ed8c29"></span>보드 A 박스 (출력물)</label>
+      <label><input type="checkbox" data-grp="board_A_modules" checked><span class="sw" style="background:#0d5a9e"></span>보드 A 모듈</label>
+      <label><input type="checkbox" data-grp="frame_handmade" checked><span class="sw" style="background:#cca878"></span>큰 틀 (직접 제작)</label>
+      <label><input type="checkbox" data-grp="board_B_side" checked><span class="sw" style="background:#3359d9"></span>보드 B · 서보</label>
+      <label><input type="checkbox" id="xray"><span class="sw" style="background:transparent"></span>박스 투명하게 (속 보기)</label>
+      <label><input type="checkbox" id="dims" checked><span class="sw" style="background:transparent;border-color:var(--dim)"></span>치수 표시</label>
+    </div>
+    <div>
+      <h3>박스 위로 빼기 (정비)</h3>
+      <input type="range" id="lift" min="0" max="220" value="0">
+      <div class="rangeval" id="liftv">0 mm</div>
+    </div>
+    <div>
+      <h3>분해 (본체 ↔ 뒷판 ↔ 브래킷)</h3>
+      <input type="range" id="expl" min="0" max="120" value="0">
+      <div class="rangeval" id="explv">0 mm</div>
+    </div>
+    <div>
+      <h3>시점</h3>
+      <div class="btns">
+        <button data-view="front">바깥 정면</button>
+        <button data-view="back">안쪽</button>
+        <button data-view="side">옆</button>
+        <button data-view="iso">입체</button>
+        <button data-view="box">박스 확대</button>
+      </div>
+    </div>
+    <div>
+      <h3>서보 걸쇠</h3>
+      <div class="btns">
+        <button id="lock">잠금 0°</button>
+        <button id="unlock">열림 90°</button>
+      </div>
+    </div>
+  </aside>
+</section>
+
+<section>
+  <h2>3D 프린터 출력물 (Zortrax M200 Plus · Z-ABS 2)</h2>
+  <div class="grid">
+    __PRINT_CARDS__
+  </div>
+  <div class="tablewrap" style="margin-top:12px">
+  <table>
+    <tr><th>설정</th><th>값</th><th>이유</th></tr>
+    <tr><td>재료</td><td>Z-ABS 2</td><td>끼움부 공차는 한쪽 0.4mm로 잡았다</td></tr>
+    <tr><td>레이어</td><td class="num">0.19 mm</td><td>도브테일 경사면이 매끄럽게 나옴</td></tr>
+    <tr><td>채움(Infill)</td><td class="num">20~30 %</td><td>뒷판은 7mm 두께라 너무 높으면 휘기 쉬움</td></tr>
+    <tr><td>서포트</td><td>자동, 각도 20°</td><td>아래 출력 방향대로 놓으면 거의 생기지 않음</td></tr>
+    <tr><td>출력 방향</td><td>STL에 이미 맞춰 둠</td><td>본체=앞면이 바닥 / 뒷판=바깥면(홈 입구)이 바닥 / 브래킷=문 닿는 면이 바닥</td></tr>
+    <tr><td>라프트</td><td>기본값 유지</td><td>ABS 휨 방지 (Zortrax 기본)</td></tr>
+  </table>
+  </div>
+  <p class="note" style="margin-top:12px">출력 범위(200×200×180)에 한 번에 다 올라가지 않아서 <b>부품 3개를 한 개씩</b> 출력한다. 박스 본체가 가장 크다(129×185×63, 높이 63).</p>
+</section>
+
+<section>
+  <h2>박스 앞판 배치 (정면에서 본 모습)</h2>
+  __FRONT_SVG__
+  <div class="tablewrap" style="margin-top:12px">
+  <table>
+    <tr><th>모듈</th><th>모듈 크기</th><th>앞판 가공</th><th>고정 방법</th><th>중심 위치 (박스 중심 기준 x, z)</th></tr>
+    <tr><td>PIR (HC-SR501)</td><td class="num">32.3×24.3, 돔 Ø23</td><td>Ø24 구멍</td><td>L자 가이드 4개 + 글루건</td><td class="num">0, +74</td></tr>
+    <tr><td>LCD 1602 + I2C</td><td class="num">80×36, 베젤 71.2×24.2</td><td class="num">72.0×26.5 창</td><td>스탠드오프 4개(75×31 간격) + M3×6 나사</td><td class="num">0, +38</td></tr>
+    <tr><td>4x4 멤브레인 키패드</td><td class="num">69×77×0.8</td><td>아래에 리본 슬롯 24×4</td><td>뒷면 양면테이프로 앞판에 부착</td><td class="num">−27, −26.5</td></tr>
+    <tr><td>RC522 RFID</td><td class="num">40×60</td><td>안쪽에서 1.5mm만 남기고 얇게</td><td>L자 가이드 4개 + 글루건, 앞판 뒤에 밀착</td><td class="num">+37, −26</td></tr>
+    <tr><td>Arduino Uno A</td><td class="num">68.6×53.3</td><td>바닥 USB 노치 (아래로 USB 꽂기)</td><td>뒷판 스탠드오프 4개(높이 6) + M3×8</td><td class="num">뒷판, 오른쪽 아래</td></tr>
+    <tr><td>풀 브레드보드</td><td class="num">165.1×54.6×8.5</td><td>—</td><td>뒷판 위치 테두리 안에 양면테이프</td><td class="num">뒷판, 왼쪽</td></tr>
+  </table>
+  </div>
+</section>
+
+<section>
+  <h2>구매할 나사</h2>
+  <div class="tablewrap">
+  <table>
+    <tr><th>용도</th><th>규격</th><th>수량</th><th>비고</th></tr>
+    <tr><td>뒷판 → 본체</td><td class="num">M3×16 접시머리</td><td class="num">4</td><td>본체 보스에 Ø2.5 구멍. ABS에 직접 나사산을 내며 들어간다</td></tr>
+    <tr><td>박스 잠금 (브래킷 받침 → 본체 바닥)</td><td class="num">M3×10 + M3 너트</td><td class="num">1+1</td><td>너트는 뒷판 닫기 전에 본체 바닥 보스 홈에 뒤에서 밀어 넣음</td></tr>
+    <tr><td>LCD 고정</td><td class="num">M3×6</td><td class="num">4</td><td>스탠드오프 Ø2.5 구멍</td></tr>
+    <tr><td>Uno A 고정</td><td class="num">M3×8</td><td class="num">4</td><td>보드 구멍 하나가 커넥터에 가까우면 3개만 써도 됨</td></tr>
+    <tr><td>브래킷 → 문</td><td class="num">목재 접시나사 3.5×12</td><td class="num">4</td><td>문 두께 9mm라 16mm 이상은 뚫고 나옴</td></tr>
+  </table>
+  </div>
+</section>
+
+<section>
+  <h2>큰 틀 (직접 제작) 재단 목록</h2>
+  <p class="lead" style="margin-bottom:12px">합판/MDF 기준 제안 치수다. 문은 <b>바깥으로</b> 열리고, 닫혔을 때 서보 혼이 오른쪽 기둥 뒤(걸쇠 받이)에 걸려 잠긴다.</p>
+  <div class="tablewrap">
+  <table>
+    <tr><th>부품</th><th>치수 (가로×세로×두께)</th><th>수량</th><th>가공 · 위치</th></tr>
+    <tr><td>문</td><td class="num">260 × 368 × 9</td><td class="num">1</td><td>Ø20 구멍 2개: ① 케이블 — 오른쪽(걸쇠쪽) 끝에서 70, 아래에서 228 ② USB — 오른쪽 끝에서 70, 아래에서 68</td></tr>
+    <tr><td>기둥 (경첩쪽·걸쇠쪽)</td><td class="num">30 × 30 × 402</td><td class="num">2</td><td>문과의 틈 2mm. 바깥면이 문 바깥면과 같은 높이</td></tr>
+    <tr><td>윗보</td><td class="num">264 × 30 × 30</td><td class="num">1</td><td>두 기둥 사이, 문 위 틈 2mm</td></tr>
+    <tr><td>바닥판</td><td class="num">384 × 260 × 12</td><td class="num">1</td><td>박스 앞쪽으로 60mm 이상 여유</td></tr>
+    <tr><td>문 멈춤 턱</td><td class="num">12 × 10 × 368 / 262 × 10 × 14</td><td class="num">1 / 1</td><td>경첩 기둥·윗보 안쪽에. 문이 안쪽으로 밀려 들어가지 않게 함</td></tr>
+    <tr><td>걸쇠 받이 블록</td><td class="num">20 × 30 × 7.4</td><td class="num">1</td><td>걸쇠 기둥 <b>안쪽 면</b>, 문 아래에서 183~213 높이. 혼과 0.8mm 간격</td></tr>
+    <tr><td>서보 받침 블록</td><td class="num">4.4 × 12.2 × 16.9</td><td class="num">2</td><td>문 안쪽 면, 서보 날개 밑. 서보 축이 걸쇠쪽 끝에서 14, 아래에서 198</td></tr>
+    <tr><td>경첩</td><td class="num">50mm 소형</td><td class="num">2</td><td>문 위·아래에서 각 78mm (중심)</td></tr>
+  </table>
+  </div>
+  <div class="grid" style="margin-top:12px">
+    <div class="card"><span class="tag">브래킷 위치</span><span>문 바깥면, 걸쇠쪽 끝에서 <b class="mono">25.5</b>, 아래에서 <b class="mono">99.5</b> (브래킷 좌하단 모서리)</span></div>
+    <div class="card"><span class="tag">문 바깥면에서 튀어나옴</span><span class="big">74.4 mm</span><span>브래킷 4 + 뒷판 7 + 본체 63 + 틈 0.4</span></div>
+    <div class="card"><span class="tag">보드 B</span><span>문 안쪽 면 왼쪽 위: Uno B(스탠드오프 6), 그 아래 하프 브레드보드(82×55, LED 2개·470µF), 실내 버튼은 오른쪽 아래</span></div>
+  </div>
+</section>
+
+<section>
+  <h2>조립 순서</h2>
+  <ol>
+    <li>본체에 LCD(스탠드오프 + M3×6), PIR·RC522(가이드에 끼우고 글루건) 고정. 키패드는 앞면에 붙이고 리본을 슬롯으로 넣는다.</li>
+    <li>본체 바닥 보스 홈에 M3 너트를 뒤에서 밀어 넣는다.</li>
+    <li>뒷판에 Uno A(M3×8)와 풀 브레드보드(테두리 안 양면테이프)를 붙이고 배선한다. 링크선 3가닥(A1·A2·GND)은 뒷판 Ø16 구멍으로 뺀다.</li>
+    <li>뒷판을 본체에 M3×16 접시나사 4개로 닫는다.</li>
+    <li>브래킷을 문 바깥면에 목재나사 4개로 고정한다. (나사는 박스에 가려져 밖에서 안 보인다)</li>
+    <li>박스를 위에서 레일에 맞춰 내려 받침 턱에 닿게 한 뒤, 아래에서 M3×10으로 잠근다.</li>
+    <li>USB는 바닥 노치로 꽂고, 케이블은 받침 턱 사이 틈(x 5~35)으로 내려 문 아래 Ø20 구멍으로 안쪽에 넘긴다.</li>
+    <li><b>정비할 때:</b> 아래 나사 1개 풀기 → 박스를 위로 빼기 → 뒷판 나사 4개 풀기.</li>
+  </ol>
+</section>
+</div>
+
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+"three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+const GLB_B64 = "__GLB_B64__";
+const NAMES = __NAMES__;
+
+const stage = document.getElementById('stage');
+const renderer = new THREE.WebGLRenderer({antialias:true, alpha:true, preserveDrawingBuffer:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+stage.appendChild(renderer.domElement);
+const labelR = new CSS2DRenderer();
+labelR.domElement.style.position='absolute'; labelR.domElement.style.inset='0'; labelR.domElement.style.pointerEvents='none';
+stage.appendChild(labelR.domElement);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(35, 1, 1, 10000);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+scene.add(new THREE.HemisphereLight(0xffffff, 0x8a8f94, 1.6));
+const dl = new THREE.DirectionalLight(0xffffff, 1.6); dl.position.set(-300, 500, -600); scene.add(dl);
+const dl2 = new THREE.DirectionalLight(0xffffff, 0.7); dl2.position.set(400, 200, 600); scene.add(dl2);
+
+// 모델 좌표(Z-up, mm) → three(Y-up) : 루트 노드 회전이 GLB 안에 들어 있다
+const root = new THREE.Group(); scene.add(root);
+const groups = {}, nodes = {}, base = {};
+let model;
+
+function b64ToBuf(b64){const s=atob(b64);const u=new Uint8Array(s.length);for(let i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return u.buffer;}
+
+new GLTFLoader().parse(b64ToBuf(GLB_B64), '', (g)=>{
+  model = g.scene; root.add(model);
+  model.traverse(o=>{
+    if(o.name) nodes[o.name]=o;
+    if(o.isMesh){
+      o.material = o.material.clone();
+      o.material.side = THREE.DoubleSide;
+      o.material.metalness = 0; o.material.roughness = 0.75;
+      const e = new THREE.LineSegments(new THREE.EdgesGeometry(o.geometry, 30),
+        new THREE.LineBasicMaterial({color:0x000000, transparent:true, opacity:0.22}));
+      o.add(e);
+    }
+  });
+  for(const k of ['A_box_printed','board_A_modules','frame_handmade','board_B_side']) groups[k]=nodes[k];
+  for(const k in nodes) base[k]=nodes[k].position.clone();
+  buildDims(); setView('iso'); applyPose(); resize();
+});
+
+// ── 치수선 (모델 좌표: x 오른쪽, y 문 안쪽, z 위)
+const dimGroup = new THREE.Group();
+function dimLine(a, b, text, off){
+  const g = new THREE.Group();
+  const col = getComputedStyle(document.documentElement).getPropertyValue('--dim').trim() || '#c2410c';
+  const m = new THREE.LineBasicMaterial({color:col, depthTest:false});
+  const A = new THREE.Vector3(...a).add(new THREE.Vector3(...off)), B = new THREE.Vector3(...b).add(new THREE.Vector3(...off));
+  g.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([A,B]), m));
+  for(const [p,q] of [[a,A],[b,B]]) g.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(...p),q]), m));
+  const d = document.createElement('div'); d.className='dimlbl'; d.textContent=text;
+  const l = new CSS2DObject(d); l.position.copy(A.clone().add(B).multiplyScalar(.5)); g.add(l);
+  g.renderOrder = 999; return g;
+}
+function buildDims(){
+  // 모델 루트와 같은 회전 사용
+  dimGroup.quaternion.copy(nodes['doorlock'].quaternion);
+  dimGroup.add(dimLine([-64.5,0,92.5],[64.5,0,92.5],'박스 폭 129',[0,0,14]));
+  dimGroup.add(dimLine([-64.5,0,-92.5],[-64.5,0,92.5],'박스 높이 185',[-14,0,0]));
+  dimGroup.add(dimLine([64.5,0,-98.5],[64.5,74.4,-98.5],'돌출 74.4',[0,0,-14]));
+  dimGroup.add(dimLine([-170,74.4,-198],[90,74.4,-198],'문 260',[0,-6,-26]));
+  dimGroup.add(dimLine([-170,74.4,-198],[-170,74.4,170],'문 368',[-50,-6,0]));
+  root.add(dimGroup);
+}
+
+// ── 자세: 박스 들어올리기 / 분해 / 서보
+const S = {lift:0, expl:0, lock:true};
+const BOX_PARTS = ['A_box_body','A_box_cover','board_A_modules'];
+const FRONT_MODS = /^(lcd1602|keypad|rc522|pir)/;
+function applyPose(){
+  if(!model) return;
+  // 노드 위치는 모델 좌표계(Z-up) 기준
+  const set=(n,dx,dy,dz)=>{ if(nodes[n]){ nodes[n].position.set(base[n].x+dx, base[n].y+dy, base[n].z+dz);} };
+  const e=S.expl, L=S.lift;
+  set('A_box_body', 0, -e, L);
+  set('A_box_cover', 0, -e*0.45, L);
+  // 모듈: 앞판 모듈은 본체와 같이, 나머지는 뒷판과 같이
+  const mods = nodes['board_A_modules'];
+  if(mods) for(const c of mods.children){
+    const front = FRONT_MODS.test(c.name);
+    const isLock = c.name==='nut_M3';
+    c.position.set(base[c.name].x, base[c.name].y + (front||isLock ? -e : -e*0.45), base[c.name].z + L);
+  }
+  // 서보 혼: 축(76, ~, 0)을 중심으로 y축 회전
+  const h = nodes['servo_horn'];
+  if(h){
+    const ang = S.lock ? 0 : Math.PI/2;
+    const pivot = new THREE.Vector3(76,0,0);
+    const m = new THREE.Matrix4().makeTranslation(pivot.x,pivot.y,pivot.z)
+      .multiply(new THREE.Matrix4().makeRotationY(-ang))
+      .multiply(new THREE.Matrix4().makeTranslation(-pivot.x,-pivot.y,-pivot.z));
+    h.matrixAutoUpdate=false; h.matrix.copy(m);
+  }
+}
+
+// ── 컨트롤
+document.querySelectorAll('[data-grp]').forEach(cb=>cb.addEventListener('change',()=>{ const g=groups[cb.dataset.grp]; if(g) g.visible=cb.checked; }));
+document.getElementById('xray').addEventListener('change',e=>{
+  for(const n of ['A_box_body','A_box_cover','A_rail_bracket']) nodes[n]?.traverse(o=>{ if(o.isMesh){ o.material.transparent=e.target.checked; o.material.opacity=e.target.checked?0.25:1; o.material.depthWrite=!e.target.checked; }});
+});
+document.getElementById('dims').addEventListener('change',e=>{ dimGroup.visible=e.target.checked; labelR.domElement.style.display=e.target.checked?'':'none'; });
+const lift=document.getElementById('lift'), expl=document.getElementById('expl');
+lift.addEventListener('input',()=>{S.lift=+lift.value;document.getElementById('liftv').textContent=lift.value+' mm';applyPose();});
+expl.addEventListener('input',()=>{S.expl=+expl.value;document.getElementById('explv').textContent=expl.value+' mm';applyPose();});
+document.getElementById('lock').onclick=()=>{S.lock=true;applyPose();};
+document.getElementById('unlock').onclick=()=>{S.lock=false;applyPose();};
+
+// 모델 좌표 → three 좌표: (x, y, z) → (x, z, -y)
+const M=(x,y,z)=>new THREE.Vector3(x, z, -y);
+function setView(v){
+  const t = v==='box' ? M(0,30,0) : M(-40,60,-20);
+  const P = {front:M(-40,-1100,-20), back:M(-40,1200,-20), side:M(1100,40,-20), iso:M(-650,-750,380), box:M(-260,-380,170)}[v];
+  camera.position.copy(P); controls.target.copy(t); controls.update();
+}
+document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>setView(b.dataset.view));
+
+// ── 부품 선택
+const ray=new THREE.Raycaster(), ptr=new THREE.Vector2(); let down=null;
+renderer.domElement.addEventListener('pointerdown',e=>down=[e.clientX,e.clientY]);
+renderer.domElement.addEventListener('pointerup',e=>{
+  if(!down||Math.hypot(e.clientX-down[0],e.clientY-down[1])>5) return;
+  const r=renderer.domElement.getBoundingClientRect();
+  ptr.set((e.clientX-r.left)/r.width*2-1, -(e.clientY-r.top)/r.height*2+1);
+  ray.setFromCamera(ptr,camera);
+  const hits=ray.intersectObjects(model.children,true).filter(h=>h.object.isMesh && visibleUp(h.object) && !(h.object.material.transparent&&h.object.material.opacity<0.5));
+  const pick=document.getElementById('pick');
+  if(!hits.length){pick.innerHTML='<b>부품을 눌러 보기</b><span class="mono">드래그 회전 · 우클릭 이동 · 휠 확대</span>';return;}
+  let o=hits[0].object; while(o && !NAMES[o.name]) o=o.parent;
+  const name=o?o.name:hits[0].object.name; const info=NAMES[name]||[name,''];
+  const bb=new THREE.Box3().setFromObject(o||hits[0].object); const s=bb.getSize(new THREE.Vector3());
+  pick.innerHTML=`<b>${info[0]}</b>${info[1]?info[1]+'<br>':''}<span class="mono">외곽 ${s.x.toFixed(1)} × ${s.z.toFixed(1)} × ${s.y.toFixed(1)} mm (가로×깊이×높이)</span>`;
+});
+function visibleUp(o){while(o){if(!o.visible)return false;o=o.parent;}return true;}
+
+function resize(){const w=stage.clientWidth,h=stage.clientHeight;renderer.setSize(w,h);labelR.setSize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix();}
+new ResizeObserver(resize).observe(stage);
+renderer.setAnimationLoop(()=>{controls.update();renderer.render(scene,camera);labelR.render(scene,camera);});
+</script>
+</body>
+</html>

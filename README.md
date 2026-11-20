@@ -4,6 +4,8 @@ Arduino Uno(ATmega328P) **2대**를 UART로 연결해 만든 도어락이다.
 사람이 다가오면 PIR 모션 센서가 감지해 키패드를 활성화하고, 키패드 비밀번호·RFID 카드·실내 버튼으로 문을 연다.
 열린 문은 5초 뒤 자동으로 잠긴다. (블루투스 기능은 현재 제외했고, 나중에 추가할 수 있다.)
 
+> 🧊 도어락 틀 3D 도면(보드 A 박스 STL 3개, 전체 완성 STEP, 웹 3D 뷰어)은 [`cad/README.md`](cad/README.md)와 [`docs/case3d.html`](docs/case3d.html)에 있다.
+>
 > 📐 실물 비율 브레드보드 배치도, 단계별 배선 순서, 분압 회로 확대도, 보드 A 테스트, 안전 점검표는 [`docs/wiring.html`](docs/wiring.html)을 브라우저로 열면 볼 수 있다.
 
 ---
@@ -317,7 +319,12 @@ A = `firmware/board_A_input/board_A_input.ino`, B = `firmware/board_B_door/board
 ```
 ├── README.md
 ├── docs/
-│   └── wiring.html                 배선도, 안전 점검표, 조립 순서 (브라우저로 열기)
+│   ├── wiring.html                 배선도, 안전 점검표, 조립 순서 (브라우저로 열기)
+│   └── case3d.html                 도어락 틀 3D 도면 뷰어 (치수·재단 목록·조립 순서)
+├── cad/                            3D 도면
+│   ├── doorlock_case.py            도면 생성 스크립트 (CadQuery)
+│   ├── print/                      3D 프린터용 STL (박스 본체·뒷판·레일 브래킷)
+│   └── assembly/                   전체 완성 도면 (STEP, GLB)
 ├── tools/wiring/                   배선도 데이터 검사 스크립트
 └── firmware/
     ├── board_A_input/              보드 A 메인 스케치
