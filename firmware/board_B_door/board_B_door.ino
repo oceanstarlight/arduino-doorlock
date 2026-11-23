@@ -23,19 +23,19 @@
 #include <MsTimer2.h>
 
 // ---------------- 핀 배치 ----------------
-const uint8_t PIN_BUTTON  = 2;   // 실내 열림 버튼 (INT0)
-const uint8_t PIN_LINK_RX = 4;   // <- 보드 A 의 A2 (TX)
-const uint8_t PIN_LINK_TX = 5;   // -> 보드 A 의 A1 (RX)
-const uint8_t PIN_SERVO   = A0;  // SG90 신호선(주황). Servo 는 아날로그 핀도 디지털처럼 사용 가능
-const uint8_t PIN_LED_G   = 10;  // 초록 : 문 열림
-const uint8_t PIN_LED_R   = 12;  // 빨강 : 잠김(켜짐) / 인증 실패(빠른 깜빡임)
+const unsigned int PIN_BUTTON  = 2;   // 실내 열림 버튼 (INT0)
+const unsigned int PIN_LINK_RX = 4;   // <- 보드 A 의 A2 (TX)
+const unsigned int PIN_LINK_TX = 5;   // -> 보드 A 의 A1 (RX)
+const unsigned int PIN_SERVO   = A0;  // SG90 신호선(주황). Servo 는 아날로그 핀도 디지털처럼 사용 가능
+const unsigned int PIN_LED_G   = 10;  // 초록 : 문 열림
+const unsigned int PIN_LED_R   = 12;  // 빨강 : 잠김(켜짐) / 인증 실패(빠른 깜빡임)
 
 // ---------------- 설정값 ----------------
 const int     LOCK_ANGLE     = 0;    // 잠금 각도 (실제 걸쇠에 맞게 조정)
 const int     UNLOCK_ANGLE   = 90;   // 해제 각도
-const uint8_t OPEN_TICKS     = 50;   // 열림 유지 시간 50 x 100ms = 5초
-const uint8_t FAIL_TICKS     = 20;   // 실패 시 빨강 깜빡임 2초
-const uint8_t SERVO_OFF_TICK = 8;    // 이동 후 0.8초 뒤 서보 신호 끄기 (떨림·전류 감소)
+const unsigned int OPEN_TICKS     = 50;   // 열림 유지 시간 50 x 100ms = 5초
+const unsigned int FAIL_TICKS     = 20;   // 실패 시 빨강 깜빡임 2초
+const unsigned int SERVO_OFF_TICK = 8;    // 이동 후 0.8초 뒤 서보 신호 끄기 (떨림·전류 감소)
 
 SoftwareSerial link(PIN_LINK_RX, PIN_LINK_TX);
 Servo lockServo;
@@ -140,7 +140,7 @@ void loop() {
       len = 0;
       if      (strcmp(buf, "OPEN:KEY")  == 0) openDoor("KEY");
       else if (strcmp(buf, "OPEN:RFID") == 0) openDoor("RFID");
-      else if (strncmp(buf, "FAIL", 4)  == 0) failTicks = FAIL_TICKS;  // 빨강 깜빡임
+      else if (strcmp(buf, "FAIL", 4)  == 0) failTicks = FAIL_TICKS;  // 빨강 깜빡임
       continue;
     }
     if (len < sizeof(buf) - 1) buf[len++] = c;
