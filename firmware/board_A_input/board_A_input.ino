@@ -4,7 +4,7 @@
  * ================================================================
  *  담당 기능
  *   - PIR 모션 센서 : 사람이 감지되면 10초 동안 키패드 입력 활성화
- *   - 4x4 키패드 비밀번호 입력  ('*' = 지우기, '#' = 확인)
+ *   - 4x4 키패드 비밀번호 입력  ('#' = 지우기, '*' = 확인)
  *   - RC522 RFID 카드/태그 인식
  *   - I2C 1602 LCD 에 입력/상태 표시
  *   - 보드 B 와 UART 통신 : 인증 결과 전송, 문 상태 수신
@@ -27,23 +27,22 @@
 // ---------------- 핀 배치 ----------------
 
 // 키패드 : 핀 위(1번)부터 C4 C3 C2 C1 R1 R2 R3 R4 → D8 D7 D6 D5 D4 D3 D2 A0 차례대로
-const uint8_t PIN_RFID_SS = 10;
-const uint8_t PIN_PIR     = 9;
-const uint8_t PIN_LINK_RX = A1;
-const uint8_t PIN_LINK_TX = A2;
-const uint8_t LCD_ADDR    = 0x27; 
+const int PIN_RFID_SS = 10; //SPI
+const int PIN_PIR     = 9; //PIR motion
+const int PIN_LINK_RX = A1; //Serial 통신
+const int PIN_LINK_TX = A2; // RX, TX
+const int LCD_ADDR    = 0x27; // LCD
 
 // ---------------- 설정값 ----------------
-const char PASSWORD[]   = "1234";        // 키패드 비밀번호
-const uint8_t MAX_INPUT = 8;             // 최대 입력 자릿수
-const unsigned long MSG_MS    = 3000;    // 안내 메시지 표시 시간
-const unsigned long ACTIVE_MS = 10000;   // 마지막 움직임(또는 키 입력) 뒤 키패드 활성 시간
+const char PASSWORD[]   = "1111";        // 키패드 비밀번호
+const int MAX_INPUT = 8;             // 최대 입력 자릿수
+const long MSG_MS    = 3000;    // 안내 메시지 표시 시간
+const long ACTIVE_MS = 10000;   // 마지막 움직임(또는 키 입력) 뒤 키패드 활성 시간
 
 // 등록된 RFID UID (A3_rfid_test 로 카드를 찍어서 나온 값을 여기에)
-const uint8_t UID_COUNT = 2;
-const uint8_t ALLOWED_UID[UID_COUNT][4] = {
-  {0xDE, 0xAD, 0xBE, 0xEF},   // 예시 1 → 내 카드 UID 로 교체
-  {0x12, 0x34, 0x56, 0x78},   // 예시 2 → 내 태그 UID 로 교체
+const int UID_COUNT = 2;
+const int ALLOWED_UID[UID_COUNT][4] = {
+  {0xDE, 0xAD, 0xBE, 0xEF},   
 };
 
 // ---------------- 키패드 ----------------
@@ -58,14 +57,13 @@ byte rowPins[ROWS] = {4, 3, 2, A0};   // R1, R2, R3, R4
 byte colPins[COLS] = {5, 6, 7, 8};    // C1, C2, C3, C4
 
 Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
-// RST 핀을 3.3V 에 바로 연결했으므로 리셋 핀은 '사용 안 함'으로 지정 → 라이브러리가 소프트 리셋 사용
 MFRC522 rfid(PIN_RFID_SS, MFRC522::UNUSED_PIN);
 LiquidCrystal_I2C lcd(LCD_ADDR, 16, 2);
 SoftwareSerial link(PIN_LINK_RX, PIN_LINK_TX);
 
 // ---------------- 상태 변수 ----------------
 char    input[MAX_INPUT + 1];
-uint8_t inputLen = 0;
+unsigned int inputLen = 0;
 unsigned long msgUntil = 0;       // 0 이 아니면 그 시각에 기본 화면으로 복귀
 bool keypadActive = false;        // 모션 감지 후 키패드 입력 가능 상태
 unsigned long lastMotion = 0;     // 마지막으로 움직임(또는 키 입력)이 있던 시각
@@ -83,14 +81,14 @@ void showIdle() {
   lcd.setCursor(0, 1);
   if (keypadActive) {
     lcd.print(F("PW:"));
-    for (uint8_t i = 0; i < inputLen; i++) lcd.print('*');
+    for (int i = 0; i < inputLen; i++) lcd.print('*');
   } else {
     lcd.print(F("Wave to start"));
   }
   msgUntil = 0;
 }
 
-// 잠깐 띄우는 안내 메시지 (MSG_MS 뒤 기본 화면으로 돌아감)
+// 잠깐 띄우는 안내 메시지
 void showMsg(const __FlashStringHelper *l1, const char *l2) {
   lcd.clear();
   lcd.setCursor(0, 0);
@@ -137,17 +135,23 @@ void updateMotion() {
 // ================================================================
 void handleKey(char k) {
   lastMotion = millis();                  // 입력하는 동안은 꺼지지 않게
-  if (k == '*') {                         // 전체 지우기
+  if (k == '#') {                         // 전체 지우기
     inputLen = 0;
-  } else if (k == '#') {                  // 확인
+  } 
+  
+  else if (k == '*') {                  // 확인
     input[inputLen] = '\0';
     bool ok = (strcmp(input, PASSWORD) == 0);
     inputLen = 0;
     if (ok) grant("KEY");
     else    deny("KEY");
     return;
-  } else if (k >= '0' && k <= '9') {      // 숫자만 입력 (A~D 는 무시)
-    if (inputLen < MAX_INPUT) input[inputLen++] = k;
+  }
+
+  else if (k >= '0' && k <= '9') 
+  {      // 숫자만 입력 (A~D 는 무시)
+    if (inputLen < MAX_INPUT) 
+      input[inputLen++] = k;
   }
   showIdle();
 }
@@ -161,7 +165,7 @@ void handleRfid() {
 
   bool ok = false;
   if (rfid.uid.size == 4) {               // MIFARE 카드 4바이트 UID
-    for (uint8_t n = 0; n < UID_COUNT && !ok; n++) {
+    for (int n = 0; n < UID_COUNT && !ok; n++) {
       ok = (memcmp(rfid.uid.uidByte, ALLOWED_UID[n], 4) == 0);
     }
   }
