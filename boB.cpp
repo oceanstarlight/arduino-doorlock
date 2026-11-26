@@ -2,6 +2,7 @@
 #include <Servo.h>
 // mstimer 내부 인터럽트 라이브러리
 #include <MsTimer2.h>
+// servo = timer1, mstimer2 = timer2
 
 Servo servo;
 
@@ -22,6 +23,9 @@ volatile unsigned long msSave = 0;
 // 굳이 D 핀 쓴 이유는 켜기+쓰기만 하니까 그럼.
 const int RED_LED = 12;
 const int GREEN_LED = 10;
+
+// MsTimer2 카운터 변수
+volatile static int count = 0;
 
 void pushButton()
 {
@@ -46,6 +50,19 @@ void moveServo(int angle)
   servo.detach();
 }
 
+// MsTimer2에서 쓸 ISR 함수
+void doorISR()
+{
+  if(count > 0)
+  {
+    count--;
+    if(count == 0)
+    {
+      lockFlag = true;
+    }
+  }
+}
+
 
 void Dooropen()
 {
@@ -55,7 +72,7 @@ void Dooropen()
 
   // Servo 구동 및 3초 대기
   moveServo(90);
-  delay(3000);
+  count = 30;
 }
 
 void Doorlock()
@@ -64,6 +81,7 @@ void Doorlock()
   digitalWrite(GREEN_LED, LOW);
 
   moveServo(0);
+  lockFlag = false;
 }
 
 void setup() {
@@ -75,16 +93,25 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(InterButton), pushButton, FALLING);
   servo.attach(ServoPin); 
   servo.detach();
-
   Doorlock();
+
+  // MsTimer2 내부 인터럽트 세팅
+  // 주기마다 불릴 ISR 등록
+  MsTimer2::set(100, doorISR);
+  // timer 시작
+  MsTimer2::start();
 }
 
 void loop() {
-  if(pushFlag == true){
+  if(pushFlag == true)
+  {
     pushFlag = false;
     Dooropen();
     // serial moniter에 출력 // 잘 작동하나 확인.
     Serial.println("nooleum");
+  }
+  if(lockFlag == true)
+  {
     Doorlock();
   }
 }
