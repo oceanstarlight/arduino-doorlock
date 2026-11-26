@@ -17,9 +17,8 @@ void loop() {
   if(buttonState == HIGH){
     servo.write(90);
   }
-  else {
-    servo.write(0);
-  }
-
+  
+  delay(3000);
+  servo.write(0);
   delay(30);
 }
