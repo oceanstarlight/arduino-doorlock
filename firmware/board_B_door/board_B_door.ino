@@ -18,6 +18,7 @@
  * ================================================================
  */
 
+// D0, D1 핀을 쓰면 SoftwareSerial.h 라이브러리 안써도 됌. 나중에 제거 예정.
 #include <SoftwareSerial.h>
 #include <Servo.h>
 #include <MsTimer2.h>
