@@ -63,13 +63,11 @@ void doorISR()
   }
 }
 
-
 void Dooropen()
 {
   // LED 단
   digitalWrite(RED_LED, LOW);
   digitalWrite(GREEN_LED, HIGH);
-
   // Servo 구동 및 3초 대기
   moveServo(90);
   count = 30;
@@ -79,13 +77,14 @@ void Doorlock()
 {
   digitalWrite(RED_LED, HIGH);
   digitalWrite(GREEN_LED, LOW);
-
+  Serial.println("locked");
   moveServo(0);
   lockFlag = false;
 }
 
 void setup() {
   Serial.begin(9600);
+  bluetooth.begin(9600);
   pinMode(InterButton, INPUT_PULLUP); // 초기 동작 안함
 
   pinMode(RED_LED, OUTPUT);
@@ -103,15 +102,31 @@ void setup() {
 }
 
 void loop() {
+   if (Serial.available() > 0) 
+  {
+    // 2. 버퍼에서 1바이트를 꺼내옴
+    char data = Serial.read(); 
+    
+    // 3. 받은 값에 따라 동작
+    if (data == 'o') {
+      pushFlag = false;
+      Dooropen(); // LED 켜기
+    }
+  }
   if(pushFlag == true)
   {
     pushFlag = false;
     Dooropen();
     // serial moniter에 출력 // 잘 작동하나 확인.
-    Serial.println("nooleum");
+    //Serial.println("nooleum");
+
   }
   if(lockFlag == true)
   {
     Doorlock();
+  }
+  if(bluetooth.available())
+  {
+    Serial.write(bluetooth.read());
   }
 }
