@@ -1,9 +1,8 @@
 // 보드 B (최소화) : 보드 A 의 'O'(열기) / 'F'(실패) 수신, 실내 버튼(외부 인터럽트), MsTimer2(내부 인터럽트) 5초 자동 잠금 + LED
-#include <SoftwareSerial.h>
 #include <Servo.h>
 #include <MsTimer2.h>
 
-SoftwareSerial link(4, 5);       // RX(D4) ← 보드 A A2, TX(안 씀)
+// 보드 A 링크 : 하드웨어 Serial, RX(D0) ← 보드 A A2  (업로드할 땐 D0 선을 잠깐 뽑기)
 Servo servo;                     // 신호 A0, 0° 잠금 / 90° 열림
 
 volatile bool btnFlag = false, lockFlag = false;
@@ -29,7 +28,7 @@ void openDoor() {
 }
 
 void setup() {
-  link.begin(9600);
+  Serial.begin(9600);
   pinMode(2, INPUT_PULLUP);      // 실내 버튼 (D2 ↔ GND)
   pinMode(10, OUTPUT);
   pinMode(12, OUTPUT);
@@ -44,8 +43,8 @@ void loop() {
   if (btnFlag) { btnFlag = false; openDoor(); }
   if (lockFlag) { lockFlag = false; if (openTicks == 0) servo.write(0); }   // 그 사이 다시 열렸으면 잠그지 않음
 
-  if (link.available()) {
-    char c = link.read();
+  if (Serial.available()) {
+    char c = Serial.read();
     if (c == 'O') openDoor();
     if (c == 'F') failTicks = 20;   // 2초
   }

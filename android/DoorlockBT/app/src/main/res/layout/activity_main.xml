@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <!-- 1) 연결 : 휴대폰 설정에서 미리 페어링한 HC-06 을 고른다 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="페어링된 기기"
+            android:textStyle="bold" />
+
+        <Spinner
+            android:id="@+id/spDevice"
+            android:layout_width="match_parent"
+            android:layout_height="48dp" />
+
+        <Button
+            android:id="@+id/btnConnect"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="연결" />
+
+        <TextView
+            android:id="@+id/tvConn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:text="연결 안 됨" />
+
+        <!-- 2) 비밀번호 : 보드 B 코드의 BT_PASSWORD 와 같아야 한다 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="앱 비밀번호"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/etPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="보드 B 의 BT_PASSWORD"
+            android:inputType="numberPassword"
+            android:maxLength="16" />
+
+        <!-- 3) 문 상태 -->
+        <TextView
+            android:id="@+id/tvDoor"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:gravity="center"
+            android:text="상태 모름"
+            android:textSize="36sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvDetail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:gravity="center"
+            android:text="" />
+
+        <!-- 4) 조작 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnOpen"
+                android:layout_width="0dp"
+                android:layout_height="72dp"
+                android:layout_weight="1"
+                android:enabled="false"
+                android:text="문 열기"
+                android:textSize="18sp" />
+
+            <Button
+                android:id="@+id/btnLock"
+                android:layout_width="0dp"
+                android:layout_height="72dp"
+                android:layout_weight="1"
+                android:enabled="false"
+                android:text="즉시 잠금"
+                android:textSize="18sp" />
+        </LinearLayout>
+
+        <!-- 5) 받은 메시지 기록 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="기록"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvLog"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="monospace"
+            android:textSize="12sp" />
+    </LinearLayout>
+</ScrollView>
