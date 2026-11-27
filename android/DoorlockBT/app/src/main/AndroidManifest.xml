@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Android 11 이하 : 설치할 때 자동 허용 -->
+    <uses-permission
+        android:name="android.permission.BLUETOOTH"
+        android:maxSdkVersion="30" />
+    <!-- Android 12 이상 : 앱 실행 중에 사용자에게 허용 요청 (페어링된 기기 목록·연결) -->
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+
+    <uses-feature
+        android:name="android.hardware.bluetooth"
+        android:required="true" />
+
+    <application
+        android:allowBackup="false"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@android:style/Theme.Material.Light.DarkActionBar">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>
