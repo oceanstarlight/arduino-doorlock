@@ -1,3 +1,5 @@
+// 블루투스용 통신핀 지정. 현재 D0, D1 사용중이라 블루투스 쓰려면 무조건 필요.
+#include <SoftwareSerial.h>
 // servo 필수 라이브러리
 #include <Servo.h>
 // mstimer 내부 인터럽트 라이브러리
@@ -5,6 +7,12 @@
 // servo = timer1, mstimer2 = timer2
 
 Servo servo;
+
+#define BT_RXD 8
+#define BT_TXD 9
+SoftwareSerial bluetooth(BT_RXD, BT_TXD);
+// 임시 비번
+const char password[5] = {"1234"};
 
 // InterButton  버튼 누르면 받는 핀 번호
 // ServoPin   서보모터 동작 핀
@@ -82,6 +90,24 @@ void Doorlock()
   lockFlag = false;
 }
 
+void bluetoothRe() 
+{
+  static char BT[8];
+  static byte len = 0;
+  while (bluetooth.available()) {
+    char c = bluetooth.read();
+    if(c == '\r' || c == '\n' || c == '*') 
+    {
+      if (len == 0)  continue;
+      BT[len] = '\0';
+      len = 0;
+
+      if(strcmp(BT, password) == 0) Dooropen();
+    }
+    else if (len < sizeof(BT) - 1) { BT[len++] = c; }
+  }
+}
+
 void setup() {
   Serial.begin(9600);
   bluetooth.begin(9600);
@@ -125,8 +151,10 @@ void loop() {
   {
     Doorlock();
   }
+
   if(bluetooth.available())
   {
-    Serial.write(bluetooth.read());
+    Serial.println("bt connect");
+    bluetoothRe();
   }
 }
