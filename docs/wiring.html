@@ -125,7 +125,7 @@ ol.steps > li > div{display:flex;flex-direction:column;gap:8px;min-width:0}
 <div class="wrap">
 
 <header style="display:flex;flex-direction:column;gap:12px">
-  <div class="eyebrow">기말 과제 · Arduino UNO × 2 · 하프 브레드보드 × 2</div>
+  <div class="eyebrow">기말 과제 · Arduino UNO × 2 · 하프 브레드보드 × 2 · HC-06 블루투스</div>
   <h1>스마트 도어락 배선 가이드</h1>
   <p class="lead">실물 비율로 그린 배선도야. 우노와 400홀 브레드보드는 실제 치수 비율이고, 저항은 실제 색띠로 그렸어. 모듈은 크기만 대략 맞췄어. 단계 버튼을 누르면 그 단계에서 꽂을 것만 강조돼.</p>
   <nav class="toc" aria-label="목차">
@@ -139,21 +139,22 @@ ol.steps > li > div{display:flex;flex-direction:column;gap:8px;min-width:0}
     <div class="card"><h3>보드 A · 입력부</h3>
       <dl class="kv"><dt>PIR</dt><dd>움직임 감지 → 키패드 10초 활성 (RFID는 항상 동작)</dd><dt>키패드</dt><dd>비밀번호 확인 → B에 <code>OPEN:KEY</code></dd><dt>RFID</dt><dd>카드 UID 확인 → <code>OPEN:RFID</code></dd><dt>LCD</dt><dd>입력값(*), 결과, 문 상태</dd></dl></div>
     <div class="card"><h3>보드 B · 문 작동부</h3>
-      <dl class="kv"><dt>서보</dt><dd>0° 잠금 / 90° 열림, 5초 뒤 자동 잠금</dd><dt>버튼</dt><dd>INT0(D2) 외부 인터럽트</dd><dt>LED</dt><dd>MsTimer2 100ms 내부 인터럽트로 표시</dd></dl></div>
+      <dl class="kv"><dt>서보</dt><dd>0° 잠금 / 90° 열림, 5초 뒤 자동 잠금</dd><dt>버튼</dt><dd>INT0(D2) 외부 인터럽트</dd><dt>LED</dt><dd>MsTimer2 100ms 내부 인터럽트로 표시</dd><dt>HC-06</dt><dd>휴대폰 앱으로 열기·즉시 잠금·상태 확인 (D4/D5)</dd><dt>링크</dt><dd>보드 A와 하드웨어 Serial (D0/D1)</dd></dl></div>
   </div>
 </section>
 
 <section id="parts">
   <h2><span class="no">01</span>부품과 저항 사용 계획</h2>
-  <p class="lead">분압 3채널을 모두 <b>1kΩ(위, 핀 쪽) + 2kΩ(아래, GND 쪽)</b>으로 통일했어. 출력은 5V × 2/3 ≈ <b>3.33V</b>야. 저항은 총 <b>8개</b>만 써.</p>
+  <p class="lead">분압 4채널(RC522 3개 + HC-06 RXD 1개)을 모두 <b>1kΩ(핀 쪽) + 2kΩ(GND 쪽)</b>으로 통일했어. 출력은 5V × 2/3 ≈ <b>3.33V</b>야. 저항은 총 <b>10개</b>만 써.</p>
   <div class="tablewrap"><table>
     <thead><tr><th>용도</th><th>보드</th><th>1kΩ</th><th>2kΩ</th><th>220Ω</th><th>메모</th></tr></thead>
     <tbody>
       <tr><td>RC522 SDA(SS) 분압</td><td>A</td><td class="mono">1</td><td class="mono">1</td><td class="mono">0</td><td>핀 → 1k → 노드 → 2k → GND</td></tr>
       <tr><td>RC522 SCK 분압</td><td>A</td><td class="mono">1</td><td class="mono">1</td><td class="mono">0</td><td>같은 구조</td></tr>
       <tr><td>RC522 MOSI 분압</td><td>A</td><td class="mono">1</td><td class="mono">1</td><td class="mono">0</td><td>같은 구조</td></tr>
+      <tr><td>HC-06 RXD 분압</td><td>B</td><td class="mono">1</td><td class="mono">1</td><td class="mono">0</td><td>같은 구조 + GND까지 검정 점퍼</td></tr>
       <tr><td>LED 2개</td><td>B</td><td class="mono">0</td><td class="mono">0</td><td class="mono">2</td><td>각 220Ω</td></tr>
-      <tr class="grp"><td>합계</td><td></td><td class="mono">3</td><td class="mono">3</td><td class="mono">2</td><td>RC522 RST는 저항 없이 3.3V 직결 · 10kΩ은 안 씀</td></tr>
+      <tr class="grp"><td>합계</td><td></td><td class="mono">4</td><td class="mono">4</td><td class="mono">2</td><td>RC522 RST는 저항 없이 3.3V 직결 · 10kΩ은 안 씀</td></tr>
     </tbody></table></div>
   <div class="grid2">
     <div class="card"><h3>저항 색띠로 구별하기</h3>
@@ -162,7 +163,8 @@ ol.steps > li > div{display:flex;flex-direction:column;gap:8px;min-width:0}
     <div class="card"><h3>그 밖의 부품</h3>
       <ul class="plain" style="font-size:14px">
         <li>Arduino UNO R3 2개, 400홀 하프 브레드보드 2개</li>
-        <li>4x4 키패드, RC522 + 카드, 1602 LCD(I2C), PIR 모션 센서(HC-SR501), SG90</li>
+        <li>4x4 키패드, RC522 + 카드, 1602 LCD(I2C), PIR 모션 센서(HC-SR501), SG90, HC-06</li>
+        <li>안드로이드 휴대폰 (HC-06은 클래식 블루투스라 아이폰은 안 돼)</li>
         <li>LED 빨강·초록, 4핀 택트 버튼, 470µF 전해 커패시터</li>
         <li>점퍼선 수-수(M-M), 암-수(F-M) 넉넉히</li>
       </ul></div>
@@ -178,6 +180,7 @@ ol.steps > li > div{display:flex;flex-direction:column;gap:8px;min-width:0}
       <li><b>서보에 9V 연결하기.</b> SG90은 4.8~6V용이야. 서보는 우노 5V로만 써.</li>
       <li><b>두 보드의 5V 핀끼리 연결하기.</b> 보드끼리는 GND와 신호선 2개만 연결해.</li>
       <li><b>470µF 커패시터 극성을 반대로 꽂기.</b> 띠(−) 쪽 다리를 − 레일에 꽂아.</li>
+      <li><b>HC-06 RXD에 D5를 직결하기.</b> RXD는 3.3V 신호용이라 반드시 1kΩ/2kΩ 분압을 거쳐.</li>
     </ul></div>
   <div class="checks" id="checks"></div>
   <div class="progress" id="progress"></div>
@@ -185,7 +188,7 @@ ol.steps > li > div{display:flex;flex-direction:column;gap:8px;min-width:0}
 
 <section id="divider">
   <h2><span class="no">03</span>분압 회로 자세히</h2>
-  <p class="lead">아두이노 핀은 5V를 내보내는데, RC522 신호선은 3.3V까지만 받아. 그래서 1kΩ과 2kΩ 두 개로 전압을 낮춰. 같은 모양을 보드 A에 3번 만들게 돼. 그림은 보드 A SCK 채널 예시야.</p>
+  <p class="lead">아두이노 핀은 5V를 내보내는데, RC522 신호선과 HC-06 RXD는 3.3V까지만 받아. 그래서 1kΩ과 2kΩ 두 개로 전압을 낮춰. 같은 모양을 4번 만들게 돼(보드 A 3번, 보드 B 1번). 그림은 보드 A SCK 채널 예시야.</p>
   <div class="bench">
     <div class="matscroll"><svg id="divSvg" viewBox="0 0 1000 440" role="img" aria-label="분압 회로 브레드보드 확대도와 회로도"></svg></div>
     <div class="stepdesc">
@@ -251,8 +254,8 @@ MOTION
       <div class="tablewrap"><table style="min-width:420px"><thead><tr><th>해볼 것</th><th>LCD</th></tr></thead><tbody>
         <tr><td>가만히 있기</td><td>Door:LOCKED / Wave to start (키패드 무시)</td></tr>
         <tr><td>손 흔들기</td><td>Door:LOCKED / PW: (키패드 입력 가능)</td></tr>
-        <tr><td><code>1234#</code></td><td>ACCESS GRANTED / KEY</td></tr>
-        <tr><td>틀린 번호 + <code>#</code></td><td>ACCESS DENIED / KEY</td></tr>
+        <tr><td><code>1111*</code></td><td>ACCESS GRANTED / KEY</td></tr>
+        <tr><td>틀린 번호 + <code>*</code></td><td>ACCESS DENIED / KEY</td></tr>
         <tr><td>등록 카드</td><td>ACCESS GRANTED / RFID</td></tr>
         <tr><td>미등록 카드</td><td>ACCESS DENIED / RFID</td></tr>
         <tr><td>3초 뒤</td><td>Door:LOCKED / PW:</td></tr>
@@ -263,7 +266,7 @@ MOTION
 
 <section id="bbB">
   <h2><span class="no">06</span>보드 B 실물 배선</h2>
-  <p class="lead">보드 B는 아래쪽 레일만 써. 우노 5V → + 레일, 우노 GND → − 레일이고, 서보도 이 5V를 같이 써. 외부 전원은 필요 없어.</p>
+  <p class="lead">보드 B는 우노 5V를 아래쪽 + 레일에 넣고, 오른쪽 끝 점퍼로 위쪽 + 레일에도 보내. 그래서 <b>위·아래 + 레일 둘 다 5V</b>야(보드 A와 달라). 서보와 HC-06이 이 5V를 같이 쓰고, 외부 전원은 필요 없어. HC-06 분압은 위쪽 절반에 만들어.</p>
   <div class="callout warn"><b class="t">서보를 우노 5V로 쓸 때 지킬 것</b>
     <ul class="plain">
       <li><b>470µF 커패시터는 꼭 꽂아.</b> 서보가 움직일 때 순간 전류를 받아 줘서 보드 리셋을 막아. 긴 다리(+)는 + 레일, 띠(−)는 − 레일.</li>
@@ -279,11 +282,11 @@ MOTION
 <section id="link">
   <h2><span class="no">07</span>보드 A ↔ 보드 B 연결</h2>
   <div class="tablewrap"><table><thead><tr><th>보드 A</th><th></th><th>보드 B</th><th>메모</th></tr></thead><tbody>
-    <tr><td class="mono">A2 (TX)</td><td>→</td><td class="mono">D4 (RX)</td><td>A가 보내는 선</td></tr>
-    <tr><td class="mono">A1 (RX)</td><td>←</td><td class="mono">D5 (TX)</td><td>B가 보내는 선</td></tr>
-    <tr><td class="mono">GND</td><td>—</td><td class="mono">GND</td><td>공통 GND <span class="tag c">필수</span></td></tr>
+    <tr><td class="mono">A2 (TX)</td><td>→</td><td class="mono">D0 (RX)</td><td>A가 보내는 선 <span class="tag c">B 업로드 전 뽑기</span></td></tr>
+    <tr><td class="mono">A1 (RX)</td><td>←</td><td class="mono">D1 (TX)</td><td>B가 보내는 선</td></tr>
+    <tr><td class="mono">GND</td><td>—</td><td class="mono">GND (위쪽 − 레일)</td><td>공통 GND <span class="tag c">필수</span></td></tr>
   </tbody></table></div>
-  <p class="lead">5V끼리는 연결하지 않아. 각 보드는 자기 USB로 전원을 받아.</p>
+  <p class="lead">5V끼리는 연결하지 않아. 각 보드는 자기 USB로 전원을 받아. 보드 B는 HC-06이 SoftwareSerial(D4/D5)을 쓰기 때문에 보드 A 링크는 하드웨어 Serial(D0/D1)로 받아. 그래서 보드 B 시리얼 모니터에 보드 A로 보내는 <code>ST:...</code> 메시지가 그대로 보여.</p>
 </section>
 
 <section id="use">
@@ -292,7 +295,9 @@ MOTION
     <div class="card"><h3>LED (보드 B)</h3>
       <dl class="kv"><dt><span class="led" style="background:#e0352b"></span>빨강</dt><dd>켜짐 = 잠김, 빠른 깜빡임 = 인증 실패</dd><dt><span class="led" style="background:#1f9d55"></span>초록</dt><dd>켜짐 = 열림 (5초 뒤 자동 잠금)</dd></dl></div>
     <div class="card"><h3>여는 방법 (보드 A)</h3>
-      <ul class="plain" style="font-size:14px"><li>PIR 앞에서 손을 흔들면 LCD 2줄이 <code>Wave to start</code> → <code>PW:</code>로 바뀌어</li><li>비밀번호 <code>1234</code> + <code>#</code> (<code>*</code>는 지우기)</li><li>10초 동안 움직임·입력이 없으면 다시 잠기고 입력이 지워져</li><li>등록 카드는 PIR과 상관없이 언제나 동작</li><li>안에서는 실내 버튼(D2)으로 열기</li></ul></div>
+      <ul class="plain" style="font-size:14px"><li>PIR 앞에서 손을 흔들면 LCD 2줄이 <code>Wave to start</code> → <code>PW:</code>로 바뀌어</li><li>비밀번호 <code>1111</code> + <code>*</code> (<code>#</code>은 지우기)</li><li>10초 동안 움직임·입력이 없으면 다시 잠기고 입력이 지워져</li><li>등록 카드는 PIR과 상관없이 언제나 동작</li><li>안에서는 실내 버튼(D2)으로 열기</li></ul></div>
+    <div class="card"><h3>휴대폰 앱 (HC-06)</h3>
+      <ul class="plain" style="font-size:14px"><li>휴대폰 설정에서 HC-06 페어링 (PIN <code>1234</code> 또는 <code>0000</code>)</li><li>앱 <code>android/DoorlockBT</code>에서 HC-06 고르고 <b>연결</b></li><li>앱 비밀번호 <code>2580</code>(보드 B <code>BT_PASSWORD</code>) + <b>문 열기</b> / <b>즉시 잠금</b></li><li>틀리면 빨강 LED 빠르게 깜빡, 앱에 실패 표시</li><li>키패드·RFID·버튼으로 열려도 앱 상태가 바로 바뀌어</li></ul></div>
   </div>
 </section>
 
@@ -300,8 +305,11 @@ MOTION
   <h2><span class="no">09</span>업로드할 때 주의</h2>
   <div class="callout warn"><b class="t">업로드는 보드마다 따로</b>
     <p>포트를 보드 A / 보드 B로 바꿔 가며 올려. 메인 코드와 최소화 코드 중 <b>한 쌍만</b> 올려야 해 (메인 A + 최소 B처럼 섞으면 통신 형식이 달라서 안 돼).</p></div>
+  <div class="callout danger"><b class="t">보드 B 업로드 전: D0 선 뽑기</b>
+    <p>보드 B의 D0는 USB 업로드에도 쓰는 핀이야. 보드 A의 A2에서 오는 선이 꽂혀 있으면 <code>avrdude: stk500_recv()</code> 오류가 나면서 업로드가 안 돼. 뽑고 올린 다음 다시 꽂아.</p></div>
 <pre>firmware/board_A_input/    → 보드 A 메인
-firmware/board_B_door/     → 보드 B 메인
+firmware/board_B_door/     → 보드 B 메인 (HC-06 포함)
+android/DoorlockBT/        → 안드로이드 앱 (Android Studio 로 열기)
 firmware/minimal/          → 핵심 기능만 남긴 최소화 코드 (A·B 한 쌍)
 firmware/tests/A1~A5       → 보드 A 모듈별 테스트
 firmware/tools/i2c_scanner → LCD 주소 찾기</pre>
@@ -319,7 +327,7 @@ A: {
     { id: "kp",  type: "keypad", x: 140, y: 30,  label: "4x4 키패드" },
     { id: "rc",  type: "rc522",  x: 620, y: 150, label: "RC522" },
     { id: "lcd", type: "lcd",    x: 640, y: 860, label: "1602 LCD + I2C" },
-    { id: "lkA", type: "link",   x: 223, y: 900, label: "→ 보드 B", pins: ["GND", "B D5", "B D4"], offs: [0, 4, 7] },
+    { id: "lkA", type: "link",   x: 223, y: 900, label: "→ 보드 B", pins: ["GND", "B D1", "B D0"], offs: [0, 4, 7] },
     { id: "pir", type: "pir",    x: 800, y: 400, label: "PIR 모션 센서" },
   ],
   parts: [
@@ -358,8 +366,8 @@ A: {
     { from: { mod: ["kp", "R2"] }, to: { uno: "D3" }, color: "blue",   step: 7, note: "" },
     { from: { mod: ["kp", "R3"] }, to: { uno: "D2" }, color: "purple", step: 7, note: "" },
     { from: { mod: ["kp", "R4"] }, to: { uno: "A0" }, color: "gray",   step: 7, note: "키패드 8번 핀 (맨 아래)" },
-    { from: { mod: ["lkA", "B D4"] }, to: { uno: "A2" },     color: "cyan", step: 9, note: "A2(TX) → 보드 B D4" },
-    { from: { mod: ["lkA", "B D5"] }, to: { uno: "A1" },     color: "pink",  step: 9, note: "A1(RX) ← 보드 B D5" },
+    { from: { mod: ["lkA", "B D0"] }, to: { uno: "A2" },     color: "cyan", step: 9, note: "A2(TX) → 보드 B D0" },
+    { from: { mod: ["lkA", "B D1"] }, to: { uno: "A1" },     color: "pink",  step: 9, note: "A1(RX) ← 보드 B D1" },
     { from: { mod: ["pir", "VCC"] }, to: { rail: ["B+", 28] }, color: "red",   step: 8, note: "PIR은 5V <span class='tag c'>3.3V 아님</span>" },
     { from: { mod: ["pir", "OUT"] }, to: { uno: "D9" },        color: "yellow", step: 8, note: "" },
     { from: { mod: ["pir", "GND"] }, to: { rail: ["B-", 27] }, color: "black", step: 8, note: "" },
@@ -374,18 +382,22 @@ A: {
     { t: "LCD 연결", d: ["GND → 아래쪽 − 레일, VCC → 아래쪽 + 레일(5V)", "SDA → A4, SCL → A5", "→ 테스트 <code>i2c_scanner</code> → <code>A1_lcd_test</code>"] },
     { t: "키패드 연결 (수-수 점퍼)", d: ["키패드 핀 이름(위부터 C4 C3 C2 C1 R1 R2 R3 R4) 순서대로 D8, D7, D6, D5, D4, D3, D2, A0 (그림에선 왼쪽부터)", "→ 테스트 <code>A2_keypad_test</code>"] },
     { t: "PIR 모션 센서", d: ["핀 이름은 돔(흰 렌즈)을 빼면 기판에 적혀 있어. 그림 순서와 다르면 <b>이름 기준</b>으로 꽂아", "VCC → 아래쪽 + 레일(<b>5V</b>), GND → 아래쪽 − 레일, OUT → D9", "→ 테스트 <code>A5_pir_test</code> (처음 30~60초는 안정화)"] },
-    { t: "보드 B 링크 (마지막)", d: ["보드 B를 만든 뒤에 연결", "A2 → 보드 B D4, A1 ← 보드 B D5, GND ↔ GND"] },
+    { t: "보드 B 링크 (마지막)", d: ["보드 B를 만든 뒤에 연결", "A2 → 보드 B D0, A1 ← 보드 B D1, GND ↔ 보드 B 위쪽 − 레일"] },
   ],
 },
 B: {
-  view: [0, 0, 1180, 640],
-  uno: { x: 60, y: 190, label: "보드 B" },
-  bb:  { x: 480, y: 190 },
+  view: [0, 0, 1180, 960],
+  uno: { x: 60, y: 500, label: "보드 B" },
+  bb:  { x: 480, y: 500 },
   mods: [
-    { id: "sv",  type: "servo",  x: 640, y: 530, label: "SG90 서보" },
-    { id: "lkB", type: "link",   x: 156, y: 105, label: "→ 보드 A", pins: ["GND", "A A1", "A A2"], offs: [0, 9, 10], down: true },
+    { id: "bt",  type: "hc06",   x: 600, y: 120, label: "HC-06" },
+    { id: "sv",  type: "servo",  x: 640, y: 840, label: "SG90 서보" },
+    { id: "lkB", type: "link",   x: 294, y: 415, label: "→ 보드 A", pins: ["A A1", "A A2", "GND"], offs: [0, 1, 5], down: true },
   ],
   parts: [
+    // HC-06 RXD 분압 (위쪽 절반): 1kΩ(2c → 5c) + 2kΩ(5b → 8b), 8a 에서 검정 점퍼로 맨 위 − 레일
+    { id: "R1", type: "res", ohm: 1000, a: { bb: [2, "c"] }, b: { bb: [5, "c"] }, step: 5 },
+    { id: "R2", type: "res", ohm: 2000, a: { bb: [5, "b"] }, b: { bb: [8, "b"] }, step: 5 },
     { id: "RR", type: "res", ohm: 220,  a: { bb: [10, "g"] }, b: { bb: [13, "g"] }, step: 2 },
     { id: "LR", type: "led", color: "red",    a: { bb: [13, "j"] }, k: { rail: ["B-", 14] }, step: 2 },
     { id: "RG", type: "res", ohm: 220,  a: { bb: [22, "g"] }, b: { bb: [25, "g"] }, step: 2 },
@@ -395,7 +407,9 @@ B: {
   ],
   wires: [
     { from: { uno: "GND_B1" }, to: { rail: ["B-", 2] },  color: "black", step: 1, note: "아래쪽 − 레일 (GND)" },
-    { from: { uno: "5V" },     to: { rail: ["B+", 16] }, color: "red",   step: 1, note: "아래쪽 + 레일 (5V, 서보용)" },
+    { from: { uno: "5V" },     to: { rail: ["B+", 16] }, color: "red",   step: 1, note: "아래쪽 + 레일 (5V, 서보·HC-06용)" },
+    { from: { uno: "GND_T" },  to: { rail: ["T-", 3] },  color: "black", step: 1, note: "위쪽 − 레일 (GND, HC-06·보드 A용)" },
+    { from: { rail: ["B+", 30] }, to: { rail: ["T+", 30] }, color: "red", step: 1, note: "아래 + 레일 → 위 + 레일 (오른쪽 끝, 5V를 위로)" },
     { from: { uno: "D12" }, to: { bb: [10, "f"] }, color: "orange", step: 2, note: "빨강 LED (220Ω)" },
     { from: { uno: "D10" }, to: { bb: [22, "f"] }, color: "green",  step: 2, note: "초록 LED (220Ω)" },
     { from: { uno: "D2" },  to: { bb: [27, "a"] }, color: "purple", step: 3, note: "버튼 왼쪽 위 다리 칸" },
@@ -403,16 +417,23 @@ B: {
     { from: { mod: ["sv", "V+"] },   to: { rail: ["B+", 9] },  color: "red",    step: 4, note: "서보 빨강 <span class='tag c'>5V만</span>" },
     { from: { mod: ["sv", "GND"] },  to: { rail: ["B-", 9] },  color: "brown",  step: 4, note: "서보 갈색" },
     { from: { mod: ["sv", "SIG"] },  to: { uno: "A0" },        color: "orange", step: 4, note: "서보 주황(신호)" },
-    { from: { mod: ["lkB", "A A2"] }, to: { uno: "D4" },       color: "cyan",  step: 5, note: "D4(RX) ← 보드 A A2" },
-    { from: { mod: ["lkB", "A A1"] }, to: { uno: "D5" },       color: "pink",  step: 5, note: "D5(TX) → 보드 A A1" },
-    { from: { mod: ["lkB", "GND"] },  to: { uno: "GND_T" },    color: "black", step: 5, note: "공통 GND <span class='tag c'>필수</span>" },
+    { from: { uno: "D5" },  to: { bb: [2, "e"] },              color: "white",  step: 5, note: "D5(TX) → 분압 P칸" },
+    { from: { bb: [8, "a"] },  to: { rail: ["T-", 8] },        color: "black",  step: 5, note: "2kΩ 끝 → 위쪽 − 레일 (맨 위, + 레일 건너서)" },
+    { from: { mod: ["bt", "RXD"] },  to: { bb: [5, "d"] },     color: "white",  step: 5, note: "분압 N칸 → HC-06 RXD (약 3.3V)" },
+    { from: { mod: ["bt", "TXD"] },  to: { uno: "D4" },        color: "gray",   step: 5, note: "HC-06 TXD → D4(RX) 직결" },
+    { from: { mod: ["bt", "GND"] },  to: { rail: ["T-", 14] }, color: "black",  step: 5, note: "" },
+    { from: { mod: ["bt", "VCC"] },  to: { rail: ["T+", 15] }, color: "red",    step: 5, note: "HC-06 VCC는 5V" },
+    { from: { mod: ["lkB", "A A2"] }, to: { uno: "D0" },       color: "cyan",  step: 6, note: "D0(RX) ← 보드 A A2 <span class='tag c'>업로드 전 뽑기</span>" },
+    { from: { mod: ["lkB", "A A1"] }, to: { uno: "D1" },       color: "pink",  step: 6, note: "D1(TX) → 보드 A A1" },
+    { from: { mod: ["lkB", "GND"] },  to: { rail: ["T-", 2] }, color: "black", step: 6, note: "공통 GND (위쪽 − 레일) <span class='tag c'>필수</span>" },
   ],
   steps: [
-    { t: "전원 레일 만들기", d: ["이 브레드보드는 레일 쌍마다 <b>−가 위, +가 아래</b>야", "우노 GND(아래 헤더) → 아래쪽 − 레일(j줄 바로 아래)", "우노 5V(아래 헤더) → 아래쪽 + 레일(맨 아래)", "위쪽 레일은 안 써"] },
+    { t: "전원 레일 만들기", d: ["이 브레드보드는 레일 쌍마다 <b>−가 위, +가 아래</b>야", "우노 GND(아래 헤더) → 아래쪽 − 레일(j줄 바로 아래)", "우노 5V(아래 헤더) → 아래쪽 + 레일(맨 아래)", "우노 GND(위쪽 헤더) → 위쪽 − 레일(맨 위)", "빨강 점퍼: 아래 + 레일 30번 → 위 + 레일 30번 (오른쪽 끝). 보드 B는 위·아래 + 레일 <b>둘 다 5V</b>야"] },
     { t: "LED 2개", d: ["220Ω 저항: 10g→13g, 22g→25g", "LED 긴 다리(+)는 13j, 25j / 짧은 다리(−)는 j줄 바로 아래 − 레일", "D12 → 10f(빨강), D10 → 22f(초록)"] },
-    { t: "실내 버튼", d: ["버튼을 가운데 홈에 걸쳐서 꽂기 (다리 4개: 27e, 29e, 27f, 29f)", "D2 → 27a (왼쪽 위 다리와 같은 세로줄)", "29j → 아래쪽 − 레일 (오른쪽 아래 다리 = 대각선)", "→ board_B_door 업로드 후 버튼 테스트"] },
+    { t: "실내 버튼", d: ["버튼을 가운데 홈에 걸쳐서 꽂기 (다리 4개: 27e, 29e, 27f, 29f)", "D2 → 27a (왼쪽 위 다리와 같은 세로줄)", "29j → 아래쪽 − 레일 (오른쪽 아래 다리 = 대각선)", "→ board_B_door 업로드 후 버튼 테스트 (시리얼 모니터에 <code>ST:OPEN:BTN</code>)"] },
     { t: "서보 + 커패시터", d: ["470µF: 긴 다리(+)는 맨 아래 + 레일 4번, 띠(−) 다리는 그 위 − 레일 6번에 (몸통은 브레드보드 아래로)", "서보 빨강 → 아래 + 레일, 갈색 → 아래 − 레일, 주황 → A0"] },
-    { t: "보드 A 링크 (마지막)", d: ["D4 ← 보드 A A2, D5 → 보드 A A1", "보드 A GND ↔ 보드 B GND(위쪽 헤더)"] },
+    { t: "HC-06 + 분압", d: ["1kΩ: 2c → 5c", "2kΩ: 5b → 8b", "검정 점퍼: 8a → 위쪽 <b>− 레일</b>(맨 위). a줄 바로 위는 + 레일(5V)이니까 한 줄 건너 꽂아", "D5 → 2e, HC-06 RXD ← 5d (1kΩ와 2kΩ 사이)", "HC-06 TXD → D4 (직결)", "VCC → 위쪽 + 레일(5V), GND → 위쪽 − 레일", "→ HC-06 LED가 빠르게 깜빡이면 전원 정상. 앱으로 연결 확인"] },
+    { t: "보드 A 링크 (마지막)", d: ["D0 ← 보드 A A2, D1 → 보드 A A1", "보드 A GND ↔ 보드 B 위쪽 − 레일", "<b>보드 B 업로드할 땐 D0 선을 뽑아</b> (D0는 USB 업로드에도 쓰는 핀)"] },
   ],
 },
 };
@@ -420,7 +441,7 @@ B: {
 
 <script id="route-cache">
 /* 미리 계산한 배선 (scene-data 가 바뀌면 서명이 달라져서 자동으로 다시 계산함) */
-const ROUTE_CACHE = {"A":{"sig":"70764615","routes":[[[41,154],[41,161],[86,161],[86,116],[96,116]],[[34,116],[34,109],[98,109],[98,114]],[[45,154],[45,171],[88,171],[88,146],[96,146]],[[43,154],[43,163],[98,163],[98,148]],[[42,116],[42,111],[88,111],[88,132],[94,132],[94,134]],[[36,116],[36,101],[111,101],[111,134],[112,134]],[[40,116],[40,107],[125,107],[125,132],[130,132],[130,134]],[[130,77],[130,109],[101,109],[101,136],[100,136]],[[132,77],[132,105],[119,105],[119,136],[118,136]],[[134,77],[134,118],[135,118],[135,136],[136,136]],[[136,77],[136,99],[38,99],[38,116]],[[140,77],[140,108],[132,108],[132,111],[116,111],[116,114]],[[142,77],[142,113],[129,113],[129,116],[128,116]],[[144,77],[144,110],[137,110],[137,116],[136,116]],[[123,175],[116,175],[116,155],[152,155],[152,146]],[[123,177],[118,177],[118,153],[150,153],[150,148]],[[123,179],[68,179],[68,165],[61,165],[61,154]],[[123,181],[66,181],[66,159],[63,159],[63,154]],[[47,84],[47,105],[46,105],[46,116]],[[49,84],[49,116]],[[51,84],[51,116]],[[53,84],[53,116]],[[55,84],[55,116]],[[57,84],[57,116]],[[59,84],[59,116]],[[61,84],[61,105],[70,105],[70,169],[53,169],[53,154]],[[61,177],[61,167],[57,167],[57,154]],[[55,177],[55,154]],[[168,97],[168,132],[143,132],[143,149],[148,149],[148,148]],[[170,97],[170,103],[44,103],[44,116]],[[172,97],[172,144],[146,144],[146,146]],[[47,177],[47,154]]]},"B":{"sig":"378b45ea","routes":[[[45,77],[45,82],[88,82],[88,69],[96,69]],[[43,77],[43,84],[124,84],[124,71]],[[38,39],[38,33],[111,33],[111,57],[112,57]],[[42,39],[42,31],[135,31],[135,57],[136,57]],[[59,39],[59,29],[145,29],[145,43],[146,43]],[[150,65],[150,69]],[[119,109],[110,109],[110,71]],[[119,107],[113,107],[113,69],[110,69]],[[119,111],[53,111],[53,77]],[[54,20],[54,28],[55,28],[55,39]],[[52,20],[52,29],[53,29],[53,39]],[[34,20],[34,39]]]}};
+const ROUTE_CACHE = {"A":{"sig":"abf4b655","routes":[[[41,154],[41,161],[86,161],[86,116],[96,116]],[[34,116],[34,109],[98,109],[98,114]],[[45,154],[45,171],[88,171],[88,146],[96,146]],[[43,154],[43,163],[98,163],[98,148]],[[42,116],[42,111],[88,111],[88,132],[94,132],[94,134]],[[36,116],[36,101],[111,101],[111,134],[112,134]],[[40,116],[40,107],[125,107],[125,132],[130,132],[130,134]],[[130,77],[130,109],[101,109],[101,136],[100,136]],[[132,77],[132,105],[119,105],[119,136],[118,136]],[[134,77],[134,118],[135,118],[135,136],[136,136]],[[136,77],[136,99],[38,99],[38,116]],[[140,77],[140,108],[132,108],[132,111],[116,111],[116,114]],[[142,77],[142,113],[129,113],[129,116],[128,116]],[[144,77],[144,110],[137,110],[137,116],[136,116]],[[123,175],[116,175],[116,155],[152,155],[152,146]],[[123,177],[118,177],[118,153],[150,153],[150,148]],[[123,179],[68,179],[68,165],[61,165],[61,154]],[[123,181],[66,181],[66,159],[63,159],[63,154]],[[47,84],[47,105],[46,105],[46,116]],[[49,84],[49,116]],[[51,84],[51,116]],[[53,84],[53,116]],[[55,84],[55,116]],[[57,84],[57,116]],[[59,84],[59,116]],[[61,84],[61,105],[70,105],[70,169],[53,169],[53,154]],[[61,177],[61,167],[57,167],[57,154]],[[55,177],[55,154]],[[168,97],[168,132],[143,132],[143,149],[148,149],[148,148]],[[170,97],[170,103],[44,103],[44,116]],[[172,97],[172,144],[146,144],[146,146]],[[47,177],[47,154]]]},"B":{"sig":"ac1a0498","routes":[[[45,138],[45,143],[88,143],[88,130],[96,130]],[[43,138],[43,145],[124,145],[124,132]],[[34,100],[34,93],[98,93],[98,98]],[[152,132],[153,132],[153,100],[152,100]],[[38,100],[38,89],[67,89],[67,116],[112,116],[112,118]],[[42,100],[42,66],[115,66],[115,116],[136,116],[136,118]],[[59,100],[59,91],[118,91],[118,102],[146,102],[146,104]],[[150,126],[150,130]],[[119,170],[110,170],[110,132]],[[119,168],[113,168],[113,130],[110,130]],[[119,172],[53,172],[53,138]],[[53,100],[53,95],[69,95],[69,114],[96,114],[96,112]],[[108,104],[108,98]],[[132,58],[132,94],[129,94],[129,114],[103,114],[103,110],[102,110]],[[130,58],[130,68],[52,68],[52,91],[55,91],[55,100]],[[128,58],[128,92],[120,92],[120,98]],[[126,58],[126,94],[123,94],[123,100],[122,100]],[[63,81],[63,100]],[[61,81],[61,100]],[[71,81],[71,98],[96,98]]]}};
 </script>
 <script>
 (function(){
@@ -1052,21 +1073,24 @@ function buildChecks(){
   const CHECKS=[
    ["c","보드 A: RC522 3.3V 선과 RST 선이 위쪽 + 레일에 있고, 그 레일은 우노 3.3V에서 왔다"],
    ["c","보드 A: SDA·SCK·MOSI 모두 핀 쪽 1kΩ + GND 쪽 2kΩ이다 (MISO만 직결, 10kΩ 아님)"],
-   ["c","레일 쌍마다 −가 위, +가 아래인 걸 확인했다. 보드 A 분압 3채널의 2kΩ은 j줄 바로 아래 − 레일에 있다 (전원 끄고 3채널 모두 N칸↔− 레일 ≈ 2kΩ)"],
+   ["c","레일 쌍마다 −가 위, +가 아래인 걸 확인했다. 보드 A 분압 3채널의 2kΩ은 j줄 바로 아래 − 레일, 보드 B HC-06 점퍼는 맨 위 − 레일에 있다 (전원 끄고 4채널 모두 N칸↔− 레일 ≈ 2kΩ)"],
    ["c","보드 A: 위 + 레일은 우노 3.3V, 아래 + 레일은 우노 5V에서 왔고 둘 사이에 연결된 선이 없다"],
    ["c","보드 B: 470µF의 띠(−) 다리가 − 레일에 꽂혀 있다"],
+   ["c","보드 B: HC-06 RXD는 분압 N칸(5d)에 있고, D5 → 1kΩ → 5 → 2kΩ → 위쪽 − 레일 순서다 (D5 직결 아님)"],
    ["c","두 보드의 5V 핀끼리 연결된 선이 없다"],
    ["s","보드 A: PIR VCC는 아래 + 레일(5V), OUT은 D9에 있다"],
    ["s","LED 긴 다리(+)가 저항 쪽, 짧은 다리(−)가 − 레일 쪽이다"],
    ["s","멀티미터 통전 모드: 각 + 레일과 − 레일 사이에서 삐 소리가 나지 않는다"],
-   ["s","링크선이 엇갈려 있다: A2 → D4, D5 → A1, GND ↔ GND"],
+   ["s","링크선이 엇갈려 있다: A2 → 보드 B D0, 보드 B D1 → A1, GND ↔ GND"],
+   ["s","보드 B: HC-06 TXD → D4, VCC → 위 + 레일(5V), GND → 위 − 레일이다"],
+   ["s","보드 B 업로드 전에 D0 선을 뺐다"],
   ];
   const box=document.getElementById("checks"),prog=document.getElementById("progress");
-  let saved={};try{saved=JSON.parse(localStorage.getItem("doorlock-checks-v2")||"{}");}catch(e){}
+  let saved={};try{saved=JSON.parse(localStorage.getItem("doorlock-checks-v3")||"{}");}catch(e){}
   CHECKS.forEach(([lv,t],i)=>{const lab=document.createElement("label");
     lab.innerHTML=`<input type="checkbox" id="chk${i}"><span class="txt">${t}</span><span class="lvl ${lv}">${lv==="c"?"손상 위험":"오작동"}</span>`;
     const inp=lab.querySelector("input");inp.checked=!!saved[i];
-    inp.addEventListener("change",()=>{saved[i]=inp.checked;try{localStorage.setItem("doorlock-checks-v2",JSON.stringify(saved));}catch(e){}upd();});
+    inp.addEventListener("change",()=>{saved[i]=inp.checked;try{localStorage.setItem("doorlock-checks-v3",JSON.stringify(saved));}catch(e){}upd();});
     box.appendChild(lab);});
   function upd(){const n=CHECKS.filter((_,i)=>saved[i]).length;prog.textContent=`${n} / ${CHECKS.length} 확인됨`+(n===CHECKS.length?" · 전원 넣어도 돼":"");}
   upd();

@@ -7,7 +7,6 @@ Arduino Uno(ATmega328P) **2대**를 UART로 연결해 만든 도어락이다.
 > 🧊 도어락 틀 3D 도면(보드 A 박스 STL 3개, 전체 완성 STEP, 웹 3D 뷰어)은 [`cad/README.md`](cad/README.md)와 [`docs/case3d.html`](docs/case3d.html)에 있다.
 >
 > 📐 실물 비율 브레드보드 배치도, 단계별 배선 순서, 분압 회로 확대도, 보드 A 테스트, 안전 점검표는 [`docs/wiring.html`](docs/wiring.html)을 브라우저로 열면 볼 수 있다.
-> ⚠️ `wiring.html`은 블루투스 추가 **전** 배선이다. 보드 B의 A 링크 핀(D4/D5 → **D0/D1**)과 HC-06 배선은 아래 [4. 배선](#4-배선)을 따른다.
 >
 > 📱 안드로이드 앱 소스는 [`android/DoorlockBT/`](android/DoorlockBT/)에 있다.
 
@@ -54,7 +53,7 @@ flowchart LR
 | 보드 2대 시리얼 통신 | 보드 A `A1(RX)/A2(TX)` SoftwareSerial ↔ 보드 B `D1(TX)/D0(RX)` 하드웨어 Serial, 9600bps |
 | 외부 인터럽트 | 보드 B `D2` = INT0, 실내 버튼, `FALLING`, `millis()` 300ms로 채터링 방지 |
 | 내부 인터럽트 | 보드 B `MsTimer2` 100ms 주기, 5초 자동 잠금 / LED 표시 |
-| 키패드 | PIR이 사람을 감지한 뒤 10초 동안만 입력 가능 (`*` 지우기, `#` 확인) |
+| 키패드 | PIR이 사람을 감지한 뒤 10초 동안만 입력 가능 (`#` 지우기, `*` 확인) |
 | RFID | 등록된 카드 UID 비교 (항상 동작) |
 | 디스플레이 | LCD에 안내(`Wave to start`), 입력값(`*`), 결과, 문 상태 표시 |
 | LED | 초록=열림, 빨강=잠김 / 빠른 깜빡임=인증 실패 |
@@ -70,8 +69,8 @@ flowchart LR
 3. 마지막 움직임이나 키 입력 뒤 **10초** 동안 아무것도 없으면 다시 비활성화되고, 입력하던 비밀번호는 지워진다.
 
 ### 2-2. 키패드로 열기
-1. 숫자를 누르면 LCD 2번째 줄에 `PW:****`처럼 `*`가 늘어난다. `*`는 전체 지우기, `A`~`D`는 무시된다.
-2. `#`을 누르면 보드 A가 비밀번호(기본 `1234`)와 비교한다.
+1. 숫자를 누르면 LCD 2번째 줄에 `PW:****`처럼 `*`가 늘어난다. `#`은 전체 지우기, `A`~`D`는 무시된다. 최대 8자리까지 입력된다.
+2. `*`을 누르면 보드 A가 비밀번호(기본 `1111`)와 비교한다.
 3. **맞으면** LCD에 `ACCESS GRANTED`가 뜨고, 보드 B로 `OPEN:KEY`를 보낸다.
 4. 보드 B가 먼저 보드 A로 `ST:OPEN:KEY`를 보내고, 그다음 서보를 90°로 돌려 문을 연다. 초록 LED는 100ms 타이머 인터럽트가 켠다.
    - 상태를 먼저 보내는 이유: SoftwareSerial로 보내는 동안 인터럽트가 잠깐 막혀서 서보 펄스가 흔들리기 때문이다.
@@ -287,12 +286,13 @@ TX와 RX는 서로 **엇갈려** 연결한다. **두 보드의 5V끼리는 연�
 
 ④에서 얻은 UID를 `board_A_input.ino`의 `ALLOWED_UID`에 붙여 넣고 업로드한다.
 ```cpp
-const uint8_t UID_COUNT = 2;
-const uint8_t ALLOWED_UID[UID_COUNT][4] = {
+const int UID_COUNT = 2;
+const int ALLOWED_UID[UID_COUNT][4] = {
   {0xDE, 0xAD, 0xBE, 0xEF},   // ← 내 카드 UID
-  {0x12, 0x34, 0x56, 0x78},   // ← 내 태그 UID
+  {0x12, 0x34, 0x56, 0x78},   // ← 내 태그 UID (두 번째 카드)
 };
 ```
+지금 코드에는 `UID_COUNT = 2`인데 UID가 1개만 들어 있다. 빈 칸은 `{0x00, 0x00, 0x00, 0x00}`으로 채워지므로, 카드를 하나만 쓸 거면 `UID_COUNT`를 1로 바꾸거나 두 번째 UID를 채운다.
 
 **보드 A만 확인하기** (보드 B 없이도 PIR·키패드·RFID·LCD는 확인할 수 있다. 문 상태 표시는 보드 B를 연결한 뒤 확인)
 
@@ -300,8 +300,8 @@ const uint8_t ALLOWED_UID[UID_COUNT][4] = {
 |---|---|
 | 아무것도 안 함 | `Door:LOCKED` / `Wave to start`, 키패드 반응 없음 |
 | 센서 앞에서 손 흔들기 | 2줄이 `PW:`로 바뀜 |
-| `1234#` | `ACCESS GRANTED` / `KEY` |
-| 틀린 번호 + `#` | `ACCESS DENIED` / `KEY` |
+| `1111*` | `ACCESS GRANTED` / `KEY` |
+| 틀린 번호 + `*` | `ACCESS DENIED` / `KEY` |
 | 등록 카드 / 미등록 카드 | `ACCESS GRANTED` / `ACCESS DENIED` (2줄 `RFID`) |
 | 10초 동안 가만히 | 다시 `Wave to start` |
 
@@ -355,8 +355,8 @@ const uint8_t ALLOWED_UID[UID_COUNT][4] = {
 
 | 파일 | 상수 | 기본값 | 의미 |
 |---|---|---|---|
-| A | `PASSWORD` | `"1234"` | 키패드 비밀번호 |
-| A | `ALLOWED_UID` | 예시 2개 | 등록된 RFID UID |
+| A | `PASSWORD` | `"1111"` | 키패드 비밀번호 |
+| A | `UID_COUNT` / `ALLOWED_UID` | 2 / 예시 1개 | 등록된 RFID UID 개수와 목록 |
 | A | `LCD_ADDR` | `0x27` | LCD I2C 주소 |
 | A | `ACTIVE_MS` | 10000 | 모션 감지 후 키패드 활성 시간(ms) |
 | B | `BT_PASSWORD` | `"2580"` | 앱 비밀번호 (앱 화면에 같은 값을 입력) |
@@ -392,7 +392,7 @@ A = `firmware/board_A_input/board_A_input.ino`, B = `firmware/board_B_door/board
 ```
 ├── README.md
 ├── docs/
-│   ├── wiring.html                 배선도, 안전 점검표, 조립 순서 (브라우저로 열기)
+│   ├── wiring.html                 배선도(HC-06 포함), 안전 점검표, 조립 순서 (브라우저로 열기)
 │   └── case3d.html                 도어락 틀 3D 도면 뷰어 (치수·재단 목록·조립 순서)
 ├── cad/                            3D 도면
 │   ├── doorlock_case.py            도면 생성 스크립트 (CadQuery)
