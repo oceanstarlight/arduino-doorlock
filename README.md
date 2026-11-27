@@ -89,6 +89,8 @@ flowchart LR
 4. `loop()`가 플래그를 보고 문을 열고, 보드 A로 `ST:OPEN:BTN`을 보낸다. LCD에는 `OPEN from INSIDE button`이 뜬다.
 
 ### 2-5. 휴대폰 앱으로 열기·잠그기 (블루투스)
+> 🚧 보드 B의 블루투스 처리 코드는 **직접 구현 예정**이라 `board_B_door.ino`에는 아직 없다. 아래 동작과 [통신 규약](#2-7-통신-규약)은 앱(`android/DoorlockBT`)이 기대하는 사양이다. 배선(HC-06 → D4/D5)은 그대로 해 둔다.
+
 1. 휴대폰 설정에서 HC-06을 페어링한 뒤(PIN 기본 `1234`) 앱에서 기기를 고르고 **연결**을 누른다.
 2. 연결되면 앱이 `ST?`를 보내고, 보드 B가 현재 상태(`ST:OPEN:..` / `ST:LOCK`)로 답한다. 앱 화면에 🔒/🔓가 뜬다.
 3. **문 열기**를 누르면 앱이 `OPEN:<앱 비밀번호>`를 보낸다. 보드 B가 `BT_PASSWORD`(기본 `2580`)와 비교한다.
@@ -359,7 +361,7 @@ const int ALLOWED_UID[UID_COUNT][4] = {
 | A | `UID_COUNT` / `ALLOWED_UID` | 2 / 예시 1개 | 등록된 RFID UID 개수와 목록 |
 | A | `LCD_ADDR` | `0x27` | LCD I2C 주소 |
 | A | `ACTIVE_MS` | 10000 | 모션 감지 후 키패드 활성 시간(ms) |
-| B | `BT_PASSWORD` | `"2580"` | 앱 비밀번호 (앱 화면에 같은 값을 입력) |
+| B | `BT_PASSWORD` | `"2580"` | 앱 비밀번호 (🚧 직접 구현 예정, 앱 화면에 같은 값을 입력) |
 | B | `LOCK_ANGLE` / `UNLOCK_ANGLE` | 0 / 90 | 서보 각도 |
 | B | `OPEN_TICKS` | 50 | 열림 유지 시간 (×100ms = 5초) |
 
