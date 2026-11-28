@@ -1,0 +1,160 @@
+// 블루투스용 통신핀 지정. 현재 D0, D1 사용중이라 블루투스 쓰려면 무조건 필요.
+#include <SoftwareSerial.h>
+// servo 필수 라이브러리
+#include <Servo.h>
+// mstimer 내부 인터럽트 라이브러리
+#include <MsTimer2.h>
+// servo = timer1, mstimer2 = timer2
+
+Servo servo;
+
+#define BT_RXD 8
+#define BT_TXD 9
+SoftwareSerial bluetooth(BT_RXD, BT_TXD);
+// 임시 비번
+const char password[5] = { "1234" };
+
+// InterButton  버튼 누르면 받는 핀 번호
+// ServoPin   서보모터 동작 핀
+// pushFlag, LockFlag   동작 상황?
+// volatile ISR/loop  같이 써서 붙음
+// msSave   직전 시간 계산 (채터링)
+// digitalPinToInterrupt  핀번호 -> 인터럽트 번호로 변환 // 우노 D2 = int0
+
+volatile bool pushFlag = false, lockFlag = false;
+const int InterButton = 2;
+const int ServoPin = 7;
+volatile unsigned long msSave = 0;
+
+// LED 핀 번호 초록 D10번, 빨강 D12번임. 
+// 한칸 띈 이유는 두개 따닥 붙이면 불편해서임.
+// 굳이 D 핀 쓴 이유는 켜기+쓰기만 하니까 그럼.
+const int RED_LED = 12;
+const int GREEN_LED = 10;
+
+// MsTimer2 카운터 변수
+volatile static int count = 0;
+
+void pushButton()
+{
+    // 지금 시간 - 직전 시간이 300 이상이면 직전 시간을 지금 시간으로 갱신
+    // 마지막 버튼 누름 이후 300ms 동안 아무것도 없다면
+    // 채터링 방지 == 튐 방지
+    if (millis() - msSave >= 300)
+    {
+        pushFlag = true;
+        msSave = millis();
+    }
+}
+
+// servo 동작 함수, angle은 목표 각도
+void moveServo(int angle)
+{
+    servo.write(angle);
+    // 서보 떨림 방지용 신호 켜는 함수
+    servo.attach(ServoPin);
+    delay(500);
+    //신호 끄기
+    servo.detach();
+}
+
+// MsTimer2에서 쓸 ISR 함수
+void doorISR()
+{
+    if (count > 0)
+    {
+        count--;
+        if (count == 0)
+        {
+            lockFlag = true;
+        }
+    }
+}
+
+void Dooropen()
+{
+    // LED 단
+    digitalWrite(RED_LED, LOW);
+    digitalWrite(GREEN_LED, HIGH);
+    // Servo 구동 및 3초 대기
+    moveServo(90);
+    count = 30;
+}
+
+void Doorlock()
+{
+    digitalWrite(RED_LED, HIGH);
+    digitalWrite(GREEN_LED, LOW);
+    Serial.println("locked");
+    moveServo(0);
+    lockFlag = false;
+}
+
+void bluetoothRe()
+{
+    static char BT[8];
+    static byte len = 0;
+    while (bluetooth.available()) {
+        char c = bluetooth.read();
+        if (c == '\r' || c == '\n' || c == '*')
+        {
+            if (len == 0)  continue;
+            BT[len] = '\0';
+            len = 0;
+
+            if (strcmp(BT, password) == 0) Dooropen();
+        }
+        else if (len < sizeof(BT) - 1) { BT[len++] = c; }
+    }
+}
+
+void setup() {
+    Serial.begin(9600);
+    bluetooth.begin(9600);
+    pinMode(InterButton, INPUT_PULLUP); // 초기 동작 안함
+
+    pinMode(RED_LED, OUTPUT);
+    pinMode(GREEN_LED, OUTPUT);
+    attachInterrupt(digitalPinToInterrupt(InterButton), pushButton, FALLING);
+    servo.attach(ServoPin);
+    servo.detach();
+    Doorlock();
+
+    // MsTimer2 내부 인터럽트 세팅
+    // 주기마다 불릴 ISR 등록
+    MsTimer2::set(100, doorISR);
+    // timer 시작
+    MsTimer2::start();
+}
+
+void loop() {
+    if (Serial.available() > 0)
+    {
+        // 2. 버퍼에서 1바이트를 꺼내옴
+        char data = Serial.read();
+
+        // 3. 받은 값에 따라 동작
+        if (data == 'o') {
+            pushFlag = false;
+            Dooropen(); // LED 켜기
+        }
+    }
+    if (pushFlag == true)
+    {
+        pushFlag = false;
+        Dooropen();
+        // serial moniter에 출력 // 잘 작동하나 확인.
+        //Serial.println("nooleum");
+
+    }
+    if (lockFlag == true)
+    {
+        Doorlock();
+    }
+
+    if (bluetooth.available())
+    {
+        Serial.println("bt connect");
+        bluetoothRe();
+    }
+}
